@@ -2,24 +2,12 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 
 // =====================================================
-// تنظیمات اصلی
+// تنظیمات اصلی (Heavy Config)
 // =====================================================
 const FETCH_TIMEOUT = 15000;
-const MAX_PER_PROTOCOL = 500;
+const MAX_PER_PROTOCOL = 800;
 
 const SUBS = [...new Set(`
-https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
-https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Movaghat
-https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Reality
-https://raw.githubusercontent.com/xtoolkit/TVC/main/subscriptions/meta/mix
-https://raw.githubusercontent.com/itsyebekhe/PSG/main/subscriptions/meta/mix
-https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/10ium-HiN-VPN.txt
-https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/10ium-config-fetcher.txt
-https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta-2.yaml
-https://raw.githubusercontent.com/anaer/Sub/main/proxies.yaml
-https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/snippets/nodes.meta.yml
-https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.yml
-https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/clash-meta/all.yaml
 https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Movaghat
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Reality
@@ -43,7 +31,6 @@ https://raw.githubusercontent.com/DarknessShade/WoW/refs/heads/main/clash-wg.yml
 https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/hamedvpns-Ali-Anv1-HP71.txt
 https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/10ium-configs-collector-ws.txt
 https://raw.githubusercontent.com/10ium/free-config/refs/heads/main/free-mihomo-sub/WARP%20%2B%20Ainita_%5BMulti-Profile%5D_%5BFull%5D.yaml
-https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
 https://raw.githubusercontent.com/10ium/VpnClashFaCollector/main/sub/all/mixed.txt
 https://raw.githubusercontent.com/10ium/V2ray-Config/main/All_Configs_Sub.txt
 https://raw.githubusercontent.com/maimengmeng/mysub/refs/heads/main/valid_content_all.txt
@@ -59,14 +46,14 @@ https://raw.githubusercontent.com/frank-vpl/servers/refs/heads/main/irbox
 https://v2.alicivil.workers.dev/?list=mix&count=500&shuffle=false&unique=false
 https://raw.githubusercontent.com/parvinxs/Fssociety/refs/heads/main/Fssociety.sub
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
-`.split("\n").map(s => s.trim()).filter(Boolean))];
+`.split("\n").map(s => s.trim()).filter(Boolean))]
 
 // =====================================================
-// موتور پردازش اصلی
+// موتور اصلی
 // =====================================================
 async function main() {
     let allProxies = [];
-    console.log("🚀 Starting Full Aggregation...");
+    console.log("🚀 Starting Massive Aggregation for Moslem...");
 
     for (const sub of SUBS) {
         try {
@@ -94,58 +81,17 @@ async function main() {
 
             allProxies.push(...cleaned);
         } catch (e) {
-            console.error(`❌ Skip ${sub}: ${e.message}`);
+            console.error(`❌ Error with ${sub}: ${e.message}`);
         }
     }
 
-    const proxies = dedupe(allProxies);
-    console.log(`✅ Total unique: ${proxies.length}`);
-    generateFiles(proxies);
-}
-
-function generateFiles(proxies) {
-    const modes = ["all", "v2ray", "others"];
-    modes.forEach(mode => {
-        let filtered = [...proxies];
-        if (mode === 'v2ray') {
-            filtered = filtered.filter(p => ['vless', 'vmess', 'trojan'].includes(p.type));
-        } else if (mode === 'others') {
-            filtered = filtered.filter(p => !['vless', 'vmess', 'trojan'].includes(p.type));
-        }
-
-        // گروه‌بندی
-        const grouped = {};
-        filtered.forEach(p => {
-            if (!grouped[p.type]) grouped[p.type] = [];
-            grouped[p.type].push(p);
-        });
-
-        // انتخاب رندوم از هر پروتکل
-        const randomized = [];
-        for (const type in grouped) {
-            const group = grouped[type];
-            for (let i = group.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [group[i], group[j]] = [group[j], group[i]];
-            }
-            randomized.push(...group.slice(0, MAX_PER_PROTOCOL));
-        }
-
-        // نام‌گذاری ترتیبی
-        const counters = {};
-        const named = randomized.map(p => {
-            counters[p.type] = (counters[p.type] || 0) + 1;
-            p.name = `${p.type} ${counters[p.type]}`;
-            return p;
-        });
-
-        fs.writeFileSync(`${mode}.yaml`, buildProvider(named));
-        console.log(`📂 Saved: ${mode}.yaml`);
-    });
+    const uniqueProxies = dedupe(allProxies);
+    console.log(`✅ Total unique proxies: ${uniqueProxies.length}`);
+    generateFiles(uniqueProxies);
 }
 
 // =====================================================
-// بخش غول‌پیکر پارسرها (YAML, JSON, URI)
+// بخش پارسر غول‌پیکر (The Logic Monster)
 // =====================================================
 
 function detectAndParse(text) {
@@ -184,6 +130,118 @@ function parseJsonProxyArray(arr) {
     }
     return result;
 }
+
+function parseXrayOutbounds(outbounds) {
+    const result = [];
+    for (const ob of outbounds) {
+        if (!ob || typeof ob !== 'object') continue;
+        try {
+            const protocol = (ob.protocol || "").toLowerCase();
+            if (protocol === "wireguard") {
+                const settings = ob.settings || {};
+                const peer = (settings.peers || [])[0];
+                if (!peer) continue;
+                const [srv, prt] = (peer.endpoint || "").split(":");
+                result.push({
+                    name: ob.tag || "wg", type: "wireguard", server: srv, port: parseInt(prt),
+                    "private-key": settings.secretKey, "public-key": peer.publicKey, udp: true
+                });
+            }
+        } catch {}
+    }
+    return result;
+}
+
+// =====================================================
+// پارسرهای URI (Vless, Vmess, SS, ...)
+// =====================================================
+
+function parseProxy(line) {
+    try {
+        const l = line.toLowerCase();
+        if (l.startsWith("vless://")) return parseVless(line);
+        if (l.startsWith("vmess://")) return parseVmess(line);
+        if (l.startsWith("trojan://")) return parseTrojan(line);
+        if (l.startsWith("ss://")) return parseSS(line);
+        if (l.startsWith("wg://") || l.startsWith("wireguard://")) return parseWireguard(line);
+        if (l.startsWith("tuic://")) return parseTuic(line);
+        if (l.startsWith("anytls://")) return parseAnyTls(line);
+    } catch {}
+    return null;
+}
+
+function parseVless(link) {
+    const url = new URL(link.replace(/^vless:\/\//i, "http://"));
+    const proxy = { 
+        name: safeDecode(url.hash.substring(1)), type: "vless", server: url.hostname, port: parseInt(url.port), 
+        uuid: url.username, udp: true, tls: ["tls", "reality"].includes(url.searchParams.get("security")),
+        network: url.searchParams.get("type") || "tcp"
+    };
+    if (url.searchParams.get("sni")) proxy.servername = url.searchParams.get("sni");
+    if (url.searchParams.get("pbk")) proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") };
+    if (url.searchParams.get("sid")) proxy["reality-opts"] = { ...proxy["reality-opts"], "short-id": url.searchParams.get("sid") };
+    if (proxy.network === "ws") proxy["ws-opts"] = { path: url.searchParams.get("path") || "/", headers: { Host: url.searchParams.get("host") || "" } };
+    if (proxy.network === "grpc") proxy["grpc-opts"] = { "grpc-service-name": url.searchParams.get("serviceName") || "" };
+    return proxy;
+}
+
+function parseVmess(link) {
+    try {
+        const j = JSON.parse(Buffer.from(link.replace(/^vmess:\/\//i, ""), 'base64').toString('utf-8'));
+        const proxy = {
+            name: j.ps, type: "vmess", server: j.add, port: parseInt(j.port), uuid: j.id, 
+            alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true, tls: j.tls === "tls", network: j.net || "tcp"
+        };
+        if (j.net === "ws") proxy["ws-opts"] = { path: j.path || "/", headers: { Host: j.host || "" } };
+        return proxy;
+    } catch { return null; }
+}
+
+function parseTrojan(link) {
+    const url = new URL(link.replace(/^trojan:\/\//i, "http://"));
+    return { name: safeDecode(url.hash.substring(1)), type: "trojan", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true, udp: true };
+}
+
+function parseSS(link) {
+    try {
+        const parts = link.replace(/^ss:\/\//i, "").split("#");
+        const main = parts[0];
+        const tag = parts[1] ? safeDecode(parts[1]) : "";
+        let decoded = "";
+        if (main.includes("@")) {
+            const [auth, srv] = main.split("@");
+            decoded = Buffer.from(auth, 'base64').toString('utf-8') + "@" + srv;
+        } else {
+            decoded = Buffer.from(main, 'base64').toString('utf-8');
+        }
+        const [authPart, srvPart] = decoded.split("@");
+        const [method, password] = authPart.split(":");
+        const [server, port] = srvPart.split(":");
+        return { name: tag, type: "ss", server, port: parseInt(port), cipher: method, password, udp: true };
+    } catch { return null; }
+}
+
+function parseWireguard(link) {
+    const url = new URL(link.replace(/^(wg|wireguard):\/\//i, "http://"));
+    return { 
+        name: safeDecode(url.hash.substring(1)), type: "wireguard", server: url.hostname, port: parseInt(url.port) || 51820,
+        ip: url.searchParams.get("ip") || "10.0.0.1", "private-key": url.username, "public-key": url.searchParams.get("public-key"), udp: true 
+    };
+}
+
+function parseTuic(link) {
+    const url = new URL(link.replace(/^tuic:\/\//i, "http://"));
+    return { name: safeDecode(url.hash.substring(1)), type: "tuic", server: url.hostname, port: parseInt(url.port), uuid: url.username, password: url.password, udp: true, tls: true };
+}
+
+function parseAnyTls(link) {
+    const url = new URL(link.replace(/^anytls:\/\//i, "http://"));
+    return { name: safeDecode(url.hash.substring(1)), type: "anytls", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true };
+}
+
+// =====================================================
+// موتور پارسر YAML (The 1200-Line Core)
+// =====================================================
 
 function extractYamlConfigs(text) {
     const proxies = []; let current = null; let currentNestedKey = null; let currentNestedIndent = 0;
@@ -243,81 +301,7 @@ function parseYamlValue(val) {
 }
 
 // =====================================================
-// بخش پروتکل‌های URI
-// =====================================================
-
-function parseProxy(line) {
-    try {
-        const l = line.toLowerCase();
-        if (l.startsWith("vless://")) return parseVless(line);
-        if (l.startsWith("vmess://")) return parseVmess(line);
-        if (l.startsWith("trojan://")) return parseTrojan(line);
-        if (l.startsWith("ss://")) return parseSS(line);
-        if (l.startsWith("wg://") || l.startsWith("wireguard://")) return parseWireguard(line);
-    } catch {}
-    return null;
-}
-
-function parseVless(link) {
-    const url = new URL(link.replace(/^vless:\/\//i, "http://"));
-    const proxy = { 
-        name: safeDecode(url.hash.substring(1)), type: "vless", server: url.hostname, port: parseInt(url.port), uuid: url.username, 
-        tls: ["tls", "reality"].includes(url.searchParams.get("security")), network: url.searchParams.get("type") || "tcp", udp: true 
-    };
-    if (url.searchParams.get("sni")) proxy.servername = url.searchParams.get("sni");
-    if (url.searchParams.get("pbk")) proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") };
-    if (url.searchParams.get("sid")) proxy["reality-opts"] = { ...proxy["reality-opts"], "short-id": url.searchParams.get("sid") };
-    if (proxy.network === "ws") proxy["ws-opts"] = { path: url.searchParams.get("path") || "/", headers: { Host: url.searchParams.get("host") || "" } };
-    if (proxy.network === "grpc") proxy["grpc-opts"] = { "grpc-service-name": url.searchParams.get("serviceName") || "" };
-    return proxy;
-}
-
-function parseVmess(link) {
-    try {
-        const j = JSON.parse(Buffer.from(link.replace(/^vmess:\/\//i, ""), 'base64').toString('utf-8'));
-        const proxy = {
-            name: j.ps, type: "vmess", server: j.add, port: parseInt(j.port), uuid: j.id, 
-            alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true, tls: j.tls === "tls", network: j.net || "tcp"
-        };
-        if (j.net === "ws") proxy["ws-opts"] = { path: j.path || "/", headers: { Host: j.host || "" } };
-        return proxy;
-    } catch { return null; }
-}
-
-function parseTrojan(link) {
-    const url = new URL(link.replace(/^trojan:\/\//i, "http://"));
-    return { name: safeDecode(url.hash.substring(1)), type: "trojan", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true, udp: true };
-}
-
-function parseSS(link) {
-    try {
-        const parts = link.replace(/^ss:\/\//i, "").split("#");
-        const main = parts[0];
-        const tag = parts[1] ? safeDecode(parts[1]) : "";
-        let decoded = "";
-        if (main.includes("@")) {
-            const [auth, srv] = main.split("@");
-            decoded = Buffer.from(auth, 'base64').toString('utf-8') + "@" + srv;
-        } else {
-            decoded = Buffer.from(main, 'base64').toString('utf-8');
-        }
-        const [authPart, srvPart] = decoded.split("@");
-        const [method, password] = authPart.split(":");
-        const [server, port] = srvPart.split(":");
-        return { name: tag, type: "ss", server, port: parseInt(port), cipher: method, password, udp: true };
-    } catch { return null; }
-}
-
-function parseWireguard(link) {
-    const url = new URL(link.replace(/^(wg|wireguard):\/\//i, "http://"));
-    return { 
-        name: safeDecode(url.hash.substring(1)), type: "wireguard", server: url.hostname, port: parseInt(url.port) || 51820,
-        ip: url.searchParams.get("ip") || "10.0.0.1", "private-key": url.username, "public-key": url.searchParams.get("public-key"), udp: true 
-    };
-}
-
-// =====================================================
-// توابع اعتبارسنجی
+// توابع اعتبارسنجی و تمیزکاری
 // =====================================================
 
 function decodeSub(text) { if (text.includes("://")) return text; try { return Buffer.from(text.trim(), 'base64').toString('utf-8'); } catch { return text; } }
@@ -335,13 +319,17 @@ function fixProxyArrayFields(p) { if (p.alpn && typeof p.alpn === 'string') p.al
 
 function valid(p) {
     if (!p.server || !p.port || !p.type) return false;
-    // حل مشکل Missing Password/UUID برای جلوگیری از ارور 500
-    switch (p.type) {
-        case "vless": case "vmess": return !!p.uuid;
-        case "ss": case "trojan": return !!p.password;
-        case "wireguard": case "wg": return !!p["private-key"] && !!p["public-key"];
-        default: return true;
-    }
+    
+    // *** حل قطعی ارور 500: چک کردن فیلدهای حیاتی ***
+    const type = p.type.toLowerCase();
+    if (['vless', 'vmess', 'tuic'].includes(type) && !p.uuid) return false;
+    if (['ss', 'trojan', 'anytls'].includes(type) && !p.password) return false;
+    if (['wireguard', 'wg'].includes(type) && (!p["private-key"] || !p["public-key"])) return false;
+    
+    const blocked = ["127.0.0.1", "localhost", "github.com", "google.com"];
+    if (blocked.some(s => String(p.server).toLowerCase().includes(s))) return false;
+    
+    return true;
 }
 
 function dedupe(list) {
@@ -352,9 +340,52 @@ function dedupe(list) {
     });
 }
 
+// =====================================================
+// تولید خروجی
+// =====================================================
+
+function generateFiles(proxies) {
+    const categories = {
+        "all": () => true,
+        "v2ray": (p) => ['vless', 'vmess', 'trojan'].includes(p.type),
+        "others": (p) => !['vless', 'vmess', 'trojan'].includes(p.type)
+    };
+
+    for (const [mode, filterFn] of Object.entries(categories)) {
+        let filtered = proxies.filter(filterFn);
+        
+        // Shuffle و گروه‌بندی
+        const grouped = {};
+        filtered.forEach(p => {
+            if (!grouped[p.type]) grouped[p.type] = [];
+            grouped[p.type].push(p);
+        });
+
+        const finalBatch = [];
+        for (const type in grouped) {
+            const shuffled = grouped[type].sort(() => 0.5 - Math.random());
+            finalBatch.push(...shuffled.slice(0, MAX_PER_PROTOCOL));
+        }
+
+        const counts = {};
+        const named = finalBatch.map(p => {
+            counts[p.type] = (counts[p.type] || 0) + 1;
+            p.name = `${p.type} ${counts[p.type]}`;
+            return p;
+        });
+
+        fs.writeFileSync(`${mode}.yaml`, buildProvider(named));
+        console.log(`📂 Created: ${mode}.yaml`);
+    }
+}
+
 function buildProvider(proxies) {
     let yaml = "proxies:\n";
     for (const p of proxies) {
+        // فیلتر نهایی برای اطمینان از وجود پسورد
+        if (['ss', 'trojan'].includes(p.type) && !p.password) continue;
+        if (['vless', 'vmess'].includes(p.type) && !p.uuid) continue;
+
         yaml += `  - name: "${p.name.replace(/"/g, '\\"')}"\n    type: ${p.type}\n    server: "${p.server}"\n    port: ${p.port}\n`;
         const skip = ["name", "type", "server", "port"];
         for (const key in p) {
