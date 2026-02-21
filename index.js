@@ -1,13 +1,11 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
-const net = require('net');
 
 // =====================================================
-// ۱. تنظیمات و لیست ساب‌سکرایب‌ها
+// تنظیمات اصلی
 // =====================================================
-const FETCH_TIMEOUT = 15000; 
-const PING_TIMEOUT = 2500;   // زمان تست پینگ برای هر پروکسی
-const MAX_PER_PROTOCOL = 777;
+const FETCH_TIMEOUT = 15000;
+const MAX_PER_PROTOCOL = 500;
 
 const SUBS = [...new Set(`
 https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
@@ -64,35 +62,11 @@ https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/S
 `.split("\n").map(s => s.trim()).filter(Boolean))];
 
 // =====================================================
-// ۲. تابع تست پینگ (TCP Connection Check)
-// =====================================================
-function checkTCP(host, port) {
-    return new Promise((resolve) => {
-        const socket = new net.Socket();
-        const timer = setTimeout(() => {
-            socket.destroy();
-            resolve(false);
-        }, PING_TIMEOUT);
-
-        socket.connect(port, host, () => {
-            clearTimeout(timer);
-            socket.destroy();
-            resolve(true);
-        });
-
-        socket.on('error', () => {
-            clearTimeout(timer);
-            resolve(false);
-        });
-    });
-}
-
-// =====================================================
-// ۳. موتور اصلی پردازش (Main Logic)
+// موتور پردازش اصلی
 // =====================================================
 async function main() {
     let allProxies = [];
-    console.log("🚀 Starting Full 1200-Line Logic Aggregator...");
+    console.log("🚀 Starting Full Aggregation...");
 
     for (const sub of SUBS) {
         try {
@@ -104,49 +78,81 @@ async function main() {
             const decoded = decodeSub(raw);
             const parsed = detectAndParse(decoded);
 
-            for (let p of parsed) {
+            const cleaned = parsed.map(p => {
                 p = sanitizeObj(p);
-                
-                // اصلاح تایپ پروتکل (Case Insensitive)
                 if (p.type) {
                     p.type = p.type.toLowerCase();
                     if (p.type === "shadowsocks") p.type = "ss";
                     if (p.type === "socks") p.type = "socks5";
                     if (p.type === "wireguard") p.type = "wg";
                 }
-
                 p = normalizeProxy(p);
                 p = fixProxyArrayFields(p);
+                p.name = p.name || "Unnamed";
+                return p;
+            }).filter(p => valid(p) && p.type !== 'inline' && p.type !== 'hysteria2');
 
-                if (valid(p)) {
-                    // اجرای تست پینگ قبل از تایید نهایی
-                    const isAlive = await checkTCP(p.server, p.port);
-                    if (isAlive) {
-                        p.name = p.name || "Unnamed";
-                        allProxies.push(p);
-                    }
-                }
-            }
+            allProxies.push(...cleaned);
         } catch (e) {
-            console.error(`❌ Error with ${sub}: ${e.message}`);
+            console.error(`❌ Skip ${sub}: ${e.message}`);
         }
     }
 
-    const uniqueProxies = dedupe(allProxies);
-    console.log(`✅ Alive & Unique Proxies: ${uniqueProxies.length}`);
-    generateFiles(uniqueProxies);
+    const proxies = dedupe(allProxies);
+    console.log(`✅ Total unique: ${proxies.length}`);
+    generateFiles(proxies);
+}
+
+function generateFiles(proxies) {
+    const modes = ["all", "v2ray", "others"];
+    modes.forEach(mode => {
+        let filtered = [...proxies];
+        if (mode === 'v2ray') {
+            filtered = filtered.filter(p => ['vless', 'vmess', 'trojan'].includes(p.type));
+        } else if (mode === 'others') {
+            filtered = filtered.filter(p => !['vless', 'vmess', 'trojan'].includes(p.type));
+        }
+
+        // گروه‌بندی
+        const grouped = {};
+        filtered.forEach(p => {
+            if (!grouped[p.type]) grouped[p.type] = [];
+            grouped[p.type].push(p);
+        });
+
+        // انتخاب رندوم از هر پروتکل
+        const randomized = [];
+        for (const type in grouped) {
+            const group = grouped[type];
+            for (let i = group.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [group[i], group[j]] = [group[j], group[i]];
+            }
+            randomized.push(...group.slice(0, MAX_PER_PROTOCOL));
+        }
+
+        // نام‌گذاری ترتیبی
+        const counters = {};
+        const named = randomized.map(p => {
+            counters[p.type] = (counters[p.type] || 0) + 1;
+            p.name = `${p.type} ${counters[p.type]}`;
+            return p;
+        });
+
+        fs.writeFileSync(`${mode}.yaml`, buildProvider(named));
+        console.log(`📂 Saved: ${mode}.yaml`);
+    });
 }
 
 // =====================================================
-// ۴. بخش غول‌پیکر پارسرها (Detect & Parse Engine)
+// بخش غول‌پیکر پارسرها (YAML, JSON, URI)
 // =====================================================
+
 function detectAndParse(text) {
     const trimmed = text.trim();
-    // تشخیص JSON Array
     if (trimmed.startsWith('[')) {
         try { const arr = JSON.parse(trimmed); if (Array.isArray(arr)) return parseJsonProxyArray(arr); } catch {}
     }
-    // تشخیص JSON Object (Clash/Xray/Sing-box)
     if (trimmed.startsWith('{') || trimmed.includes('"proxies"') || trimmed.includes('"outbounds"')) {
         let jsonData = null; try { jsonData = JSON.parse(trimmed) } catch {}
         if (!jsonData) {
@@ -156,14 +162,11 @@ function detectAndParse(text) {
         if (jsonData) {
             if (Array.isArray(jsonData.proxies)) return parseJsonProxyArray(jsonData.proxies);
             if (Array.isArray(jsonData.outbounds)) return parseXrayOutbounds(jsonData.outbounds);
-            if (jsonData.type && jsonData.server) { const p = parseSingboxOutbound(jsonData); return p ? [p] : []; }
         }
     }
-    // تشخیص YAML
     if (/^\s*proxies:/m.test(text) || /^\s*-\s*name:/m.test(text) || /^\s*-\s*\{/m.test(text)) {
         return extractYamlConfigs(text);
     }
-    // تشخیص URI (Link)
     const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
     const result = [];
     for (const line of lines) {
@@ -177,62 +180,72 @@ function parseJsonProxyArray(arr) {
     const result = [];
     for (const item of arr) {
         if (!item || typeof item !== 'object') continue;
-        if (item.server_port !== undefined || item.private_key !== undefined) {
-            const p = parseSingboxOutbound(item); if (p) result.push(p);
-        } else if (item.type || item.protocol) { result.push(item); }
+        if (item.type || item.protocol) result.push(item);
     }
     return result;
 }
 
-function parseSingboxOutbound(item) {
-    try {
-        const type = (item.type || "").toLowerCase();
-        const typeMap = { "wireguard": "wireguard", "vless": "vless", "vmess": "vmess", "trojan": "trojan", "shadowsocks": "ss", "socks": "socks5", "http": "http", "ssh": "ssh", "tuic": "tuic", "hysteria2": "hysteria2" };
-        const clashType = typeMap[type]; if (!clashType) return null;
-        
-        const proxy = { name: item.tag || item.name || "sb", type: clashType, server: item.server || "", port: parseInt(item.server_port || item.port) || 0 };
-        
-        if (clashType === "wireguard") {
-            proxy["private-key"] = item.private_key || "";
-            proxy["public-key"] = item.peer_public_key || "";
-            if (item.local_address) proxy.ip = String(item.local_address[0]).split("/")[0];
-            proxy.udp = true;
-        }
-        if (item.uuid) proxy.uuid = item.uuid;
-        if (item.password) proxy.password = item.password;
-        if (item.tls && item.tls.enabled) {
-            proxy.tls = true;
-            if (item.tls.server_name) proxy.servername = item.tls.server_name;
-            if (item.tls.utls) proxy["client-fingerprint"] = item.tls.utls.fingerprint;
-        }
-        return proxy;
-    } catch { return null }
-}
-
-function parseXrayOutbounds(outbounds) {
-    const result = [];
-    for (const ob of outbounds) {
-        if (!ob || typeof ob !== 'object') continue;
-        const protocol = (ob.protocol || "").toLowerCase();
-        try {
-            const settings = ob.settings || {};
-            if (protocol === "wireguard") {
-                const peer = (settings.peers || [])[0];
-                if (!peer) continue;
-                const [srv, prt] = (peer.endpoint || "").split(":");
-                result.push({
-                    name: ob.tag || "wg", type: "wireguard", server: srv, port: parseInt(prt),
-                    "private-key": settings.secretKey, "public-key": peer.publicKey, udp: true
-                });
+function extractYamlConfigs(text) {
+    const proxies = []; let current = null; let currentNestedKey = null; let currentNestedIndent = 0;
+    const knownListKeys = new Set(["allowed-ips", "dns", "alpn", "peers"]);
+    for (const line of text.split(/\r?\n/)) {
+        if (line.trim().startsWith('#')) continue;
+        const listMatch = line.match(/^(\s*)-\s*(.*)$/);
+        if (listMatch) {
+            const indent = listMatch[1].length;
+            if (current && currentNestedKey && indent > currentNestedIndent) {
+                if (Array.isArray(current[currentNestedKey])) {
+                    current[currentNestedKey].push(parseYamlValue(listMatch[2].trim())); continue;
+                }
             }
-        } catch {}
+            if (current && current.type && current.server) proxies.push(current);
+            current = {}; currentNestedKey = null; currentNestedIndent = 0;
+            const remainder = listMatch[2].trim();
+            if (remainder.startsWith('{')) {
+                const p = parseInlineYaml(remainder); if (p) proxies.push(p); current = null;
+            } else if (remainder) {
+                const kv = remainder.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+                if (kv) current[kv[1]] = parseYamlValue(kv[2]);
+            }
+            continue;
+        }
+        if (current) {
+            const indent = line.match(/^(\s*)/)[1].length;
+            if (currentNestedKey && indent > currentNestedIndent) {
+                const nli = line.match(/^\s+-\s+(.*)$/);
+                if (nli) { if (!Array.isArray(current[currentNestedKey])) current[currentNestedKey] = []; current[currentNestedKey].push(parseYamlValue(nli[1])); continue; }
+                const nkv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+                if (nkv && nkv[2].trim() !== '') { if (Array.isArray(current[currentNestedKey])) current[currentNestedKey] = {}; current[currentNestedKey][nkv[1]] = parseYamlValue(nkv[2]); continue; }
+            }
+            const nko = line.match(/^(\s+)([a-zA-Z0-9_-]+)\s*:\s*$/);
+            if (nko) { currentNestedKey = nko[2]; currentNestedIndent = nko[1].length; current[currentNestedKey] = knownListKeys.has(currentNestedKey) ? [] : {}; continue; }
+            const kv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+            if (kv && kv[2].trim() !== '') { currentNestedKey = null; currentNestedIndent = 0; current[kv[1]] = parseYamlValue(kv[2]); }
+        }
     }
-    return result;
+    if (current && current.type && current.server) proxies.push(current);
+    return proxies;
+}
+
+function parseInlineYaml(str) {
+    str = str.trim(); if (!str.startsWith('{')) return null;
+    try { 
+        str = str.replace(/([a-zA-Z0-9_-]+)\s*:/g, '"$1":').replace(/'/g, '"');
+        return JSON.parse(str);
+    } catch { return null; }
+}
+
+function parseYamlValue(val) {
+    if (typeof val !== 'string') return val;
+    val = val.trim(); if (val === 'true') return true; if (val === 'false') return false;
+    if (/^[0-9]+$/.test(val)) return Number(val);
+    return val.replace(/^["']|["']$/g, '');
 }
 
 // =====================================================
-// ۵. پارسرهای اختصاصی پروتکل‌ها (URI Parsers)
+// بخش پروتکل‌های URI
 // =====================================================
+
 function parseProxy(line) {
     try {
         const l = line.toLowerCase();
@@ -240,12 +253,7 @@ function parseProxy(line) {
         if (l.startsWith("vmess://")) return parseVmess(line);
         if (l.startsWith("trojan://")) return parseTrojan(line);
         if (l.startsWith("ss://")) return parseSS(line);
-        if (l.startsWith("hy2://") || l.startsWith("hysteria2://")) return parseHysteria2(line);
         if (l.startsWith("wg://") || l.startsWith("wireguard://")) return parseWireguard(line);
-        if (l.startsWith("tuic://")) return parseTuic(line);
-        if (l.startsWith("anytls://")) return parseAnyTls(line);
-        if (l.startsWith("http://") || l.startsWith("https://")) return parseHttp(line);
-        if (l.startsWith("socks://") || l.startsWith("socks5://")) return parseSocks(line);
     } catch {}
     return null;
 }
@@ -253,9 +261,8 @@ function parseProxy(line) {
 function parseVless(link) {
     const url = new URL(link.replace(/^vless:\/\//i, "http://"));
     const proxy = { 
-        name: safeDecode(url.hash.substring(1)), type: "vless", server: url.hostname, port: parseInt(url.port), 
-        uuid: url.username, udp: true, tls: ["tls", "reality"].includes(url.searchParams.get("security")),
-        network: url.searchParams.get("type") || "tcp"
+        name: safeDecode(url.hash.substring(1)), type: "vless", server: url.hostname, port: parseInt(url.port), uuid: url.username, 
+        tls: ["tls", "reality"].includes(url.searchParams.get("security")), network: url.searchParams.get("type") || "tcp", udp: true 
     };
     if (url.searchParams.get("sni")) proxy.servername = url.searchParams.get("sni");
     if (url.searchParams.get("pbk")) proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") };
@@ -269,28 +276,17 @@ function parseVmess(link) {
     try {
         const j = JSON.parse(Buffer.from(link.replace(/^vmess:\/\//i, ""), 'base64').toString('utf-8'));
         const proxy = {
-            name: safeDecode(j.ps), type: "vmess", server: j.add, port: parseInt(j.port),
-            uuid: j.id, alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true,
-            tls: j.tls === "tls", network: j.net || "tcp"
+            name: j.ps, type: "vmess", server: j.add, port: parseInt(j.port), uuid: j.id, 
+            alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true, tls: j.tls === "tls", network: j.net || "tcp"
         };
-        if (j.tls === "tls" && j.sni) proxy.servername = j.sni;
         if (j.net === "ws") proxy["ws-opts"] = { path: j.path || "/", headers: { Host: j.host || "" } };
         return proxy;
     } catch { return null; }
 }
 
-function parseHysteria2(link) {
-    const url = new URL(link.replace(/^(hy2|hysteria2):\/\//i, "http://"));
-    const proxy = {
-        name: safeDecode(url.hash.substring(1)), type: "hysteria2", server: url.hostname, 
-        port: parseInt(url.port), password: safeDecode(url.username), udp: true
-    };
-    if (url.searchParams.get("sni")) proxy.sni = url.searchParams.get("sni");
-    if (url.searchParams.get("obfs") === "salamander") {
-        proxy.obfs = "salamander";
-        proxy["obfs-password"] = url.searchParams.get("obfs-password");
-    }
-    return proxy;
+function parseTrojan(link) {
+    const url = new URL(link.replace(/^trojan:\/\//i, "http://"));
+    return { name: safeDecode(url.hash.substring(1)), type: "trojan", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true, udp: true };
 }
 
 function parseSS(link) {
@@ -308,88 +304,24 @@ function parseSS(link) {
         const [authPart, srvPart] = decoded.split("@");
         const [method, password] = authPart.split(":");
         const [server, port] = srvPart.split(":");
-        return { name: tag || server, type: "ss", server, port: parseInt(port), cipher: method, password, udp: true };
+        return { name: tag, type: "ss", server, port: parseInt(port), cipher: method, password, udp: true };
     } catch { return null; }
 }
 
-// =====================================================
-// ۶. موتور پارسر YAML (The 1200-Line Core Engine)
-// =====================================================
-function extractYamlConfigs(text) {
-    const proxies = []; let currentProxy = null; let currentNestedKey = null; let currentNestedIndent = 0;
-    const knownListKeys = new Set(["allowed-ips", "dns", "alpn", "peers"]);
-    for (const line of text.split(/\r?\n/)) {
-        if (line.trim().startsWith('#')) continue;
-        const listMatch = line.match(/^(\s*)-\s*(.*)$/);
-        if (listMatch) {
-            const indent = listMatch[1].length;
-            if (currentProxy && currentNestedKey && indent > currentNestedIndent) {
-                if (Array.isArray(currentProxy[currentNestedKey])) { currentProxy[currentNestedKey].push(parseYamlValue(listMatch[2].trim())); continue; }
-            }
-            if (currentProxy && currentProxy.type && currentProxy.server) proxies.push(currentProxy);
-            currentProxy = {}; currentNestedKey = null; currentNestedIndent = 0;
-            const remainder = listMatch[2].trim();
-            if (remainder.startsWith('{')) {
-                const parsed = parseInlineYaml(remainder); if (parsed) proxies.push(parsed); currentProxy = null;
-            } else if (remainder) {
-                const kv = remainder.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/); if (kv) currentProxy[kv[1]] = parseYamlValue(kv[2]);
-            }
-            continue;
-        }
-        if (currentProxy) {
-            const indent = line.match(/^(\s*)/)[1].length;
-            if (currentNestedKey && indent > currentNestedIndent) {
-                const nestedListItem = line.match(/^\s+-\s+(.*)$/);
-                if (nestedListItem) { if (!Array.isArray(currentProxy[currentNestedKey])) currentProxy[currentNestedKey] = []; currentProxy[currentNestedKey].push(parseYamlValue(nestedListItem[1])); continue; }
-                const nestedKv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
-                if (nestedKv && nestedKv[2].trim() !== '') { if (Array.isArray(currentProxy[currentNestedKey])) currentProxy[currentNestedKey] = {}; currentProxy[currentNestedKey][nestedKv[1]] = parseYamlValue(nestedKv[2]); continue; }
-            }
-            const nestedKeyOnly = line.match(/^(\s+)([a-zA-Z0-9_-]+)\s*:\s*$/);
-            if (nestedKeyOnly) { currentNestedKey = nestedKeyOnly[2]; currentNestedIndent = nestedKeyOnly[1].length; currentProxy[currentNestedKey] = knownListKeys.has(currentNestedKey) ? [] : {}; continue; }
-            const kv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
-            if (kv && kv[2].trim() !== '') { currentNestedKey = null; currentNestedIndent = 0; currentProxy[kv[1]] = parseYamlValue(kv[2]); }
-        }
-    }
-    if (currentProxy && currentProxy.type && currentProxy.server) proxies.push(currentProxy);
-    return proxies;
-}
-
-function parseInlineYaml(str) {
-    str = str.trim(); if (!str.startsWith('{') || !str.endsWith('}')) return null;
-    str = str.slice(1, -1); const result = {};
-    let currentKey = "", currentValue = "", inKey = true, depth = 0, inQuote = false, quoteChar = '';
-    for (let i = 0; i < str.length; i++) {
-        const char = str[i];
-        if (char === '"' || char === "'") { if (!inQuote) { inQuote = true; quoteChar = char } else if (quoteChar === char) inQuote = false }
-        if (!inQuote) {
-            if (char === '{' || char === '[') depth++; if (char === '}' || char === ']') depth--;
-            if (char === ':' && inKey && depth === 0) { inKey = false; continue }
-            if (char === ',' && !inKey && depth === 0) {
-                if (currentKey.trim()) result[currentKey.trim()] = parseYamlValue(currentValue.trim());
-                currentKey = ""; currentValue = ""; inKey = true; continue;
-            }
-        }
-        if (inKey) currentKey += char; else currentValue += char;
-    }
-    if (currentKey.trim()) result[currentKey.trim()] = parseYamlValue(currentValue.trim());
-    return result;
-}
-
-function parseYamlValue(val) {
-    if (typeof val !== 'string') return val;
-    val = val.trim(); if (val === 'true') return true; if (val === 'false') return false;
-    if (/^[0-9]+$/.test(val)) return Number(val);
-    if (val.startsWith('{') && val.endsWith('}')) return parseInlineYaml(val);
-    if (val.startsWith('[') && val.endsWith(']')) return val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
-    return val.replace(/^["']|["']$/g, '');
+function parseWireguard(link) {
+    const url = new URL(link.replace(/^(wg|wireguard):\/\//i, "http://"));
+    return { 
+        name: safeDecode(url.hash.substring(1)), type: "wireguard", server: url.hostname, port: parseInt(url.port) || 51820,
+        ip: url.searchParams.get("ip") || "10.0.0.1", "private-key": url.username, "public-key": url.searchParams.get("public-key"), udp: true 
+    };
 }
 
 // =====================================================
-// ۷. توابع کمکی و تمیزکاری (Sanitize & Logic)
+// توابع اعتبارسنجی
 // =====================================================
+
 function decodeSub(text) { if (text.includes("://")) return text; try { return Buffer.from(text.trim(), 'base64').toString('utf-8'); } catch { return text; } }
 function safeDecode(str) { try { return decodeURIComponent(str) } catch { return str || "" } }
-
 function sanitizeObj(obj) {
     if (typeof obj === 'string') return obj.replace(/[\x00-\x1F\x7F-\x9F\u200B-\u200D\uFEFF\uFFFD]/g, "").trim();
     if (Array.isArray(obj)) return obj.map(sanitizeObj);
@@ -398,27 +330,15 @@ function sanitizeObj(obj) {
     }
     return obj;
 }
-
-function normalizeProxy(p) {
-    if (p.port) p.port = parseInt(p.port);
-    if (p.ip && typeof p.ip === 'string') p.ip = p.ip.split("/")[0].trim();
-    return p;
-}
-
-function fixProxyArrayFields(p) {
-    if (p.alpn && typeof p.alpn === 'string') p.alpn = p.alpn.split(",");
-    return p;
-}
+function normalizeProxy(p) { if (p.port) p.port = parseInt(p.port); if (p.ip) p.ip = String(p.ip).split("/")[0]; return p; }
+function fixProxyArrayFields(p) { if (p.alpn && typeof p.alpn === 'string') p.alpn = p.alpn.split(","); return p; }
 
 function valid(p) {
     if (!p.server || !p.port || !p.type) return false;
-    const blocked = ["127.0.0.1", "localhost", "github.com", "google.com"];
-    if (blocked.some(s => String(p.server).toLowerCase().includes(s))) return false;
-    
-    // حل قطعی ارور ۵۰۰ (Missing Password/UUID)
+    // حل مشکل Missing Password/UUID برای جلوگیری از ارور 500
     switch (p.type) {
-        case "vless": case "vmess": case "tuic": return !!p.uuid;
-        case "ss": case "trojan": case "hysteria2": return !!p.password;
+        case "vless": case "vmess": return !!p.uuid;
+        case "ss": case "trojan": return !!p.password;
         case "wireguard": case "wg": return !!p["private-key"] && !!p["public-key"];
         default: return true;
     }
@@ -427,46 +347,9 @@ function valid(p) {
 function dedupe(list) {
     const seen = new Set();
     return list.filter(p => {
-        const key = `${p.type}-${p.server}-${p.port}-${p.uuid || p.password || p["private-key"] || p.username}`;
+        const key = `${p.type}-${p.server}-${p.port}-${p.uuid || p.password || p["private-key"]}`;
         if (seen.has(key)) return false; seen.add(key); return true;
     });
-}
-
-// =====================================================
-// ۸. تولید فایل‌های خروجی (Output Generation)
-// =====================================================
-function generateFiles(proxies) {
-    const categories = {
-        "all": () => true,
-        "v2ray": (p) => ['vless', 'vmess', 'trojan'].includes(p.type),
-        "hysteria2": (p) => p.type === 'hysteria2',
-        "others": (p) => !['vless', 'vmess', 'trojan', 'hysteria2'].includes(p.type)
-    };
-
-    for (const [mode, filterFn] of Object.entries(categories)) {
-        let filtered = proxies.filter(filterFn);
-        const grouped = {};
-        filtered.forEach(p => {
-            if (!grouped[p.type]) grouped[p.type] = [];
-            grouped[p.type].push(p);
-        });
-
-        const finalBatch = [];
-        for (const type in grouped) {
-            const shuffled = grouped[type].sort(() => 0.5 - Math.random());
-            finalBatch.push(...shuffled.slice(0, MAX_PER_PROTOCOL));
-        }
-
-        const counts = {};
-        const named = finalBatch.map(p => {
-            counts[p.type] = (counts[p.type] || 0) + 1;
-            p.name = `${p.type} ${counts[p.type]}`;
-            return p;
-        });
-
-        fs.writeFileSync(`${mode}.yaml`, buildProvider(named));
-        console.log(`📂 Saved: ${mode}.yaml`);
-    }
 }
 
 function buildProvider(proxies) {
@@ -476,17 +359,12 @@ function buildProvider(proxies) {
         const skip = ["name", "type", "server", "port"];
         for (const key in p) {
             if (skip.includes(key)) continue;
-            const val = p[key];
-            if (val === null || val === undefined) continue;
-            if (typeof val === 'object') {
-                if (Array.isArray(val)) {
-                    yaml += `    ${key}:\n`; for (const item of val) yaml += `      - ${typeof item === 'string' ? `"${item}"` : item}\n`;
-                } else { yaml += `    ${key}: ${JSON.stringify(val)}\n`; }
-            } else { yaml += `    ${key}: ${typeof val === 'string' ? `"${val}"` : val}\n`; }
+            const val = p[key]; if (val === null || val === undefined) continue;
+            if (typeof val === 'object') yaml += `    ${key}: ${JSON.stringify(val)}\n`;
+            else yaml += `    ${key}: ${typeof val === 'string' ? `"${val}"` : val}\n`;
         }
     }
     return yaml;
 }
 
-// اجرای موتور
 main();
