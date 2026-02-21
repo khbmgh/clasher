@@ -1,0 +1,28 @@
+name: Update Proxies
+on:
+  schedule:
+    - cron: '0 * * * *' # هر یک ساعت آپدیت میشه
+  workflow_dispatch: # دکمه آپدیت دستی
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Run Scraper
+        run: node index.js
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update Proxies $(date)" || exit 0
+          git push
