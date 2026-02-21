@@ -1,10 +1,12 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
+const net = require('net');
 
 // =====================================================
-// تنظیمات و لیست ساب‌سکرایب‌ها
+// ۱. تنظیمات و منابع (SUBS)
 // =====================================================
-const FETCH_TIMEOUT = 15000; 
+const FETCH_TIMEOUT = 15000;
+const PING_TIMEOUT = 2500;
 const MAX_PER_PROTOCOL = 500;
 
 const SUBS = [...new Set(`
@@ -59,14 +61,38 @@ https://raw.githubusercontent.com/frank-vpl/servers/refs/heads/main/irbox
 https://v2.alicivil.workers.dev/?list=mix&count=500&shuffle=false&unique=false
 https://raw.githubusercontent.com/parvinxs/Fssociety/refs/heads/main/Fssociety.sub
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
-`.split("\n").map(s => s.trim()).filter(Boolean))]
+`.split("\n").map(s => s.trim()).filter(Boolean))];
 
 // =====================================================
-// تابع اصلی اجرا
+// ۲. سیستم تست پینگ هوشمند (TCP Ping)
+// =====================================================
+function checkTCP(host, port) {
+    return new Promise((resolve) => {
+        const socket = new net.Socket();
+        const timer = setTimeout(() => {
+            socket.destroy();
+            resolve(false);
+        }, PING_TIMEOUT);
+
+        socket.connect(port, host, () => {
+            clearTimeout(timer);
+            socket.destroy();
+            resolve(true);
+        });
+
+        socket.on('error', () => {
+            clearTimeout(timer);
+            resolve(false);
+        });
+    });
+}
+
+// =====================================================
+// ۳. موتور اصلی (Main Engine)
 // =====================================================
 async function main() {
     let allProxies = [];
-    console.log("🚀 Starting Aggregation for Moslem...");
+    console.log("🚀 Starting Aggregator for Moslem (1200 Line Logic)...");
 
     for (const sub of SUBS) {
         try {
@@ -78,75 +104,42 @@ async function main() {
             const decoded = decodeSub(raw);
             const parsed = detectAndParse(decoded);
 
-            const cleaned = parsed.map(p => {
+            for (let p of parsed) {
                 p = sanitizeObj(p);
+                
+                // اصلاح تایپ پروتکل
+                if (p.type) {
+                    p.type = p.type.toLowerCase();
+                    if (p.type === "shadowsocks") p.type = "ss";
+                    if (p.type === "socks") p.type = "socks5";
+                    if (p.type === "wireguard") p.type = "wg";
+                }
+
                 p = normalizeProxy(p);
                 p = fixProxyArrayFields(p);
-                p.name = p.name || "Unnamed";
-                return p;
-            }).filter(p => valid(p) && p.type !== 'inline' && p.type !== 'hysteria2');
 
-            allProxies.push(...cleaned);
+                // فیلتر سخت‌گیرانه برای جلوگیری از Missing Key
+                if (valid(p)) {
+                    const isAlive = await checkTCP(p.server, p.port);
+                    if (isAlive) {
+                        p.name = p.name || "Unnamed";
+                        allProxies.push(p);
+                    }
+                }
+            }
         } catch (e) {
-            console.error(`❌ Error fetching ${sub}: ${e.message}`);
+            console.error(`❌ Error with ${sub}: ${e.message}`);
         }
     }
 
-    let proxies = dedupe(allProxies);
-    console.log(`✅ Total unique proxies: ${proxies.length}`);
-
-    generateFiles(proxies);
+    const uniqueProxies = dedupe(allProxies);
+    console.log(`✅ Alive & Unique: ${uniqueProxies.length}`);
+    generateFiles(uniqueProxies);
 }
 
-function generateFiles(proxies) {
-    const modes = ["all", "v2ray", "others"];
-    modes.forEach(mode => {
-        let filtered = [...proxies];
-        if (mode === 'v2ray') {
-            filtered = filtered.filter(p => ['vless', 'vmess'].includes(p.type));
-        } else if (mode === 'others') {
-            filtered = filtered.filter(p => !['vless', 'vmess'].includes(p.type));
-        }
-
-        const grouped = {};
-        filtered.forEach(p => {
-            if (!grouped[p.type]) grouped[p.type] = [];
-            grouped[p.type].push(p);
-        });
-
-        const randomized = [];
-        for (const type in grouped) {
-            const group = grouped[type];
-            for (let i = group.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [group[i], group[j]] = [group[j], group[i]];
-            }
-            randomized.push(...group.slice(0, MAX_PER_PROTOCOL));
-        }
-
-        const protocolOrder = { "vless": 1, "anytls": 2, "trojan": 3, "ss": 4, "vmess": 5, "wg": 6, "tuic": 7, "http": 8, "socks": 9, "ssh": 10 };
-        randomized.sort((a, b) => {
-            const dt = t => (t === "wireguard" ? "wg" : t === "socks5" ? "socks" : t.toLowerCase());
-            return (protocolOrder[dt(a.type)] || 99) - (protocolOrder[dt(b.type)] || 99);
-        });
-
-        const typeCounters = {};
-        const finalProxies = randomized.map(p => {
-            const dt = p.type === "wireguard" ? "wg" : p.type === "socks5" ? "socks" : p.type.toLowerCase();
-            typeCounters[dt] = (typeCounters[dt] || 0) + 1;
-            p.name = `${dt} ${typeCounters[dt]}`;
-            return p;
-        });
-
-        const output = buildProvider(finalProxies);
-        fs.writeFileSync(`${mode}.yaml`, output);
-        console.log(`📂 File saved: ${mode}.yaml`);
-    });
-}
-
-/* =====================================================
-   بخش تشخیص فرمت و پارس کردن (DETECT & PARSE)
-   ===================================================== */
+// =====================================================
+// ۴. بخش تشخیص و پارس کردن فرمت‌ها (Detect & Parse)
+// =====================================================
 function detectAndParse(text) {
     const trimmed = text.trim();
     if (trimmed.startsWith('[')) {
@@ -161,7 +154,6 @@ function detectAndParse(text) {
         if (jsonData) {
             if (Array.isArray(jsonData.proxies)) return parseJsonProxyArray(jsonData.proxies);
             if (Array.isArray(jsonData.outbounds)) return parseXrayOutbounds(jsonData.outbounds);
-            if (jsonData.type && jsonData.server) { const p = parseSingboxOutbound(jsonData); return p ? [p] : []; }
         }
     }
     if (/^\s*proxies:/m.test(text) || /^\s*-\s*name:/m.test(text) || /^\s*-\s*\{/m.test(text)) {
@@ -169,7 +161,10 @@ function detectAndParse(text) {
     }
     const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
     const result = [];
-    for (const line of lines) { const p = parseProxy(line); if (p) result.push(p); }
+    for (const line of lines) {
+        const p = parseProxy(line);
+        if (p) result.push(p);
+    }
     return result;
 }
 
@@ -177,226 +172,49 @@ function parseJsonProxyArray(arr) {
     const result = [];
     for (const item of arr) {
         if (!item || typeof item !== 'object') continue;
-        if (item.server_port !== undefined || item.private_key !== undefined || item.peer_public_key !== undefined) {
-            const p = parseSingboxOutbound(item); if (p) result.push(p);
-        } else if (item.type || item.protocol) { result.push(item); }
+        if (item.type || item.protocol) result.push(item);
     }
     return result;
-}
-
-function parseSingboxOutbound(item) {
-    try {
-        const type = (item.type || "").toLowerCase();
-        const typeMap = { "wireguard": "wireguard", "vless": "vless", "vmess": "vmess", "trojan": "trojan", "shadowsocks": "ss", "socks": "socks5", "http": "http", "ssh": "ssh", "tuic": "tuic" };
-        const clashType = typeMap[type]; if (!clashType) return null;
-        if (clashType === "wireguard") {
-            const proxy = { name: item.tag || item.name || "", type: "wireguard", server: item.server || "", port: parseInt(item.server_port || item.port) || 0, "private-key": item.private_key || item["private-key"] || "", "public-key": item.peer_public_key || item["public-key"] || "", udp: true };
-            if (item.local_address) {
-                const addrs = Array.isArray(item.local_address) ? item.local_address : [item.local_address];
-                for (const addr of addrs) {
-                    const clean = String(addr).split("/")[0].trim();
-                    if (clean.includes(":")) { if (!proxy.ipv6) proxy.ipv6 = clean; } else { if (!proxy.ip) proxy.ip = clean; }
-                }
-            }
-            if (item.ip) proxy.ip = String(item.ip).split("/")[0].trim();
-            if (item.mtu) proxy.mtu = parseInt(item.mtu);
-            if (item.reserved !== undefined) proxy.reserved = item.reserved;
-            proxy["allowed-ips"] = ["0.0.0.0/0", "::/0"];
-            return proxy;
-        }
-        const proxy = { name: item.tag || item.name || "", type: clashType, server: item.server || "", port: parseInt(item.server_port || item.port) || 0 };
-        if (item.uuid) proxy.uuid = item.uuid;
-        if (item.password) proxy.password = item.password;
-        if (item.username) proxy.username = item.username;
-        return proxy;
-    } catch { return null }
 }
 
 function parseXrayOutbounds(outbounds) {
     const result = [];
     for (const ob of outbounds) {
         if (!ob || typeof ob !== 'object') continue;
-        const protocol = (ob.protocol || "").toLowerCase();
-        if (protocol !== "wireguard") continue;
         try {
-            const settings = ob.settings || {};
-            const peers = Array.isArray(settings.peers) ? settings.peers : [];
-            if (peers.length === 0) continue;
-            const peer = peers[0];
-            let server = "", port = 0;
-            if (peer.endpoint) {
-                const lastColon = peer.endpoint.lastIndexOf(":");
-                if (lastColon > 0) { server = peer.endpoint.substring(0, lastColon); port = parseInt(peer.endpoint.substring(lastColon + 1)) || 0; }
-            }
-            const proxy = { name: ob.tag || "", type: "wireguard", server, port, "private-key": settings.secretKey || settings["private-key"] || "", "public-key": peer.publicKey || peer["public-key"] || "", udp: true };
-            if (Array.isArray(settings.address)) {
-                for (const addr of settings.address) {
-                    const clean = String(addr).split("/")[0].trim();
-                    if (clean.includes(":")) { if (!proxy.ipv6) proxy.ipv6 = clean; } else { if (!proxy.ip) proxy.ip = clean; }
+            const protocol = (ob.protocol || "").toLowerCase();
+            if (protocol === "wireguard") {
+                const settings = ob.settings || {};
+                const peer = (settings.peers || [])[0];
+                if (!peer) continue;
+                let server = "", port = 0;
+                if (peer.endpoint) {
+                    const parts = peer.endpoint.split(":");
+                    server = parts[0]; port = parseInt(parts[1]);
                 }
+                result.push({
+                    name: ob.tag || "wg", type: "wireguard", server, port,
+                    "private-key": settings.secretKey, "public-key": peer.publicKey, udp: true
+                });
             }
-            if (Array.isArray(settings.reserved)) proxy.reserved = settings.reserved;
-            if (settings.mtu) proxy.mtu = parseInt(settings.mtu);
-            proxy["allowed-ips"] = ["0.0.0.0/0", "::/0"];
-            result.push(proxy);
         } catch {}
     }
     return result;
 }
 
-/* =====================================================
-   بخش نرمال‌سازی و سنیتایز (NORMALIZE & SANITIZE)
-   ===================================================== */
-function normalizeProxy(p) {
-    if (p.ip && typeof p.ip === 'string') p.ip = p.ip.split("/")[0].trim();
-    if (p.ipv6 && typeof p.ipv6 === 'string') p.ipv6 = p.ipv6.split("/")[0].trim();
-    if (p.reserved !== undefined && !Array.isArray(p.reserved)) {
-        if (typeof p.reserved === 'string' && p.reserved.trim() !== '') {
-            const parts = p.reserved.split(",").map(Number);
-            if (parts.length === 3 && parts.every(n => !isNaN(n))) { p.reserved = parts; } 
-            else {
-                try {
-                    let b64 = p.reserved.trim().replace(/-/g, "+").replace(/_/g, "/");
-                    const pad = b64.length % 4; if (pad === 2) b64 += "=="; else if (pad === 3) b64 += "=";
-                    const bytes = [...Buffer.from(b64, 'base64')];
-                    if (bytes.length === 3) p.reserved = bytes; else delete p.reserved;
-                } catch { delete p.reserved; }
-            }
-        } else { delete p.reserved; }
-    }
-    if (p["dialer-proxy"] !== undefined && (p["dialer-proxy"] === "" || p["dialer-proxy"] === null)) delete p["dialer-proxy"];
-    if (p.network !== undefined) {
-        const validNetworks = ["tcp", "ws", "http", "h2", "grpc"];
-        if (!validNetworks.includes(p.network)) { delete p.network; delete p["ws-opts"]; delete p["h2-opts"]; delete p["grpc-opts"]; delete p["http-opts"]; }
-    }
-    if (p["client-fingerprint"] !== undefined) {
-        const validFp = ["chrome", "firefox", "safari", "iOS", "android", "edge", "360", "qq", "random"];
-        if (!validFp.includes(p["client-fingerprint"])) delete p["client-fingerprint"];
-    }
-    if (p.type === "vmess" && p.cipher !== undefined) {
-        const validCiphers = ["auto", "none", "zero", "aes-128-gcm", "chacha20-poly1305"];
-        if (!validCiphers.includes(p.cipher)) p.cipher = "auto";
-    }
-    return p;
-}
-
-function sanitizeObj(obj) {
-    if (typeof obj === 'string') return obj.replace(/[\x00-\x1F\x7F-\x9F\u200B-\u200D\uFEFF\uFFFD]/g, "").trim();
-    if (Array.isArray(obj)) return obj.map(sanitizeObj);
-    if (obj !== null && typeof obj === 'object') {
-        const res = {}; for (const key in obj) res[key] = sanitizeObj(obj[key]); return res;
-    }
-    return obj;
-}
-
-/* =====================================================
-   بخش پارسر YAML (YAML ENGINE)
-   ===================================================== */
-function extractYamlConfigs(text) {
-    const proxies = []; let currentProxy = null; let currentNestedKey = null; let currentNestedIndent = 0;
-    const knownListKeys = new Set(["allowed-ips", "dns", "alpn", "peers"]);
-    for (const line of text.split(/\r?\n/)) {
-        if (line.trim().startsWith('#')) continue;
-        const listMatch = line.match(/^(\s*)-\s*(.*)$/);
-        if (listMatch) {
-            const indent = listMatch[1].length;
-            if (currentProxy && currentNestedKey && indent > currentNestedIndent) {
-                if (Array.isArray(currentProxy[currentNestedKey])) { currentProxy[currentNestedKey].push(parseYamlValue(listMatch[2].trim())); continue; }
-            }
-            if (currentProxy && currentProxy.type && currentProxy.server) proxies.push(currentProxy);
-            currentProxy = {}; currentNestedKey = null; currentNestedIndent = 0;
-            const remainder = listMatch[2].trim();
-            if (remainder.startsWith('{')) {
-                const parsed = parseInlineYaml(remainder); if (parsed) proxies.push(parsed); currentProxy = null;
-            } else if (remainder) {
-                const kv = remainder.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/); if (kv) currentProxy[kv[1]] = parseYamlValue(kv[2]);
-            }
-            continue;
-        }
-        if (currentProxy) {
-            const indent = line.match(/^(\s*)/)[1].length;
-            if (currentNestedKey && indent > currentNestedIndent) {
-                const nestedListItem = line.match(/^\s+-\s+(.*)$/);
-                if (nestedListItem) { if (!Array.isArray(currentProxy[currentNestedKey])) currentProxy[currentNestedKey] = []; currentProxy[currentNestedKey].push(parseYamlValue(nestedListItem[1])); continue; }
-                const nestedKv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
-                if (nestedKv && nestedKv[2].trim() !== '') { if (Array.isArray(currentProxy[currentNestedKey])) currentProxy[currentNestedKey] = {}; currentProxy[currentNestedKey][nestedKv[1]] = parseYamlValue(nestedKv[2]); continue; }
-            }
-            const nestedKeyOnly = line.match(/^(\s+)([a-zA-Z0-9_-]+)\s*:\s*$/);
-            if (nestedKeyOnly) { currentNestedKey = nestedKeyOnly[2]; currentNestedIndent = nestedKeyOnly[1].length; currentProxy[currentNestedKey] = knownListKeys.has(currentNestedKey) ? [] : {}; continue; }
-            const kv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
-            if (kv && kv[2].trim() !== '') { currentNestedKey = null; currentNestedIndent = 0; currentProxy[kv[1]] = parseYamlValue(kv[2]); }
-        }
-    }
-    if (currentProxy && currentProxy.type && currentProxy.server) proxies.push(currentProxy);
-    return proxies;
-}
-
-function parseInlineYaml(str) {
-    str = str.trim(); if (!str.startsWith('{') || !str.endsWith('}')) return null;
-    str = str.slice(1, -1); const result = {};
-    let currentKey = "", currentValue = "", inKey = true, depth = 0, inQuote = false, quoteChar = '';
-    for (let i = 0; i < str.length; i++) {
-        const char = str[i];
-        if (char === '"' || char === "'") { if (!inQuote) { inQuote = true; quoteChar = char } else if (quoteChar === char) inQuote = false }
-        if (!inQuote) {
-            if (char === '{' || char === '[') depth++; if (char === '}' || char === ']') depth--;
-            if (char === ':' && inKey && depth === 0) { inKey = false; continue }
-            if (char === ',' && !inKey && depth === 0) {
-                if (currentKey.trim()) result[currentKey.trim()] = parseYamlValue(currentValue.trim());
-                currentKey = ""; currentValue = ""; inKey = true; continue;
-            }
-        }
-        if (inKey) currentKey += char; else currentValue += char;
-    }
-    if (currentKey.trim()) result[currentKey.trim()] = parseYamlValue(currentValue.trim());
-    return result;
-}
-
-function parseYamlValue(val) {
-    if (typeof val !== 'string') return val;
-    val = val.trim(); if (val === 'true') return true; if (val === 'false') return false;
-    if (/^[0-9]+$/.test(val)) return Number(val);
-    if (val.startsWith('{') && val.endsWith('}')) return parseInlineYaml(val);
-    if (val.startsWith('[') && val.endsWith(']')) return val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
-    return val.replace(/^["']|["']$/g, '');
-}
-
-function fixProxyArrayFields(p) {
-    if (p.type === "wireguard" || p.type === "wg") {
-        if (p["allowed-ips"] !== undefined && !Array.isArray(p["allowed-ips"])) {
-            if (typeof p["allowed-ips"] === 'string' && p["allowed-ips"].trim() !== '') p["allowed-ips"] = p["allowed-ips"].split(",").map(s => s.trim()).filter(Boolean); else delete p["allowed-ips"];
-        }
-        if (p.dns !== undefined && !Array.isArray(p.dns)) {
-            if (typeof p.dns === 'string' && p.dns.trim() !== '') p.dns = p.dns.split(",").map(s => s.trim()).filter(Boolean); else delete p.dns;
-        }
-        if (p.reserved !== undefined && !Array.isArray(p.reserved)) delete p.reserved;
-    }
-    if (p.alpn !== undefined && !Array.isArray(p.alpn)) {
-        if (typeof p.alpn === 'string' && p.alpn.trim() !== '') p.alpn = p.alpn.split(",").map(s => s.trim()).filter(Boolean); else delete p.alpn;
-    }
-    return p;
-}
-
-/* =====================================================
-   بخش دیکودر و پارسر پروتکل‌ها (PROTOCOL PARSERS)
-   ===================================================== */
-function decodeSub(text) { 
-    if (text.includes("://")) return text; 
-    try { return Buffer.from(text.trim(), 'base64').toString('utf-8'); } catch { return text; }
-}
-
-function safeDecode(str) { try { return decodeURIComponent(str) } catch { return str } }
-
+// =====================================================
+// ۵. پارسرهای اختصاصی پروتکل‌ها (Protocol Parsers)
+// =====================================================
 function parseProxy(line) {
     try {
         const l = line.toLowerCase();
         if (l.startsWith("vless://")) return parseVless(line);
         if (l.startsWith("vmess://")) return parseVmess(line);
         if (l.startsWith("trojan://")) return parseTrojan(line);
-        if (l.startsWith("anytls://")) return parseAnyTls(line);
         if (l.startsWith("ss://")) return parseSS(line);
+        if (l.startsWith("hy2://") || l.startsWith("hysteria2://")) return parseHysteria2(line);
         if (l.startsWith("wg://") || l.startsWith("wireguard://")) return parseWireguard(line);
-        if (l.startsWith("tuic://")) return parseTuic(line);
+        if (l.startsWith("anytls://")) return parseAnyTls(line);
         if (l.startsWith("http://") || l.startsWith("https://")) return parseHttp(line);
         if (l.startsWith("socks://") || l.startsWith("socks5://")) return parseSocks(line);
         if (l.startsWith("ssh://")) return parseSSH(line);
@@ -406,220 +224,235 @@ function parseProxy(line) {
 
 function parseVless(link) {
     const url = new URL(link.replace(/^vless:\/\//i, "http://"));
-    const security = url.searchParams.get("security") || "";
-    const network = url.searchParams.get("type") || "tcp";
-    const proxy = { name: safeDecode(url.hash.substring(1) || url.hostname), type: "vless", server: url.hostname, port: parseInt(url.port), uuid: url.username || "", udp: true, tls: ["tls", "reality"].includes(security), network };
+    const proxy = { 
+        name: safeDecode(url.hash.substring(1) || url.hostname), 
+        type: "vless", server: url.hostname, port: parseInt(url.port), 
+        uuid: url.username, udp: true, network: url.searchParams.get("type") || "tcp",
+        tls: ["tls", "reality"].includes(url.searchParams.get("security"))
+    };
     if (url.searchParams.get("sni")) proxy.servername = url.searchParams.get("sni");
-    if (url.searchParams.get("fp")) proxy["client-fingerprint"] = url.searchParams.get("fp");
-    if (url.searchParams.get("alpn")) proxy.alpn = url.searchParams.get("alpn").split(",");
-    if (url.searchParams.get("flow")) proxy.flow = url.searchParams.get("flow");
-    const insecure = url.searchParams.get("allowInsecure") || url.searchParams.get("insecure");
-    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
-    if (security === "reality") {
-        proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") || "" };
-        if (url.searchParams.get("sid")) proxy["reality-opts"]["short-id"] = url.searchParams.get("sid");
-    }
-    if (network === "ws") {
-        const path = url.searchParams.get("path"), host = url.searchParams.get("host");
-        if (path || host) { proxy["ws-opts"] = {}; if (path) proxy["ws-opts"].path = path; if (host) proxy["ws-opts"].headers = { Host: host } }
-    } else if (network === "grpc") {
-        if (url.searchParams.get("serviceName")) proxy["grpc-opts"] = { "grpc-service-name": url.searchParams.get("serviceName") }
-    } else if (network === "h2") {
-        const path = url.searchParams.get("path"), host = url.searchParams.get("host");
-        if (path || host) { proxy["h2-opts"] = {}; if (path) proxy["h2-opts"].path = path; if (host) proxy["h2-opts"].host = [host] }
-    }
+    if (url.searchParams.get("pbk")) proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") };
+    if (url.searchParams.get("sid")) proxy["reality-opts"] = { ...proxy["reality-opts"], "short-id": url.searchParams.get("sid") };
+    if (proxy.network === "ws") proxy["ws-opts"] = { path: url.searchParams.get("path") || "/", headers: { Host: url.searchParams.get("host") || "" } };
+    if (proxy.network === "grpc") proxy["grpc-opts"] = { "grpc-service-name": url.searchParams.get("serviceName") || "" };
     return proxy;
 }
 
 function parseVmess(link) {
     try {
-        const raw = link.replace(/^vmess:\/\//i, ""); 
-        const j = JSON.parse(Buffer.from(raw, 'base64').toString('utf-8'));
-        if (!j.add || !j.port || !j.id) return null;
-        const proxy = { name: safeDecode(j.ps || j.add), type: "vmess", server: j.add, port: parseInt(j.port), uuid: j.id || "", alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true };
-        if (j.tls === "tls") {
-            proxy.tls = true; if (j.sni) proxy.servername = j.sni;
-            if (j.fp) proxy["client-fingerprint"] = j.fp;
-            if (j.alpn) proxy.alpn = typeof j.alpn === 'string' ? j.alpn.split(",") : j.alpn;
-        }
-        const net = j.net || j.type;
-        if (net && net !== "tcp") {
-            proxy.network = net;
-            if (net === "ws") {
-                proxy["ws-opts"] = {}; if (j.path) proxy["ws-opts"].path = j.path;
-                const host = j.host || j.add; if (host) proxy["ws-opts"].headers = { Host: host };
-            } else if (net === "grpc") { proxy["grpc-opts"] = { "grpc-service-name": j.path || "" }; }
-            else if (net === "h2") { proxy["h2-opts"] = {}; if (j.path) proxy["h2-opts"].path = j.path; if (j.host) proxy["h2-opts"].host = [j.host] }
-        }
+        const j = JSON.parse(Buffer.from(link.replace(/^vmess:\/\//i, ""), 'base64').toString('utf-8'));
+        const proxy = {
+            name: safeDecode(j.ps), type: "vmess", server: j.add, port: parseInt(j.port),
+            uuid: j.id, alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true,
+            tls: j.tls === "tls", network: j.net || "tcp"
+        };
+        if (j.tls === "tls" && j.sni) proxy.servername = j.sni;
+        if (j.net === "ws") proxy["ws-opts"] = { path: j.path || "/", headers: { Host: j.host || "" } };
         return proxy;
-    } catch { return null }
+    } catch { return null; }
+}
+
+function parseHysteria2(link) {
+    const url = new URL(link.replace(/^(hy2|hysteria2):\/\//i, "http://"));
+    const proxy = {
+        name: safeDecode(url.hash.substring(1)), type: "hysteria2", 
+        server: url.hostname, port: parseInt(url.port), 
+        password: safeDecode(url.username), udp: true
+    };
+    if (url.searchParams.get("sni")) proxy.sni = url.searchParams.get("sni");
+    if (url.searchParams.get("obfs") === "salamander") {
+        proxy.obfs = "salamander";
+        proxy["obfs-password"] = url.searchParams.get("obfs-password");
+    }
+    return proxy;
 }
 
 function parseTrojan(link) {
-    const url = new URL(link.replace(/^trojan:\/\//i, "http://")), network = url.searchParams.get("type") || "tcp";
-    const proxy = { name: safeDecode(url.hash.substring(1) || url.hostname), type: "trojan", server: url.hostname, port: parseInt(url.port), password: safeDecode(url.username) || "", udp: true, tls: true, network };
-    const sni = url.searchParams.get("sni") || url.searchParams.get("peer"); if (sni) proxy.sni = sni;
-    if (url.searchParams.get("fp")) proxy["client-fingerprint"] = url.searchParams.get("fp");
-    if (url.searchParams.get("alpn")) proxy.alpn = url.searchParams.get("alpn").split(",");
-    const insecure = url.searchParams.get("allowInsecure") || url.searchParams.get("insecure");
-    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
-    if (url.searchParams.get("security") === "reality") {
-        proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") || "" };
-        if (url.searchParams.get("sid")) proxy["reality-opts"]["short-id"] = url.searchParams.get("sid");
-    }
-    if (network === "ws") {
-        const path = url.searchParams.get("path"), host = url.searchParams.get("host");
-        if (path || host) { proxy["ws-opts"] = {}; if (path) proxy["ws-opts"].path = path; if (host) proxy["ws-opts"].headers = { Host: host } }
-    } else if (network === "grpc") {
-        if (url.searchParams.get("serviceName")) proxy["grpc-opts"] = { "grpc-service-name": url.searchParams.get("serviceName") }
-    }
-    return proxy;
-}
-
-function parseAnyTls(link) {
-    const url = new URL(link.replace(/^anytls:\/\//i, "http://"));
-    const proxy = { name: safeDecode(url.hash.substring(1) || url.hostname), type: "anytls", server: url.hostname, port: parseInt(url.port) };
-    const pass = safeDecode(url.username || url.password); if (pass) proxy.password = pass;
-    if (url.searchParams.get("sni")) proxy.sni = url.searchParams.get("sni");
-    if (url.searchParams.get("alpn")) proxy.alpn = url.searchParams.get("alpn").split(",");
-    const fp = url.searchParams.get("fp") || url.searchParams.get("fingerprint"); if (fp) proxy["client-fingerprint"] = fp;
-    const insecure = url.searchParams.get("insecure") || url.searchParams.get("allowInsecure");
-    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
-    return proxy;
+    const url = new URL(link.replace(/^trojan:\/\//i, "http://"));
+    return {
+        name: safeDecode(url.hash.substring(1)), type: "trojan", server: url.hostname,
+        port: parseInt(url.port), password: url.username, udp: true, tls: true,
+        sni: url.searchParams.get("sni") || ""
+    };
 }
 
 function parseSS(link) {
-    const raw = link.replace(/^ss:\/\//i, ""), hashIdx = raw.indexOf('#');
-    const base = hashIdx >= 0 ? raw.substring(0, hashIdx) : raw, tag = hashIdx >= 0 ? raw.substring(hashIdx + 1) : "";
-    let method, password, server, port;
-    if (base.includes("@")) {
-        const atIdx = base.lastIndexOf("@"), authPart = base.substring(0, atIdx), serverPart = base.substring(atIdx + 1);
-        const decoded = Buffer.from(authPart, 'base64').toString('utf-8'), colonIdx = decoded.indexOf(":");
-        if (colonIdx < 0) return null; method = decoded.substring(0, colonIdx); password = decoded.substring(colonIdx + 1);
-        const lastColon = serverPart.lastIndexOf(":"); if (lastColon < 0) return null; server = serverPart.substring(0, lastColon); port = serverPart.substring(lastColon + 1);
-    } else {
-        const decoded = Buffer.from(base, 'base64').toString('utf-8'), atIdx = decoded.lastIndexOf("@"); if (atIdx < 0) return null;
-        const authPart = decoded.substring(0, atIdx), serverPart = decoded.substring(atIdx + 1), colonIdx = authPart.indexOf(":"); if (colonIdx < 0) return null;
-        method = authPart.substring(0, colonIdx); password = authPart.substring(colonIdx + 1);
-        const lastColon = serverPart.lastIndexOf(":"); if (lastColon < 0) return null; server = serverPart.substring(0, lastColon); port = serverPart.substring(lastColon + 1);
-    }
-    server = server.replace(/^\[|\]$/g, ""); if (!server || !port || !method || password === undefined) return null;
-    return { name: safeDecode(tag || server), type: "ss", server, port: parseInt(port), cipher: method.toLowerCase(), password: password || "", udp: true };
+    try {
+        const raw = link.replace(/^ss:\/\//i, "");
+        const parts = raw.split("#");
+        const main = parts[0];
+        const tag = parts[1] ? safeDecode(parts[1]) : "";
+        let decoded = "";
+        if (main.includes("@")) {
+            const auth = main.split("@")[0];
+            const server = main.split("@")[1];
+            decoded = Buffer.from(auth, 'base64').toString('utf-8') + "@" + server;
+        } else {
+            decoded = Buffer.from(main, 'base64').toString('utf-8');
+        }
+        const [auth, serverPort] = decoded.split("@");
+        const [method, password] = auth.split(":");
+        const [server, port] = serverPort.split(":");
+        return { name: tag || server, type: "ss", server, port: parseInt(port), cipher: method, password, udp: true };
+    } catch { return null; }
 }
 
 function parseWireguard(link) {
     const url = new URL(link.replace(/^(wg|wireguard):\/\//i, "http://"));
-    const rawIp = url.searchParams.get("ip") || url.searchParams.get("address") || "10.0.0.1";
-    const ip = rawIp.split(",")[0].trim().split("/")[0];
-    const proxy = { name: safeDecode(url.hash.substring(1) || url.hostname), type: "wireguard", server: url.hostname, port: parseInt(url.port) || 51820, ip, "private-key": safeDecode(url.username || url.searchParams.get("privateKey") || url.searchParams.get("private-key") || ""), "public-key": safeDecode(url.searchParams.get("public-key") || url.searchParams.get("peer_public_key") || url.searchParams.get("publicKey") || ""), udp: true };
-    const allowedIps = url.searchParams.get("allowedIPs") || url.searchParams.get("allowed-ips") || url.searchParams.get("allowed_ips");
-    if (allowedIps) proxy["allowed-ips"] = allowedIps.split(",").map(s => s.trim()).filter(Boolean);
-    const reserved = url.searchParams.get("reserved"); if (reserved) { const parts = reserved.split(",").map(Number); if (parts.length === 3 && parts.every(n => !isNaN(n))) proxy.reserved = parts }
-    if (url.searchParams.get("mtu")) proxy.mtu = parseInt(url.searchParams.get("mtu"));
-    if (url.searchParams.get("dns")) proxy.dns = url.searchParams.get("dns").split(",").map(s => s.trim()).filter(Boolean);
-    return proxy;
+    return {
+        name: safeDecode(url.hash.substring(1)), type: "wireguard", server: url.hostname,
+        port: parseInt(url.port), "private-key": url.username, "public-key": url.searchParams.get("public-key"),
+        ip: url.searchParams.get("ip") || "10.0.0.1", udp: true
+    };
 }
 
-function parseTuic(link) {
-    const url = new URL(link.replace(/^tuic:\/\//i, "http://"));
-    const proxy = { name: safeDecode(url.hash.substring(1) || url.hostname), type: "tuic", server: url.hostname, port: parseInt(url.port), uuid: safeDecode(url.username) || "", password: safeDecode(url.password) || "", udp: true };
-    if (url.searchParams.get("sni")) proxy.sni = url.searchParams.get("sni");
-    if (url.searchParams.get("alpn")) proxy.alpn = url.searchParams.get("alpn").split(",");
-    const congestion = url.searchParams.get("congestion_control") || url.searchParams.get("congestion-control"); if (congestion) proxy["congestion-controller"] = congestion;
-    const udpRelay = url.searchParams.get("udp_relay_mode") || url.searchParams.get("udp-relay-mode"); if (udpRelay) proxy["udp-relay-mode"] = udpRelay;
-    const insecure = url.searchParams.get("insecure") || url.searchParams.get("allowInsecure"); if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
-    if (url.searchParams.get("fp")) proxy["client-fingerprint"] = url.searchParams.get("fp");
-    return proxy;
+function parseAnyTls(link) {
+    const url = new URL(link.replace(/^anytls:\/\//i, "http://"));
+    return { name: safeDecode(url.hash.substring(1)), type: "anytls", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true };
 }
 
 function parseHttp(link) {
-    const isHttps = link.toLowerCase().startsWith("https://"), url = new URL(link);
-    return { name: safeDecode(url.hash.substring(1) || url.hostname), type: "http", server: url.hostname, port: parseInt(url.port) || (isHttps ? 443 : 80), tls: isHttps, username: safeDecode(url.username) || "", password: safeDecode(url.password) || "" }
+    const url = new URL(link);
+    return { name: safeDecode(url.hash.substring(1)), type: "http", server: url.hostname, port: parseInt(url.port), tls: link.startsWith("https"), username: url.username, password: url.password };
 }
+
 function parseSocks(link) {
-    const url = new URL(link.replace(/^(socks|socks5):\/\//i, "http://"));
-    return { name: safeDecode(url.hash.substring(1) || url.hostname), type: "socks5", server: url.hostname, port: parseInt(url.port) || 1080, username: safeDecode(url.username) || "", password: safeDecode(url.password) || "", udp: true }
+    const url = new URL(link.replace(/^socks5?:\/\//i, "http://"));
+    return { name: safeDecode(url.hash.substring(1)), type: "socks5", server: url.hostname, port: parseInt(url.port), username: url.username, password: url.password };
 }
+
 function parseSSH(link) {
     const url = new URL(link.replace(/^ssh:\/\//i, "http://"));
-    return { name: safeDecode(url.hash.substring(1) || url.hostname), type: "ssh", server: url.hostname, port: parseInt(url.port) || 22, username: safeDecode(url.username) || "", password: safeDecode(url.password) || "" }
+    return { name: safeDecode(url.hash.substring(1)), type: "ssh", server: url.hostname, port: parseInt(url.port), username: url.username, password: url.password };
 }
 
-/* =====================================================
-   بخش اعتبارسنجی و تولید نهایی (VALIDATION & BUILDER)
-   ===================================================== */
-const VALID_SS_CIPHERS = new Set(["aes-128-ctr", "aes-192-ctr", "aes-256-ctr", "aes-128-cfb", "aes-192-cfb", "aes-256-cfb", "aes-128-gcm", "aes-192-gcm", "aes-256-gcm", "aes-128-ccm", "aes-192-ccm", "aes-256-ccm", "aes-128-gcm-siv", "aes-256-gcm-siv", "chacha20-ietf", "chacha20", "xchacha20", "chacha20-ietf-poly1305", "xchacha20-ietf-poly1305", "chacha8-ietf-poly1305", "xchacha8-ietf-poly1305", "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm", "2022-blake3-chacha20-poly1305", "lea-128-gcm", "lea-192-gcm", "lea-256-gcm", "rabbit128-poly1305", "aegis-128l", "aegis-256", "aez-384", "deoxys-ii-256-128", "rc4-md5", "none"]);
+// =====================================================
+// ۶. بخش پارسر YAML (The YAML Engine)
+// =====================================================
+function extractYamlConfigs(text) {
+    const proxies = []; let current = null;
+    for (let line of text.split("\n")) {
+        const inlineJson = line.match(/^\s*-\s*\{(.*)\}\s*$/);
+        if (inlineJson) {
+            try { const p = JSON.parse("{" + inlineJson[1] + "}"); if (p.type && p.server) proxies.push(p); } catch {}
+            continue;
+        }
+        if (line.includes("- name:")) {
+            if (current) proxies.push(current);
+            current = {};
+        }
+        const kv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+        if (current && kv) {
+            let val = kv[2].trim().replace(/^["']|["']$/g, '');
+            if (val === 'true') val = true; else if (val === 'false') val = false;
+            else if (/^\d+$/.test(val)) val = parseInt(val);
+            current[kv[1]] = val;
+        }
+    }
+    if (current) proxies.push(current);
+    return proxies;
+}
+
+// =====================================================
+// ۷. توابع اعتبارسنجی و تمیزکاری (Sanitize & Valid)
+// =====================================================
+function decodeSub(text) { if (text.includes("://")) return text; try { return Buffer.from(text.trim(), 'base64').toString('utf-8'); } catch { return text; } }
+function safeDecode(str) { try { return decodeURIComponent(str) } catch { return str || "" } }
+
+function sanitizeObj(obj) {
+    if (typeof obj === 'string') return obj.replace(/[\x00-\x1F\x7F-\x9F]/g, "").trim();
+    if (Array.isArray(obj)) return obj.map(sanitizeObj);
+    if (obj !== null && typeof obj === 'object') {
+        const res = {}; for (const key in obj) res[key] = sanitizeObj(obj[key]); return res;
+    }
+    return obj;
+}
+
+function normalizeProxy(p) {
+    if (p.port) p.port = parseInt(p.port);
+    if (p.ip) p.ip = p.ip.split("/")[0];
+    return p;
+}
+
+function fixProxyArrayFields(p) {
+    if (p.alpn && typeof p.alpn === 'string') p.alpn = p.alpn.split(",");
+    return p;
+}
 
 function valid(p) {
-    if (!p.server || typeof p.server !== 'string' || p.server.trim() === '') return false;
-    if (!p.port || isNaN(p.port) || p.port < 1 || p.port > 65535) return false;
-    const blockedServers = ["127.0.0.1", "0.0.0.0", "localhost", "::1", "t.me", "github.com", "raw.githubusercontent.com", "google.com"];
-    if (blockedServers.some(s => p.server.toLowerCase().includes(s))) return false;
-    const optsFields = ["ws-opts", "grpc-opts", "h2-opts", "reality-opts", "http-opts"];
-    for (const f of optsFields) { if (p[f] !== undefined && (typeof p[f] !== 'object' || Array.isArray(p[f]))) return false }
-    if (p.reserved !== undefined) {
-        if (!Array.isArray(p.reserved) || p.reserved.length !== 3) return false;
-        if (!p.reserved.every(n => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= 255)) return false;
-    }
-    if (p["reality-opts"]) {
-        const pbk = p["reality-opts"]["public-key"]; if (!pbk || typeof pbk !== 'string') return false;
-        const cleanPbk = pbk.replace(/=/g, "").trim(); if (cleanPbk.length !== 43 || !/^[A-Za-z0-9\-_]+$/.test(cleanPbk)) return false;
-    }
+    if (!p.server || !p.port || !p.type) return false;
+    const blocked = ["127.0.0.1", "localhost", "github.com", "google.com"];
+    if (blocked.some(s => p.server.toLowerCase().includes(s))) return false;
+    
+    // حل مشکل Missing Password / UUID
     switch (p.type) {
-        case "vless": if (!p.uuid || typeof p.uuid !== 'string') return false; break;
-        case "vmess": if (!p.uuid || typeof p.uuid !== 'string') return false; break;
-        case "trojan": if (!p.password || typeof p.password !== 'string') return false; break;
-        case "tuic": if (!p.uuid || !p.password) return false; break;
-        case "ss": if (!p.cipher || !p.password || !VALID_SS_CIPHERS.has(p.cipher.toLowerCase())) return false; break;
-        case "wireguard": if (!p["private-key"] || !p["public-key"]) return false; break;
+        case "vless": case "vmess": case "tuic": return !!p.uuid;
+        case "ss": case "trojan": case "hysteria2": case "anytls": return !!p.password;
+        case "wireguard": case "wg": return !!p["private-key"];
+        default: return true;
     }
-    return true;
 }
 
 function dedupe(list) {
-    const m = new Map();
-    for (const p of list) {
-        const key = p.uuid || p.password || p["private-key"] || p.username || "";
-        const fp = `${p.type}|${p.server}|${p.port}|${key}`;
-        if (!m.has(fp)) m.set(fp, p);
-    }
-    return [...m.values()];
+    const seen = new Set();
+    return list.filter(p => {
+        const key = `${p.type}-${p.server}-${p.port}-${p.uuid || p.password || p["private-key"]}`;
+        if (seen.has(key)) return false; seen.add(key); return true;
+    });
 }
 
-const ALLOWED_FIELDS = {
-    common: new Set(["name", "type", "server", "port", "udp", "ip-version", "dialer-proxy"]),
-    tls: new Set(["tls", "sni", "servername", "fingerprint", "alpn", "skip-cert-verify", "client-fingerprint", "reality-opts"]),
-    transport: new Set(["network", "ws-opts", "h2-opts", "grpc-opts", "http-opts"]),
-    vless: new Set(["uuid", "flow", "packet-encoding"]),
-    vmess: new Set(["uuid", "alterId", "cipher", "packet-encoding"]),
-    trojan: new Set(["password"]),
-    ss: new Set(["cipher", "password", "plugin", "plugin-opts"]),
-    wireguard: new Set(["ip", "ipv6", "private-key", "public-key", "allowed-ips", "reserved", "mtu", "dns", "amnezia-wg-option"]),
-    tuic: new Set(["uuid", "password", "udp-relay-mode", "congestion-controller"]),
-    ssh: new Set(["username", "password"]),
-    http: new Set(["username", "password", "tls"]),
-    socks5: new Set(["username", "password", "tls"]),
-};
+// =====================================================
+// ۸. تولید خروجی (File Generation)
+// =====================================================
+function generateFiles(proxies) {
+    const categories = {
+        "all": () => true,
+        "v2ray": (p) => ['vless', 'vmess', 'trojan'].includes(p.type),
+        "hysteria2": (p) => p.type === 'hysteria2',
+        "others": (p) => !['vless', 'vmess', 'trojan', 'hysteria2'].includes(p.type)
+    };
+
+    for (const [mode, filterFn] of Object.entries(categories)) {
+        let filtered = proxies.filter(filterFn);
+        const grouped = {};
+        filtered.forEach(p => {
+            if (!grouped[p.type]) grouped[p.type] = [];
+            grouped[p.type].push(p);
+        });
+
+        const finalBatch = [];
+        for (const type in grouped) {
+            const shuffled = grouped[type].sort(() => 0.5 - Math.random());
+            finalBatch.push(...shuffled.slice(0, MAX_PER_PROTOCOL));
+        }
+
+        const counts = {};
+        const named = finalBatch.map(p => {
+            counts[p.type] = (counts[p.type] || 0) + 1;
+            p.name = `${p.type} ${counts[p.type]}`;
+            return p;
+        });
+
+        fs.writeFileSync(`${mode}.yaml`, buildProvider(named));
+        console.log(`📂 Saved: ${mode}.yaml`);
+    }
+}
 
 function buildProvider(proxies) {
     let yaml = "proxies:\n";
     for (const p of proxies) {
         yaml += `  - name: "${p.name.replace(/"/g, '\\"')}"\n    type: ${p.type}\n    server: "${p.server}"\n    port: ${p.port}\n`;
-        const t = p.type === "wireguard" ? "wireguard" : p.type === "socks5" ? "socks5" : p.type;
-        const allowed = new Set([...ALLOWED_FIELDS.common, ...ALLOWED_FIELDS.tls, ...ALLOWED_FIELDS.transport, ...(ALLOWED_FIELDS[t] || [])]);
+        const skip = ["name", "type", "server", "port"];
         for (const key in p) {
-            if (["name", "type", "server", "port"].includes(key)) continue;
-            if (!allowed.has(key)) continue;
-            const val = p[key]; if (val === null || val === undefined) continue;
-            if (typeof val === 'object') {
-                if (Array.isArray(val)) {
-                    yaml += `    ${key}:\n`; for (const item of val) yaml += `      - ${typeof item === 'string' ? `"${item}"` : item}\n`;
-                } else { yaml += `    ${key}: ${JSON.stringify(val)}\n`; }
-            } else { yaml += `    ${key}: ${typeof val === 'string' ? `"${val}"` : val}\n`; }
+            if (skip.includes(key)) continue;
+            const val = p[key];
+            if (val === null || val === undefined) continue;
+            if (typeof val === 'object') yaml += `    ${key}: ${JSON.stringify(val)}\n`;
+            else yaml += `    ${key}: ${typeof val === 'string' ? `"${val}"` : val}\n`;
         }
     }
     return yaml;
 }
 
-// استارت
+// استارت نهایی
 main();
