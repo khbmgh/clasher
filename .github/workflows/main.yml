@@ -1,8 +1,8 @@
-name: Update Proxies
+name: Update All Proxies
 on:
   schedule:
-    - cron: '0 * * * *' # هر یک ساعت آپدیت میشه
-  workflow_dispatch: # دکمه آپدیت دستی
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,13 +16,15 @@ jobs:
         with:
           node-version: 18
       - name: Install dependencies
-        run: npm install
-      - name: Run Scraper
+        run: npm install node-fetch@2
+      - name: Run Main Scraper
         run: node index.js
+      - name: Run Hy2 Scraper
+        run: node hy2.js
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update Proxies $(date)" || exit 0
+          git commit -m "Update All Proxies $(date)" || exit 0
           git push
