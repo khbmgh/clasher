@@ -43,7 +43,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           # اضافه کردن هر دو فایل به استیج گیت
-          git add all.yaml hysteria2.yaml
+          git add hysteria2.yaml
           
           # در صورت وجود تغییرات، کامیت و پوش انجام می‌شود
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-removed dead proxy servers 🤖" && git push)
