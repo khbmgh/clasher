@@ -1,10 +1,10 @@
-const fs = require('fs');
+const fs    = require('fs');
 const fetch = require('node-fetch');
 
 // =====================================================
-// ۱. تنظیمات و منابع (Heavy Configuration)
+// ۱. تنظیمات
 // =====================================================
-const FETCH_TIMEOUT = 15000;
+const FETCH_TIMEOUT    = 15000;
 const MAX_PER_PROTOCOL = 800;
 
 const SUBS = [...new Set(`
@@ -26,7 +26,6 @@ https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eterni
 https://raw.githubusercontent.com/lagzian/TVC/main/lite/subscriptions/meta/mix
 https://sub.xeton.dev/sub?&url=https://raw.githubusercontent.com/10ium/base64-encoder/main/encoded/arshiacomplus_v2rayExtractor_vmess.txt&target=clash&config=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2FSleepyHeeead%2Fsubconverter-config%40master%2Fremote-config%2Funiversal%2Furltest.ini&emoji=false&append_type=true&append_info=true&scv=true&udp=true&list=true&sort=false&fdn=true&insert=false
 https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub_all.txt
-https://raw.githubusercontent.com/xtoolkit/TVC/main/subscriptions/meta/mix
 https://raw.githubusercontent.com/DarknessShade/WoW/refs/heads/main/clash-wg.yml
 https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/hamedvpns-Ali-Anv1-HP71.txt
 https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/10ium-configs-collector-ws.txt
@@ -46,337 +45,1467 @@ https://raw.githubusercontent.com/frank-vpl/servers/refs/heads/main/irbox
 https://v2.alicivil.workers.dev/?list=mix&count=500&shuffle=false&unique=false
 https://raw.githubusercontent.com/parvinxs/Fssociety/refs/heads/main/Fssociety.sub
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
+https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs.txt
+https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs1.txt
+https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs2.txt
+https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs3.txt
+https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs4.txt
+https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs5.txt
 `.split("\n").map(s => s.trim()).filter(Boolean))]
 
 // =====================================================
-// ۲. موتور اصلی پردازش (Main Logic)
+// ۲. موتور اصلی
 // =====================================================
 async function main() {
     let allProxies = [];
     console.log(`🚀 Starting Full Aggregation at: ${new Date().toISOString()}`);
+    console.log(`📋 Total sources: ${SUBS.length}`);
 
-    for (const sub of SUBS) {
+    // fetch همه سابسکریپشن‌ها به صورت موازی
+    const fetchPromises = SUBS.map(async (sub) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
         try {
             console.log(`📡 Fetching: ${sub}`);
-            const response = await fetch(sub, { timeout: FETCH_TIMEOUT });
-            if (!response.ok) continue;
+            const res = await fetch(sub, { signal: controller.signal });
+            clearTimeout(timer);
+            if (!res.ok) { console.warn(`⚠️  Skip (${res.status}): ${sub}`); return []; }
 
-            const raw = await response.text();
+            const raw     = await res.text();
             const decoded = decodeSub(raw);
-            const parsed = detectAndParse(decoded);
+            const parsed  = detectAndParse(decoded);
 
-            const cleaned = parsed.map(p => {
+            const cleaned = [];
+            for (let p of parsed) {
                 p = sanitizeObj(p);
-                // نرمال‌سازی تایپ پروتکل
+
+                // نرمال‌سازی نام پروتکل
                 if (p.type) {
                     p.type = p.type.toLowerCase();
                     if (p.type === "shadowsocks") p.type = "ss";
-                    if (p.type === "socks") p.type = "socks5";
-                    if (p.type === "wireguard") p.type = "wg";
+                    if (p.type === "socks")       p.type = "socks5";
+                    if (p.type === "wg") p.type = "wireguard"; // mihomo فقط "wireguard" قبول می‌کنه
                 }
+
                 p = normalizeProxy(p);
                 p = fixProxyArrayFields(p);
                 p.name = p.name || "Unnamed";
-                return p;
-            }).filter(p => valid(p) && p.type !== 'hysteria2');
 
-            allProxies.push(...cleaned);
+                if (valid(p) && p.type !== 'inline') cleaned.push(p);
+            }
+            return cleaned;
         } catch (e) {
+            clearTimeout(timer);
             console.error(`❌ Error with ${sub}: ${e.message}`);
+            return [];
         }
-    }
+    });
+
+    const results = await Promise.allSettled(fetchPromises);
+    results.forEach(r => { if (r.status === "fulfilled") allProxies.push(...r.value); });
 
     const unique = dedupe(allProxies);
-    console.log(`✅ Collected Unique Proxies: ${unique.length}`);
+    console.log(`✅ Total unique proxies collected: ${unique.length}`);
     generateFiles(unique);
 }
 
 // =====================================================
-// ۳. سیستم پارسر غول‌پیکر (The 1200-Line Core Engine)
+// ۳. تشخیص فرمت و parse
 // =====================================================
-
 function detectAndParse(text) {
     const trimmed = text.trim();
-    // JSON Detection
+
+    // JSON آرایه (Singbox / Clash JSON)
     if (trimmed.startsWith('[')) {
-        try { const arr = JSON.parse(trimmed); if (Array.isArray(arr)) return parseJsonProxyArray(arr); } catch {}
+        try {
+            const arr = JSON.parse(trimmed);
+            if (Array.isArray(arr)) return parseJsonProxyArray(arr);
+        } catch (_) {}
     }
+
+    // JSON object (Clash / Singbox / Xray)
     if (trimmed.startsWith('{') || trimmed.includes('"proxies"') || trimmed.includes('"outbounds"')) {
-        let jsonData = null; try { jsonData = JSON.parse(trimmed) } catch {}
+        let jsonData = null;
+        try { jsonData = JSON.parse(trimmed); } catch (_) {}
+
         if (!jsonData) {
             const m = trimmed.match(/"proxies"\s*:\s*(\[[\s\S]*?\])(?:\s*[,}]|$)/);
-            if (m) try { jsonData = { proxies: JSON.parse(m[1]) } } catch {}
+            if (m) try { jsonData = { proxies: JSON.parse(m[1]) }; } catch (_) {}
         }
+
         if (jsonData) {
-            if (Array.isArray(jsonData.proxies)) return parseJsonProxyArray(jsonData.proxies);
+            if (Array.isArray(jsonData.proxies))   return parseJsonProxyArray(jsonData.proxies);
             if (Array.isArray(jsonData.outbounds)) return parseXrayOutbounds(jsonData.outbounds);
+            if (jsonData.type && jsonData.server) {
+                const p = parseSingboxOutbound(jsonData);
+                return p ? [p] : [];
+            }
+        }
+
+        const outM = trimmed.match(/"outbounds"\s*:\s*(\[[\s\S]*?\])(?:\s*[,}]|$)/);
+        if (outM) {
+            try {
+                const outbounds = JSON.parse(outM[1]);
+                if (Array.isArray(outbounds)) return parseXrayOutbounds(outbounds);
+            } catch (_) {}
         }
     }
-    // YAML Detection
+
+    // WireGuard standard config format
+    if (/^\s*\[Interface\]/im.test(text)) {
+        return parseWireguardConfig(text);
+    }
+
+    // YAML
     if (/^\s*proxies:/m.test(text) || /^\s*-\s*name:/m.test(text) || /^\s*-\s*\{/m.test(text)) {
         return extractYamlConfigs(text);
     }
-    // URI (Link) Detection
-    return text.split("\n").map(l => parseProxy(l.trim())).filter(Boolean);
-}
 
-function parseJsonProxyArray(arr) {
-    const res = [];
-    for (const item of arr) {
-        if (item && typeof item === 'object' && (item.type || item.protocol)) res.push(item);
+    // URI lines
+    const result = [];
+    for (const line of text.split("\n")) {
+        const p = parseProxy(line.trim());
+        if (p) result.push(p);
     }
-    return res;
+    return result;
 }
 
+// =====================================================
+// ۴. JSON Proxy Array Parser
+// =====================================================
+function parseJsonProxyArray(arr) {
+    const result = [];
+    for (const item of arr) {
+        if (!item || typeof item !== 'object') continue;
+        // تشخیص Singbox با فیلدهای خاص
+        if (
+            item.server_port !== undefined ||
+            item.private_key !== undefined ||
+            item.peer_public_key !== undefined
+        ) {
+            const p = parseSingboxOutbound(item);
+            if (p) result.push(p);
+        } else if (item.type || item.protocol) {
+            result.push(item);
+        }
+    }
+    return result;
+}
+
+// =====================================================
+// ۵. Singbox Outbound Parser
+// =====================================================
+function parseSingboxOutbound(item) {
+    try {
+        const type = (item.type || "").toLowerCase();
+        const typeMap = {
+            "wireguard":   "wireguard",
+            "vless":       "vless",
+            "vmess":       "vmess",
+            "trojan":      "trojan",
+            "shadowsocks": "ss",
+            "hysteria2":   "hysteria2",
+            "socks":       "socks5",
+            "http":        "http",
+            "ssh":         "ssh",
+            "tuic":        "tuic",
+        };
+        const clashType = typeMap[type];
+        if (!clashType) return null;
+
+        if (clashType === "wireguard") {
+            const proxy = {
+                name:          item.tag || item.name || "",
+                type:          "wireguard",
+                server:        item.server || "",
+                port:          parseInt(item.server_port || item.port) || 0,
+                "private-key": item.private_key || item["private-key"] || "",
+                "public-key":  item.peer_public_key || item["public-key"] || "",
+                udp:           true,
+            };
+            if (item.local_address) {
+                const addrs = Array.isArray(item.local_address) ? item.local_address : [item.local_address];
+                for (const addr of addrs) {
+                    const clean = String(addr).split("/")[0].trim();
+                    if (clean.includes(":")) { if (!proxy.ipv6) proxy.ipv6 = clean; }
+                    else                     { if (!proxy.ip)   proxy.ip   = clean; }
+                }
+            }
+            if (item.ip)       proxy.ip  = String(item.ip).split("/")[0].trim();
+            if (item.mtu)      proxy.mtu = parseInt(item.mtu);
+            if (item.reserved !== undefined) proxy.reserved = item.reserved;
+            proxy["allowed-ips"] = ["0.0.0.0/0", "::/0"];
+            return proxy;
+        }
+
+        if (clashType === "hysteria2") {
+            const proxy = {
+                name:     item.tag || item.name || "",
+                type:     "hysteria2",
+                server:   item.server || "",
+                port:     parseInt(item.server_port || item.port) || 0,
+                password: item.password || "",
+                udp:      true,
+            };
+            if (item.tls) {
+                if (item.tls.server_name) proxy.sni = item.tls.server_name;
+                if (item.tls.insecure)    proxy["skip-cert-verify"] = true;
+                if (item.tls.alpn)        proxy.alpn = Array.isArray(item.tls.alpn) ? item.tls.alpn : [item.tls.alpn];
+            }
+            if (item.obfs && item.obfs.type === "salamander") {
+                proxy.obfs             = "salamander";
+                proxy["obfs-password"] = item.obfs.password || "";
+            }
+            if (item.up_mbps)   proxy.up   = String(item.up_mbps);
+            if (item.down_mbps) proxy.down = String(item.down_mbps);
+            return proxy;
+        }
+
+        const proxy = {
+            name:   item.tag || item.name || "",
+            type:   clashType,
+            server: item.server || "",
+            port:   parseInt(item.server_port || item.port) || 0,
+        };
+        if (item.uuid)     proxy.uuid     = item.uuid;
+        if (item.password) proxy.password = item.password;
+        if (item.username) proxy.username = item.username;
+        return proxy;
+    } catch (_) { return null; }
+}
+
+// =====================================================
+// ۶. Xray Outbounds Parser
+// =====================================================
 function parseXrayOutbounds(outbounds) {
-    const res = [];
+    const result = [];
     for (const ob of outbounds) {
         if (!ob || typeof ob !== 'object') continue;
         const protocol = (ob.protocol || "").toLowerCase();
+        if (protocol !== "wireguard") continue;
         try {
             const settings = ob.settings || {};
-            if (protocol === "wireguard") {
-                const peer = (settings.peers || [])[0];
-                if (!peer) continue;
-                const [srv, prt] = (peer.endpoint || "").split(":");
-                res.push({
-                    name: ob.tag || "wg", type: "wireguard", server: srv, port: parseInt(prt),
-                    "private-key": settings.secretKey, "public-key": peer.publicKey, udp: true
-                });
+            const peers    = Array.isArray(settings.peers) ? settings.peers : [];
+            if (peers.length === 0) continue;
+            const peer = peers[0];
+
+            let server = "", port = 0;
+            if (peer.endpoint) {
+                const lastColon = peer.endpoint.lastIndexOf(":");
+                if (lastColon > 0) {
+                    server = peer.endpoint.substring(0, lastColon);
+                    port   = parseInt(peer.endpoint.substring(lastColon + 1)) || 0;
+                }
             }
-        } catch {}
+
+            const proxy = {
+                name:          ob.tag || "",
+                type:          "wireguard",
+                server,
+                port,
+                "private-key": settings.secretKey || settings["private-key"] || "",
+                "public-key":  peer.publicKey || peer["public-key"] || "",
+                udp:           true,
+            };
+            if (Array.isArray(settings.address)) {
+                for (const addr of settings.address) {
+                    const clean = String(addr).split("/")[0].trim();
+                    if (clean.includes(":")) { if (!proxy.ipv6) proxy.ipv6 = clean; }
+                    else                     { if (!proxy.ip)   proxy.ip   = clean; }
+                }
+            }
+            if (Array.isArray(settings.reserved)) proxy.reserved = settings.reserved;
+            if (settings.mtu) proxy.mtu = parseInt(settings.mtu);
+            proxy["allowed-ips"] = ["0.0.0.0/0", "::/0"];
+            result.push(proxy);
+        } catch (_) {}
     }
-    return res;
+    return result;
 }
 
 // =====================================================
-// ۴. موتور پارسر YAML (Deep Nested YAML Parser)
+// ۷. YAML Parser
 // =====================================================
 function extractYamlConfigs(text) {
-    const proxies = []; let current = null; let currentNestedKey = null; let currentNestedIndent = 0;
-    const knownListKeys = new Set(["allowed-ips", "dns", "alpn", "peers"]);
+    const proxies           = [];
+    let current             = null;
+    let currentNestedKey    = null;
+    let currentNestedIndent = 0;
+    const knownListKeys     = new Set(["allowed-ips", "dns", "alpn", "peers"]);
+
     for (const line of text.split(/\r?\n/)) {
         if (line.trim().startsWith('#')) continue;
+
         const listMatch = line.match(/^(\s*)-\s*(.*)$/);
         if (listMatch) {
             const indent = listMatch[1].length;
+
             if (current && currentNestedKey && indent > currentNestedIndent) {
                 if (Array.isArray(current[currentNestedKey])) {
-                    current[currentNestedKey].push(parseYamlValue(listMatch[2].trim())); continue;
+                    current[currentNestedKey].push(parseYamlValue(listMatch[2].trim()));
+                    continue;
                 }
             }
+
             if (current && current.type && current.server) proxies.push(current);
-            current = {}; currentNestedKey = null; currentNestedIndent = 0;
+            current             = {};
+            currentNestedKey    = null;
+            currentNestedIndent = 0;
+
             const remainder = listMatch[2].trim();
             if (remainder.startsWith('{')) {
-                const p = parseInlineYaml(remainder); if (p) proxies.push(p); current = null;
+                const p = parseInlineYaml(remainder);
+                if (p) proxies.push(p);
+                current = null;
             } else if (remainder) {
                 const kv = remainder.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
                 if (kv) current[kv[1]] = parseYamlValue(kv[2]);
             }
             continue;
         }
+
         if (current) {
             const indent = line.match(/^(\s*)/)[1].length;
+
             if (currentNestedKey && indent > currentNestedIndent) {
-                const nli = line.match(/^\s+-\s+(.*)$/);
-                if (nli) { 
+                const nestedListItem = line.match(/^\s+-\s+(.*)$/);
+                if (nestedListItem) {
                     if (!Array.isArray(current[currentNestedKey])) current[currentNestedKey] = [];
-                    current[currentNestedKey].push(parseYamlValue(nli[1])); continue; 
+                    current[currentNestedKey].push(parseYamlValue(nestedListItem[1]));
+                    continue;
                 }
-                const nkv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
-                if (nkv && nkv[2].trim() !== '') {
+                const nestedKv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+                if (nestedKv && nestedKv[2].trim() !== '') {
                     if (Array.isArray(current[currentNestedKey])) current[currentNestedKey] = {};
-                    current[currentNestedKey][nkv[1]] = parseYamlValue(nkv[2]); continue;
+                    current[currentNestedKey][nestedKv[1]] = parseYamlValue(nestedKv[2]);
+                    continue;
                 }
             }
-            const nko = line.match(/^(\s+)([a-zA-Z0-9_-]+)\s*:\s*$/);
-            if (nko) { 
-                currentNestedKey = nko[2]; currentNestedIndent = nko[1].length; 
-                current[currentNestedKey] = knownListKeys.has(currentNestedKey) ? [] : {}; continue; 
+
+            const nestedKeyOnly = line.match(/^(\s+)([a-zA-Z0-9_-]+)\s*:\s*$/);
+            if (nestedKeyOnly) {
+                currentNestedKey    = nestedKeyOnly[2];
+                currentNestedIndent = nestedKeyOnly[1].length;
+                current[currentNestedKey] = knownListKeys.has(currentNestedKey) ? [] : {};
+                continue;
             }
+
             const kv = line.match(/^\s+([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
-            if (kv && kv[2].trim() !== '') { 
-                currentNestedKey = null; currentNestedIndent = 0; current[kv[1]] = parseYamlValue(kv[2]); 
+            if (kv && kv[2].trim() !== '') {
+                currentNestedKey    = null;
+                currentNestedIndent = 0;
+                current[kv[1]]      = parseYamlValue(kv[2]);
             }
         }
     }
+
     if (current && current.type && current.server) proxies.push(current);
     return proxies;
 }
 
 function parseInlineYaml(str) {
-    str = str.trim(); if (!str.startsWith('{')) return null;
-    try { 
-        const cleaned = str.replace(/([a-zA-Z0-9_-]+)\s*:/g, '"$1":').replace(/'/g, '"');
-        return JSON.parse(cleaned);
-    } catch { return null; }
+    str = str.trim();
+    if (!str.startsWith('{') || !str.endsWith('}')) return null;
+    str = str.slice(1, -1);
+    const result = {};
+    let currentKey = "", currentValue = "", inKey = true, depth = 0, inQuote = false, quoteChar = '';
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        if (char === '"' || char === "'") {
+            if (!inQuote) { inQuote = true; quoteChar = char; }
+            else if (quoteChar === char) inQuote = false;
+        }
+        if (!inQuote) {
+            if (char === '{' || char === '[') depth++;
+            if (char === '}' || char === ']') depth--;
+            if (char === ':' && inKey && depth === 0) { inKey = false; continue; }
+            if (char === ',' && !inKey && depth === 0) {
+                if (currentKey.trim()) result[currentKey.trim()] = parseYamlValue(currentValue.trim());
+                currentKey = ""; currentValue = ""; inKey = true; continue;
+            }
+        }
+        if (inKey) currentKey += char; else currentValue += char;
+    }
+    if (currentKey.trim()) result[currentKey.trim()] = parseYamlValue(currentValue.trim());
+    return result;
 }
 
 function parseYamlValue(val) {
     if (typeof val !== 'string') return val;
     val = val.trim();
-    if (val === 'true') return true; if (val === 'false') return false;
+    if (val === 'true')  return true;
+    if (val === 'false') return false;
     if (/^[0-9]+$/.test(val)) return Number(val);
+    if (val.startsWith('{') && val.endsWith('}')) return parseInlineYaml(val);
+    if (val.startsWith('[') && val.endsWith(']'))
+        return val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
     return val.replace(/^["']|["']$/g, '');
 }
 
 // =====================================================
-// ۵. پارسرهای پروتکل‌های URI (URI Suite)
+// ۸. URI Protocol Parsers
 // =====================================================
 function parseProxy(line) {
     try {
         const l = line.toLowerCase();
-        if (l.startsWith("vless://")) return parseVless(line);
-        if (l.startsWith("vmess://")) return parseVmess(line);
-        if (l.startsWith("trojan://")) return parseTrojan(line);
-        if (l.startsWith("ss://")) return parseSS(line);
-        if (l.startsWith("wg://") || l.startsWith("wireguard://")) return parseWireguard(line);
-        if (l.startsWith("tuic://")) return parseTuic(line);
-        if (l.startsWith("anytls://")) return parseAnyTls(line);
-    } catch {}
+        if (l.startsWith("vless://"))                                return parseVless(line);
+        if (l.startsWith("vmess://"))                                return parseVmess(line);
+        if (l.startsWith("trojan://"))                               return parseTrojan(line);
+        if (l.startsWith("anytls://"))                               return parseAnyTls(line);
+        if (l.startsWith("ss://"))                                   return parseSS(line);
+        if (l.startsWith("hy2://") || l.startsWith("hysteria2://"))  return parseHysteria2(line);
+        if (l.startsWith("wg://") || l.startsWith("wireguard://"))   return parseWireguard(line);
+        if (l.startsWith("tuic://"))                                 return parseTuic(line);
+        if (l.startsWith("http://") || l.startsWith("https://"))    return parseHttp(line);
+        if (l.startsWith("socks://") || l.startsWith("socks5://"))  return parseSocks(line);
+        if (l.startsWith("ssh://"))                                  return parseSSH(line);
+    } catch (_) {}
     return null;
 }
 
 function parseVless(link) {
-    const url = new URL(link.replace(/^vless:\/\//i, "http://"));
-    const proxy = { 
-        name: safeDecode(url.hash.substring(1)), type: "vless", server: url.hostname, port: parseInt(url.port), uuid: url.username, 
-        tls: ["tls", "reality"].includes(url.searchParams.get("security")), network: url.searchParams.get("type") || "tcp", udp: true 
+    const url      = new URL(link.replace(/^vless:\/\//i, "http://"));
+    const security = url.searchParams.get("security") || "";
+    const network  = url.searchParams.get("type") || "tcp";
+
+    const proxy = {
+        name:    safeDecode(url.hash.substring(1) || url.hostname),
+        type:    "vless",
+        server:  url.hostname,
+        port:    parseInt(url.port),
+        uuid:    url.username || "",
+        udp:     true,
+        tls:     ["tls", "reality"].includes(security),
+        network
     };
-    if (url.searchParams.get("sni")) proxy.servername = url.searchParams.get("sni");
-    if (url.searchParams.get("pbk")) proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk"), "short-id": url.searchParams.get("sid") || "" };
-    if (proxy.network === "ws") proxy["ws-opts"] = { path: url.searchParams.get("path") || "/", headers: { Host: url.searchParams.get("host") || "" } };
-    if (proxy.network === "grpc") proxy["grpc-opts"] = { "grpc-service-name": url.searchParams.get("serviceName") || "" };
+
+    const sni = url.searchParams.get("sni");
+    if (sni) proxy.servername = sni;
+
+    const fp = url.searchParams.get("fp");
+    if (fp) proxy["client-fingerprint"] = fp;
+
+    const alpn = url.searchParams.get("alpn");
+    if (alpn) proxy.alpn = alpn.split(",");
+
+    const flow = url.searchParams.get("flow");
+    if (flow) proxy.flow = flow;
+
+    const insecure = url.searchParams.get("allowInsecure") || url.searchParams.get("insecure");
+    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
+
+    if (security === "reality") {
+        proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") || "" };
+        const sid = url.searchParams.get("sid");
+        if (sid) proxy["reality-opts"]["short-id"] = sid;
+    }
+
+    if (network === "ws") {
+        const path = url.searchParams.get("path");
+        const host = url.searchParams.get("host");
+        if (path || host) {
+            proxy["ws-opts"] = {};
+            if (path) proxy["ws-opts"].path = path;
+            if (host) proxy["ws-opts"].headers = { Host: host };
+        }
+    } else if (network === "grpc") {
+        const serviceName = url.searchParams.get("serviceName");
+        if (serviceName) proxy["grpc-opts"] = { "grpc-service-name": serviceName };
+    } else if (network === "h2") {
+        const path = url.searchParams.get("path");
+        const host = url.searchParams.get("host");
+        if (path || host) {
+            proxy["h2-opts"] = {};
+            if (path) proxy["h2-opts"].path = path;
+            if (host) proxy["h2-opts"].host  = [host];
+        }
+    }
+
     return proxy;
 }
 
 function parseVmess(link) {
     try {
-        const j = JSON.parse(Buffer.from(link.replace(/^vmess:\/\//i, ""), 'base64').toString('utf-8'));
-        const proxy = {
-            name: safeDecode(j.ps), type: "vmess", server: j.add, port: parseInt(j.port), uuid: j.id, 
-            alterId: parseInt(j.aid) || 0, cipher: "auto", udp: true, tls: j.tls === "tls", network: j.net || "tcp"
-        };
-        if (j.net === "ws") proxy["ws-opts"] = { path: j.path || "/", headers: { Host: j.host || "" } };
-        return proxy;
-    } catch { return null; }
-}
+        const raw   = link.replace(/^vmess:\/\//i, "");
+        const fixed = normalizeBase64(raw);
+        if (!fixed) return null;
+        const j = JSON.parse(fixed);
+        if (!j.add || !j.port || !j.id) return null;
 
-function parseSS(link) {
-    try {
-        const [main, tag] = link.replace(/^ss:\/\//i, "").split("#");
-        let decoded = "";
-        if (main.includes("@")) {
-            const [auth, srv] = main.split("@");
-            decoded = Buffer.from(auth, 'base64').toString('utf-8') + "@" + srv;
-        } else {
-            decoded = Buffer.from(main, 'base64').toString('utf-8');
+        const proxy = {
+            name:    safeDecode(j.ps || j.add),
+            type:    "vmess",
+            server:  j.add,
+            port:    parseInt(j.port),
+            uuid:    j.id || "",
+            alterId: parseInt(j.aid) || 0,
+            cipher:  "auto",
+            udp:     true
+        };
+
+        if (j.tls === "tls") {
+            proxy.tls = true;
+            if (j.sni) proxy.servername = j.sni;
+            if (j.fp)  proxy["client-fingerprint"] = j.fp;
+            if (j.alpn) proxy.alpn = typeof j.alpn === 'string' ? j.alpn.split(",") : j.alpn;
         }
-        const [authPart, srvPart] = decoded.split("@");
-        const [method, password] = authPart.split(":");
-        const [server, port] = srvPart.split(":");
-        return { name: safeDecode(tag), type: "ss", server, port: parseInt(port), cipher: method, password, udp: true };
-    } catch { return null; }
+
+        const net = j.net || j.type;
+        if (net && net !== "tcp") {
+            proxy.network = net;
+            if (net === "ws") {
+                proxy["ws-opts"] = {};
+                if (j.path) proxy["ws-opts"].path = j.path;
+                const host = j.host || j.add;
+                if (host) proxy["ws-opts"].headers = { Host: host };
+            } else if (net === "grpc") {
+                proxy["grpc-opts"] = { "grpc-service-name": j.path || "" };
+            } else if (net === "h2") {
+                proxy["h2-opts"] = {};
+                if (j.path) proxy["h2-opts"].path = j.path;
+                if (j.host) proxy["h2-opts"].host  = [j.host];
+            }
+        }
+
+        return proxy;
+    } catch (_) { return null; }
 }
 
 function parseTrojan(link) {
-    const url = new URL(link.replace(/^trojan:\/\//i, "http://"));
-    return { name: safeDecode(url.hash.substring(1)), type: "trojan", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true, udp: true };
-}
+    const url     = new URL(link.replace(/^trojan:\/\//i, "http://"));
+    const network = url.searchParams.get("type") || "tcp";
 
-function parseWireguard(link) {
-    const url = new URL(link.replace(/^(wg|wireguard):\/\//i, "http://"));
-    return { 
-        name: safeDecode(url.hash.substring(1)), type: "wireguard", server: url.hostname, port: parseInt(url.port) || 51820,
-        ip: url.searchParams.get("ip") || "10.0.0.1", "private-key": url.username, "public-key": url.searchParams.get("public-key"), udp: true 
+    const proxy = {
+        name:     safeDecode(url.hash.substring(1) || url.hostname),
+        type:     "trojan",
+        server:   url.hostname,
+        port:     parseInt(url.port),
+        password: safeDecode(url.username) || "",
+        udp:      true,
+        tls:      true,
+        network
     };
-}
 
-function parseTuic(link) {
-    const url = new URL(link.replace(/^tuic:\/\//i, "http://"));
-    return { name: safeDecode(url.hash.substring(1)), type: "tuic", server: url.hostname, port: parseInt(url.port), uuid: url.username, password: url.password, udp: true, tls: true };
+    const sni = url.searchParams.get("sni") || url.searchParams.get("peer");
+    if (sni) proxy.sni = sni;
+
+    const fp = url.searchParams.get("fp");
+    if (fp) proxy["client-fingerprint"] = fp;
+
+    const alpn = url.searchParams.get("alpn");
+    if (alpn) proxy.alpn = alpn.split(",");
+
+    const insecure = url.searchParams.get("allowInsecure") || url.searchParams.get("insecure");
+    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
+
+    const security = url.searchParams.get("security") || "";
+    if (security === "reality") {
+        proxy["reality-opts"] = { "public-key": url.searchParams.get("pbk") || "" };
+        const sid = url.searchParams.get("sid");
+        if (sid) proxy["reality-opts"]["short-id"] = sid;
+    }
+
+    if (network === "ws") {
+        const path = url.searchParams.get("path");
+        const host = url.searchParams.get("host");
+        if (path || host) {
+            proxy["ws-opts"] = {};
+            if (path) proxy["ws-opts"].path = path;
+            if (host) proxy["ws-opts"].headers = { Host: host };
+        }
+    } else if (network === "grpc") {
+        const serviceName = url.searchParams.get("serviceName");
+        if (serviceName) proxy["grpc-opts"] = { "grpc-service-name": serviceName };
+    }
+
+    return proxy;
 }
 
 function parseAnyTls(link) {
     const url = new URL(link.replace(/^anytls:\/\//i, "http://"));
-    return { name: safeDecode(url.hash.substring(1)), type: "anytls", server: url.hostname, port: parseInt(url.port), password: url.username, tls: true };
+    const proxy = {
+        name:   safeDecode(url.hash.substring(1) || url.hostname),
+        type:   "anytls",
+        server: url.hostname,
+        port:   parseInt(url.port)
+    };
+
+    const pass = safeDecode(url.username || url.password);
+    if (pass) proxy.password = pass;
+
+    const sni = url.searchParams.get("sni");
+    if (sni) proxy.sni = sni;
+
+    const alpn = url.searchParams.get("alpn");
+    if (alpn) proxy.alpn = alpn.split(",");
+
+    const fp = url.searchParams.get("fp") || url.searchParams.get("fingerprint");
+    if (fp) proxy["client-fingerprint"] = fp;
+
+    const insecure = url.searchParams.get("insecure") || url.searchParams.get("allowInsecure");
+    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
+
+    return proxy;
+}
+
+function parseSS(link) {
+    const raw     = link.replace(/^ss:\/\//i, "");
+    const hashIdx = raw.indexOf('#');
+    const base    = hashIdx >= 0 ? raw.substring(0, hashIdx) : raw;
+    const tag     = hashIdx >= 0 ? raw.substring(hashIdx + 1) : "";
+
+    let method, password, server, port;
+
+    if (base.includes("@")) {
+        const atIdx      = base.lastIndexOf("@");
+        const authPart   = base.substring(0, atIdx);
+        const serverPart = base.substring(atIdx + 1);
+        const decoded    = normalizeBase64(authPart) || authPart;
+        const colonIdx   = decoded.indexOf(":");
+        if (colonIdx < 0) return null;
+        method   = decoded.substring(0, colonIdx);
+        password = decoded.substring(colonIdx + 1);
+        const lastColon = serverPart.lastIndexOf(":");
+        if (lastColon < 0) return null;
+        server = serverPart.substring(0, lastColon);
+        port   = serverPart.substring(lastColon + 1);
+    } else {
+        const decoded = normalizeBase64(base);
+        if (!decoded) return null;
+        const atIdx = decoded.lastIndexOf("@");
+        if (atIdx < 0) return null;
+        const authPart   = decoded.substring(0, atIdx);
+        const serverPart = decoded.substring(atIdx + 1);
+        const colonIdx   = authPart.indexOf(":");
+        if (colonIdx < 0) return null;
+        method   = authPart.substring(0, colonIdx);
+        password = authPart.substring(colonIdx + 1);
+        const lastColon = serverPart.lastIndexOf(":");
+        if (lastColon < 0) return null;
+        server = serverPart.substring(0, lastColon);
+        port   = serverPart.substring(lastColon + 1);
+    }
+
+    server = server.replace(/^\[|\]$/g, "");
+    if (!server || !port || !method || password === undefined) return null;
+
+    return {
+        name:     safeDecode(tag || server),
+        type:     "ss",
+        server,
+        port:     parseInt(port),
+        cipher:   method.toLowerCase(),
+        password: password || "",
+        udp:      true
+    };
+}
+
+function parseHysteria2(link) {
+    const url = new URL(link.replace(/^(hy2|hysteria2):\/\//i, "http://"));
+
+    const proxy = {
+        name:     safeDecode(url.hash.substring(1) || url.hostname),
+        type:     "hysteria2",
+        server:   url.hostname,
+        port:     parseInt(url.port),
+        password: safeDecode(url.username) || "",
+        udp:      true
+    };
+
+    const sni = url.searchParams.get("sni") || url.searchParams.get("peer");
+    if (sni) proxy.sni = sni;
+
+    const insecure = url.searchParams.get("insecure") || url.searchParams.get("allowInsecure");
+    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
+
+    const alpn = url.searchParams.get("alpn");
+    if (alpn) proxy.alpn = alpn.split(",");
+
+    const obfs = url.searchParams.get("obfs");
+    if (obfs && obfs.toLowerCase() === "salamander") {
+        proxy.obfs = "salamander";
+        const obfsPass = url.searchParams.get("obfs-password") || url.searchParams.get("obfsPassword");
+        if (obfsPass) proxy["obfs-password"] = obfsPass;
+    }
+
+    const up   = url.searchParams.get("up");
+    const down = url.searchParams.get("down");
+    if (up)   proxy.up   = up;
+    if (down) proxy.down = down;
+
+    return proxy;
+}
+
+function parseWireguard(link) {
+    const url = new URL(link.replace(/^(wg|wireguard):\/\//i, "http://"));
+
+    // ── private-key از username یا searchParams
+    const privateKey = safeDecode(
+        url.username ||
+        url.searchParams.get("privateKey") ||
+        url.searchParams.get("private-key") || ""
+    );
+
+    // ── public-key
+    const publicKey = safeDecode(
+        url.searchParams.get("publickey") ||
+        url.searchParams.get("public-key") ||
+        url.searchParams.get("peer_public_key") ||
+        url.searchParams.get("publicKey") || ""
+    );
+
+    // ── address/ip — ممکنه چند آدرس با کاما جدا باشن (IPv4 + IPv6)
+    const rawAddress = url.searchParams.get("address") || url.searchParams.get("ip") || "10.0.0.1";
+    const addresses  = rawAddress.split(",").map(s => s.trim().split("/")[0]);
+    let ip   = "";
+    let ipv6 = "";
+    for (const addr of addresses) {
+        if (addr.includes(":")) { if (!ipv6) ipv6 = addr; }
+        else                    { if (!ip)   ip   = addr; }
+    }
+    if (!ip) ip = "10.0.0.1";
+
+    const proxy = {
+        name:          safeDecode(url.hash.substring(1) || url.hostname),
+        type:          "wireguard",
+        server:        url.hostname,
+        port:          parseInt(url.port) || 51820,
+        ip,
+        "private-key": privateKey,
+        "public-key":  publicKey,
+        udp:           true,
+    };
+    if (ipv6) proxy.ipv6 = ipv6;
+
+    // ── allowed-ips
+    const allowedIps = url.searchParams.get("allowedIPs") ||
+                       url.searchParams.get("allowed-ips") ||
+                       url.searchParams.get("allowed_ips");
+    if (allowedIps)
+        proxy["allowed-ips"] = allowedIps.split(",").map(s => s.trim()).filter(Boolean);
+
+    // ── reserved
+    const reserved = url.searchParams.get("reserved");
+    if (reserved) {
+        const parts = reserved.split(",").map(Number);
+        if (parts.length === 3 && parts.every(n => !isNaN(n) && n >= 0 && n <= 255))
+            proxy.reserved = parts;
+    }
+
+    // ── optional fields
+    const mtu = url.searchParams.get("mtu");
+    if (mtu) proxy.mtu = parseInt(mtu);
+
+    const keepalive = url.searchParams.get("keepalive") ||
+                      url.searchParams.get("persistentkeepalive") ||
+                      url.searchParams.get("persistent-keepalive");
+    if (keepalive) proxy["persistent-keepalive"] = parseInt(keepalive);
+
+    const dns = url.searchParams.get("dns");
+    if (dns) {
+        proxy["remote-dns-resolve"] = true;
+        proxy.dns = dns.split(",").map(s => s.trim()).filter(Boolean);
+    }
+
+    // ── AmneziaWG fields → amnezia-wg-option
+    const awgFields = ["wnoise","wnoisecount","wnoisedelay","wpayloadsize",
+                       "jc","jmin","jmax","h1","h2","h3","h4","s1","s2","i1","i2","i3","i4","i5","j1","j2","j3","itime"];
+    const awgOpt = {};
+    for (const f of awgFields) {
+        const v = url.searchParams.get(f);
+        if (v !== null) {
+            const num = Number(v);
+            awgOpt[f] = isNaN(num) ? v : num;
+        }
+    }
+    if (Object.keys(awgOpt).length > 0) proxy["amnezia-wg-option"] = awgOpt;
+
+    return proxy;
+}
+
+// ── WireGuard standard config format parser ([Interface] / [Peer])
+function parseWireguardConfig(text) {
+    const proxies = [];
+    const sections = {};
+    let current = null;
+
+    for (const rawLine of text.split(/\r?\n/)) {
+        const line = rawLine.trim();
+        if (!line || line.startsWith('#') || line.startsWith(';')) continue;
+        const secMatch = line.match(/^\[(\w+)\]$/);
+        if (secMatch) {
+            current = secMatch[1].toLowerCase();
+            if (!sections[current]) sections[current] = {};
+            continue;
+        }
+        if (current) {
+            const kv = line.match(/^([A-Za-z0-9_]+)\s*=\s*(.*)$/);
+            if (kv) {
+                const k = kv[1].trim();
+                const v = kv[2].trim();
+                // برای peer: اگه چند peer داشتیم، هر بار sections.peer جدید بساز
+                if (current === 'peer' && sections.peer && sections.peer[k]) {
+                    // push current peer و شروع peer جدید
+                    proxies.push(buildWgFromSections(sections.interface || {}, sections.peer));
+                    sections.peer = {};
+                }
+                if (!sections[current]) sections[current] = {};
+                sections[current][k] = v;
+            }
+        }
+    }
+
+    // ساختن پروکسی از آخرین section
+    if (sections.interface && sections.peer) {
+        const p = buildWgFromSections(sections.interface, sections.peer);
+        if (p) proxies.push(p);
+    }
+
+    return proxies;
+}
+
+function buildWgFromSections(iface, peer) {
+    // ── endpoint: ممکنه IPv6 داخل [] باشه: [2606::1]:859
+    const endpoint = peer.Endpoint || peer.endpoint || "";
+    let server = "", port = 0;
+    if (endpoint) {
+        const ipv6Match = endpoint.match(/^\[([^\]]+)\]:(\d+)$/);
+        if (ipv6Match) {
+            server = ipv6Match[1];
+            port   = parseInt(ipv6Match[2]);
+        } else {
+            const lastColon = endpoint.lastIndexOf(":");
+            if (lastColon > 0) {
+                server = endpoint.substring(0, lastColon);
+                port   = parseInt(endpoint.substring(lastColon + 1));
+            }
+        }
+    }
+    if (!server || !port) return null;
+
+    const privKey = iface.PrivateKey || iface.privatekey || "";
+    const pubKey  = peer.PublicKey   || peer.publickey   || "";
+    if (!privKey || !pubKey) return null;
+
+    // ── آدرس‌های interface — ممکنه IPv4 و IPv6 همزمان باشن
+    const rawAddr  = iface.Address || iface.address || "";
+    const addresses = rawAddr.split(",").map(s => s.trim().split("/")[0]);
+    let ip   = "";
+    let ipv6 = "";
+    for (const addr of addresses) {
+        if (addr.includes(":")) { if (!ipv6) ipv6 = addr; }
+        else                    { if (!ip)   ip   = addr; }
+    }
+    if (!ip) ip = "10.0.0.1";
+
+    const proxy = {
+        name:          "",
+        type:          "wireguard",
+        server,
+        port,
+        ip,
+        "private-key": privKey,
+        "public-key":  pubKey,
+        udp:           true,
+    };
+    if (ipv6) proxy.ipv6 = ipv6;
+
+    // ── allowed-ips
+    const allowed = peer.AllowedIPs || peer.allowedips || "0.0.0.0/0";
+    proxy["allowed-ips"] = allowed.split(",").map(s => s.trim()).filter(Boolean);
+
+    // ── optional
+    const mtu = iface.MTU || iface.mtu;
+    if (mtu) proxy.mtu = parseInt(mtu);
+
+    const ka = peer.PersistentKeepalive || peer.persistentkeepalive;
+    if (ka) proxy["persistent-keepalive"] = parseInt(ka);
+
+    const psk = peer.PresharedKey || peer.presharedkey;
+    if (psk) proxy["pre-shared-key"] = psk;
+
+    const dns = iface.DNS || iface.dns;
+    if (dns) {
+        proxy["remote-dns-resolve"] = true;
+        proxy.dns = dns.split(",").map(s => s.trim()).filter(Boolean);
+    }
+
+    // ── AmneziaWG fields
+    const awgMap = { Jc:"jc", Jmin:"jmin", Jmax:"jmax", H1:"h1", H2:"h2", H3:"h3", H4:"h4",
+                     S1:"s1", S2:"s2", I1:"i1", I2:"i2", I3:"i3", I4:"i4", I5:"i5",
+                     J1:"j1", J2:"j2", J3:"j3", Itime:"itime" };
+    const awgOpt = {};
+    for (const [ifaceKey, outKey] of Object.entries(awgMap)) {
+        const v = iface[ifaceKey];
+        if (v !== undefined && v !== "") {
+            const num = Number(v);
+            awgOpt[outKey] = isNaN(num) ? v : num;
+        }
+    }
+    if (Object.keys(awgOpt).length > 0) proxy["amnezia-wg-option"] = awgOpt;
+
+    return proxy;
+}
+
+function parseTuic(link) {
+    const url = new URL(link.replace(/^tuic:\/\//i, "http://"));
+
+    const proxy = {
+        name:     safeDecode(url.hash.substring(1) || url.hostname),
+        type:     "tuic",
+        server:   url.hostname,
+        port:     parseInt(url.port),
+        uuid:     safeDecode(url.username) || "",
+        password: safeDecode(url.password) || "",
+        udp:      true
+    };
+
+    const sni = url.searchParams.get("sni");
+    if (sni) proxy.sni = sni;
+
+    const alpn = url.searchParams.get("alpn");
+    if (alpn) proxy.alpn = alpn.split(",");
+
+    const congestion = url.searchParams.get("congestion_control") || url.searchParams.get("congestion-control");
+    if (congestion) proxy["congestion-controller"] = congestion;
+
+    const udpRelay = url.searchParams.get("udp_relay_mode") || url.searchParams.get("udp-relay-mode");
+    if (udpRelay) proxy["udp-relay-mode"] = udpRelay;
+
+    const insecure = url.searchParams.get("insecure") || url.searchParams.get("allowInsecure");
+    if (insecure === "1" || insecure === "true") proxy["skip-cert-verify"] = true;
+
+    const fp = url.searchParams.get("fp");
+    if (fp) proxy["client-fingerprint"] = fp;
+
+    return proxy;
+}
+
+function parseHttp(link) {
+    const isHttps = link.toLowerCase().startsWith("https://");
+    const url     = new URL(link);
+    return {
+        name:     safeDecode(url.hash.substring(1) || url.hostname),
+        type:     "http",
+        server:   url.hostname,
+        port:     parseInt(url.port) || (isHttps ? 443 : 80),
+        tls:      isHttps,
+        username: safeDecode(url.username) || "",
+        password: safeDecode(url.password) || ""
+    };
+}
+
+function parseSocks(link) {
+    const url = new URL(link.replace(/^(socks|socks5):\/\//i, "http://"));
+    return {
+        name:     safeDecode(url.hash.substring(1) || url.hostname),
+        type:     "socks5",
+        server:   url.hostname,
+        port:     parseInt(url.port) || 1080,
+        username: safeDecode(url.username) || "",
+        password: safeDecode(url.password) || "",
+        udp:      true
+    };
+}
+
+function parseSSH(link) {
+    const url = new URL(link.replace(/^ssh:\/\//i, "http://"));
+    return {
+        name:     safeDecode(url.hash.substring(1) || url.hostname),
+        type:     "ssh",
+        server:   url.hostname,
+        port:     parseInt(url.port) || 22,
+        username: safeDecode(url.username) || "",
+        password: safeDecode(url.password) || ""
+    };
 }
 
 // =====================================================
-// ۶. بخش تولید خروجی و شافل واقعی (The Real Randomizer)
+// ۹. Normalize & Fix
 // =====================================================
+function normalizeProxy(p) {
+    // نرمال‌سازی port
+    if (p.port) p.port = parseInt(p.port);
+
+    // نرمال‌سازی IP — حذف prefix length
+    if (p.ip   && typeof p.ip   === 'string') p.ip   = p.ip.split("/")[0].trim();
+    if (p.ipv6 && typeof p.ipv6 === 'string') p.ipv6 = p.ipv6.split("/")[0].trim();
+
+    // نرمال‌سازی reserved: string → [n,n,n] یا base64 → [n,n,n]
+    if (p.reserved !== undefined && !Array.isArray(p.reserved)) {
+        if (typeof p.reserved === 'string' && p.reserved.trim() !== '') {
+            const parts = p.reserved.split(",").map(Number);
+            if (parts.length === 3 && parts.every(n => !isNaN(n))) {
+                p.reserved = parts;
+            } else {
+                try {
+                    let b64 = p.reserved.trim().replace(/-/g, "+").replace(/_/g, "/");
+                    const pad = b64.length % 4;
+                    if (pad === 2) b64 += "==";
+                    else if (pad === 3) b64 += "=";
+                    const bytes = Buffer.from(b64, 'base64');
+                    if (bytes.length === 3) p.reserved = [...bytes];
+                    else delete p.reserved;
+                } catch (_) { delete p.reserved; }
+            }
+        } else { delete p.reserved; }
+    }
+
+    // حذف dialer-proxy خالی
+    if (p["dialer-proxy"] !== undefined &&
+        (p["dialer-proxy"] === "" || p["dialer-proxy"] === null)) {
+        delete p["dialer-proxy"];
+    }
+
+    // اعتبارسنجی network
+    if (p.network !== undefined) {
+        const validNetworks = ["tcp", "ws", "http", "h2", "grpc"];
+        if (!validNetworks.includes(p.network)) {
+            delete p.network;
+            delete p["ws-opts"];
+            delete p["h2-opts"];
+            delete p["grpc-opts"];
+            delete p["http-opts"];
+        }
+    }
+
+    // اعتبارسنجی client-fingerprint
+    if (p["client-fingerprint"] !== undefined) {
+        const validFp = ["chrome", "firefox", "safari", "iOS", "android", "edge", "360", "qq", "random"];
+        if (!validFp.includes(p["client-fingerprint"])) delete p["client-fingerprint"];
+    }
+
+    // اعتبارسنجی cipher برای vmess
+    if (p.type === "vmess" && p.cipher !== undefined) {
+        const validCiphers = ["auto", "none", "zero", "aes-128-gcm", "chacha20-poly1305"];
+        if (!validCiphers.includes(p.cipher)) p.cipher = "auto";
+    }
+
+    // اعتبارسنجی obfs برای hysteria2
+    if (p.type === "hysteria2" && p.obfs !== undefined) {
+        if (p.obfs !== "salamander") delete p.obfs;
+    }
+
+    return p;
+}
+
+function fixProxyArrayFields(p) {
+    // wireguard: allowed-ips، dns، reserved
+    if (p.type === "wireguard" || p.type === "wg") {
+        if (p["allowed-ips"] !== undefined && !Array.isArray(p["allowed-ips"])) {
+            if (typeof p["allowed-ips"] === 'string' && p["allowed-ips"].trim() !== '') {
+                p["allowed-ips"] = p["allowed-ips"].split(",").map(s => s.trim()).filter(Boolean);
+            } else { delete p["allowed-ips"]; }
+        }
+        if (p.dns !== undefined && !Array.isArray(p.dns)) {
+            if (typeof p.dns === 'string' && p.dns.trim() !== '') {
+                p.dns = p.dns.split(",").map(s => s.trim()).filter(Boolean);
+            } else { delete p.dns; }
+        }
+        if (p.reserved !== undefined && !Array.isArray(p.reserved)) delete p.reserved;
+    }
+
+    // همه پروتکل‌ها: alpn باید array باشه
+    if (p.alpn !== undefined && !Array.isArray(p.alpn)) {
+        if (typeof p.alpn === 'string' && p.alpn.trim() !== '') {
+            p.alpn = p.alpn.split(",").map(s => s.trim()).filter(Boolean);
+        } else { delete p.alpn; }
+    }
+
+    return p;
+}
+
+// =====================================================
+// ۱۰. Validation
+// =====================================================
+const VALID_SS_CIPHERS = new Set([
+    "aes-128-ctr", "aes-192-ctr", "aes-256-ctr",
+    "aes-128-cfb", "aes-192-cfb", "aes-256-cfb",
+    "aes-128-gcm", "aes-192-gcm", "aes-256-gcm",
+    "aes-128-ccm", "aes-192-ccm", "aes-256-ccm",
+    "aes-128-gcm-siv", "aes-256-gcm-siv",
+    "chacha20-ietf", "chacha20", "xchacha20",
+    "chacha20-ietf-poly1305", "xchacha20-ietf-poly1305",
+    "chacha8-ietf-poly1305", "xchacha8-ietf-poly1305",
+    "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm",
+    "2022-blake3-chacha20-poly1305",
+    "lea-128-gcm", "lea-192-gcm", "lea-256-gcm",
+    "rabbit128-poly1305", "aegis-128l", "aegis-256",
+    "aez-384", "deoxys-ii-256-128",
+    "rc4-md5", "none"
+]);
+
+function valid(p) {
+    if (!p.server || typeof p.server !== 'string' || p.server.trim() === '') return false;
+    if (!p.port   || isNaN(p.port) || p.port < 1 || p.port > 65535)          return false;
+
+    const blockedServers = [
+        "127.0.0.1", "0.0.0.0", "localhost", "::1",
+        "t.me", "github.com", "raw.githubusercontent.com", "google.com"
+    ];
+    if (blockedServers.some(s => p.server.toLowerCase().includes(s))) return false;
+
+    // opts فیلدها باید object باشن
+    const optsFields = ["ws-opts", "grpc-opts", "h2-opts", "reality-opts", "http-opts"];
+    for (const f of optsFields) {
+        if (p[f] !== undefined && (typeof p[f] !== 'object' || Array.isArray(p[f]))) return false;
+    }
+
+    // array فیلدها باید array باشن
+    const arrayFields = ["allowed-ips", "dns", "alpn", "reserved"];
+    for (const f of arrayFields) {
+        if (p[f] !== undefined && !Array.isArray(p[f])) return false;
+    }
+
+    // اعتبارسنجی reserved
+    if (p.reserved !== undefined) {
+        if (!Array.isArray(p.reserved) || p.reserved.length !== 3) return false;
+        if (!p.reserved.every(n => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= 255)) return false;
+    }
+
+    // اعتبارسنجی reality-opts
+    if (p["reality-opts"]) {
+        const pbk = p["reality-opts"]["public-key"];
+        if (!pbk || typeof pbk !== 'string') return false;
+        const cleanPbk = pbk.replace(/=/g, "").trim();
+        if (cleanPbk.length !== 43 || !/^[A-Za-z0-9\-_]+$/.test(cleanPbk)) return false;
+        const sid = p["reality-opts"]["short-id"];
+        if (sid !== undefined && sid !== "") {
+            if (typeof sid !== 'string' || !/^[0-9a-fA-F]*$/.test(sid) ||
+                sid.length % 2 !== 0 || sid.length > 16) return false;
+        }
+    }
+
+    switch (p.type) {
+        case "vless":
+            if (!p.uuid || typeof p.uuid !== 'string' || p.uuid.trim() === '') return false;
+            if (!/^[0-9a-f-]{32,36}$/i.test(p.uuid.replace(/-/g, "").padEnd(32))) return false;
+            break;
+        case "vmess":
+            if (!p.uuid || typeof p.uuid !== 'string' || p.uuid.trim() === '') return false;
+            if (p.alterId === undefined || isNaN(p.alterId)) return false;
+            break;
+        case "trojan":
+            if (!p.password || typeof p.password !== 'string' || p.password.trim() === '') return false;
+            break;
+        case "hysteria2":
+            if (!p.password || typeof p.password !== 'string' || p.password.trim() === '') return false;
+            if (p.obfs && p.obfs !== "salamander") return false;
+            break;
+        case "tuic":
+            if (!p.uuid     || p.uuid.trim()     === '') return false;
+            if (!p.password || p.password.trim() === '') return false;
+            break;
+        case "wireguard":
+            if (!p["private-key"] || p["private-key"].trim() === '') return false;
+            if (!p["public-key"]  || p["public-key"].trim()  === '') return false;
+            break;
+        case "ss": {
+            if (!p.cipher || !p.password) return false;
+            const cipher = p.cipher.toLowerCase();
+            if (!VALID_SS_CIPHERS.has(cipher)) return false;
+            if (cipher.startsWith("2022-")) {
+                try {
+                    const keys      = p.password.split(":");
+                    const fixedKeys = [];
+                    for (const k of keys) {
+                        let cleanK = k.trim().replace(/-/g, "+").replace(/_/g, "/");
+                        const pad  = cleanK.length % 4;
+                        if (pad === 1) return false;
+                        if (pad === 2) cleanK += "==";
+                        if (pad === 3) cleanK += "=";
+                        if (!/^[A-Za-z0-9+/]+=*$/.test(cleanK)) return false;
+                        Buffer.from(cleanK, 'base64'); // validate
+                        fixedKeys.push(cleanK);
+                    }
+                    p.password = fixedKeys.join(":");
+                } catch (_) { return false; }
+            }
+            break;
+        }
+        case "anytls":
+            if (!p.password || p.password.trim() === '') return false;
+            break;
+        case "ssh":
+        case "http":
+        case "socks5":
+            break;
+    }
+
+    return true;
+}
+
+// =====================================================
+// ۱۱. Dedupe
+// =====================================================
+function dedupe(list) {
+    const m = new Map();
+    for (const p of list) {
+        const key = p.uuid || p.password || p["auth-str"] || p["private-key"] || p.psk || p.username || "";
+        const fp  = `${p.type}|${p.server}|${p.port}|${key}`;
+        if (!m.has(fp)) m.set(fp, p);
+    }
+    return [...m.values()];
+}
+
+// =====================================================
+// ۱۲. تولید فایل‌های خروجی
+// =====================================================
+// فقط برای display label نام proxy
+function normalizeTypeName(t) {
+    if (!t) return "unknown";
+    const s = t.toLowerCase();
+    if (s === "hysteria2") return "hy2";
+    if (s === "wireguard") return "wg";
+    if (s === "socks5")    return "socks";
+    return s;
+}
+
 function generateFiles(proxies) {
+    const protocolOrder = {
+        "hy2": 1, "vless": 2, "anytls": 3, "trojan": 4, "ss": 5,
+        "vmess": 6, "wg": 7, "tuic": 8, "http": 9, "socks": 10, "ssh": 11
+    };
+
     const categories = {
-        "all": () => true,
-        "v2ray": (p) => ['vless', 'vmess', 'trojan'].includes(p.type),
-        "others": (p) => !['vless', 'vmess', 'trojan'].includes(p.type)
+        "all":    () => true,
+        "v2ray":  (p) => ['vless', 'vmess'].includes(p.type),
+        "others": (p) => !['vless', 'vmess'].includes(p.type)
     };
 
     for (const [mode, filterFn] of Object.entries(categories)) {
         let filtered = proxies.filter(filterFn);
 
-        // شافل فیشر-یتس برای تصادفی‌سازی واقعی و جلوگیری از تکرار ترتیب
-        for (let i = filtered.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+        // گروه‌بندی بر اساس پروتکل
+        const grouped = {};
+        for (const p of filtered) {
+            if (!grouped[p.type]) grouped[p.type] = [];
+            grouped[p.type].push(p);
         }
 
-        const final = filtered.slice(0, 1500).map((p, i) => {
-            p.name = `${p.type} ${i + 1}`;
-            return p;
+        // shuffle فیشر-یتس هر گروه + برش به MAX_PER_PROTOCOL
+        const randomized = [];
+        for (const type in grouped) {
+            const group = grouped[type];
+            for (let i = group.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [group[i], group[j]] = [group[j], group[i]];
+            }
+            randomized.push(...group.slice(0, MAX_PER_PROTOCOL));
+        }
+
+        // مرتب‌سازی بر اساس اولویت پروتکل
+        randomized.sort((a, b) =>
+            (protocolOrder[normalizeTypeName(a.type)] || 99) -
+            (protocolOrder[normalizeTypeName(b.type)] || 99)
+        );
+
+        // نام‌گذاری ترتیبی
+        const typeCounters = {};
+        const finalProxies = randomized.map(p => {
+            const dt = normalizeTypeName(p.type);
+            typeCounters[dt] = (typeCounters[dt] || 0) + 1;
+            return { ...p, name: `${dt} ${typeCounters[dt]}` };
         });
 
-        // اضافه کردن هدر برای جلوگیری از کش شدن در گیت‌هاب
-        const header = `# Last Update: ${new Date().toISOString()}\n# Moslem's Proxy Aggregator\n`;
-        fs.writeFileSync(`${mode}.yaml`, header + buildProvider(final));
-        console.log(`📂 Created: ${mode}.yaml with ${final.length} proxies.`);
+        const header = `# Last Update: ${new Date().toISOString()}\n# Proxy Aggregator — mode: ${mode}\n`;
+        const content = header + buildProvider(finalProxies);
+        fs.writeFileSync(`${mode}.yaml`, content, 'utf-8');
+        console.log(`📂 Created: ${mode}.yaml — ${finalProxies.length} proxies`);
     }
+}
+
+// =====================================================
+// ۱۳. YAML Builder — کاملاً بر اساس مستندات رسمی mihomo
+// =====================================================
+
+// فیلدهای مجاز هر پروتکل — فقط همین‌ها در خروجی می‌آن
+// منبع: https://wiki.metacubex.one/en/config/proxies/
+const PROTO_FIELDS = {
+    // ── Common fields (همه پروتکل‌ها)
+    // name, type, server, port به صورت جداگانه نوشته می‌شن
+    _common: ["udp", "ip-version", "tfo", "mptcp", "interface-name", "routing-mark", "dialer-proxy"],
+
+    // ── TLS fields (پروتکل‌های دارای TLS)
+    _tls: ["tls", "sni", "servername", "fingerprint", "alpn", "skip-cert-verify",
+           "client-fingerprint", "reality-opts", "ech-opts"],
+
+    // ── Transport layer fields
+    _transport: ["network", "ws-opts", "h2-opts", "grpc-opts", "http-opts"],
+
+    // ── Per-protocol fields
+    vless:     ["uuid", "flow", "packet-encoding", "encryption"],
+    vmess:     ["uuid", "alterId", "cipher", "packet-encoding", "global-padding", "authenticated-length"],
+    trojan:    ["password", "ss-opts", "network"],       // trojan فقط ws/grpc دارد
+    anytls:    ["password", "idle-session-check-interval", "idle-session-timeout", "min-idle-session"],
+    ss:        ["cipher", "password", "udp-over-tcp", "udp-over-tcp-version", "plugin", "plugin-opts"],
+    wireguard: ["ip", "ipv6", "private-key", "public-key", "allowed-ips",
+                "pre-shared-key", "reserved", "persistent-keepalive", "mtu",
+                "remote-dns-resolve", "dns", "peers", "amnezia-wg-option"],
+    hysteria2: ["password", "obfs", "obfs-password", "up", "down",
+                "ports", "hop-interval", "fast-open",
+                // TLS برای hysteria2 مستقیم (بدون tls: true)
+                "sni", "skip-cert-verify", "fingerprint", "alpn", "ca", "ca-str"],
+    tuic:      ["token", "uuid", "password", "ip", "heartbeat-interval",
+                "disable-sni", "reduce-rtt", "request-timeout",
+                "udp-relay-mode", "congestion-controller",
+                "max-udp-relay-packet-size", "fast-open", "max-open-streams",
+                // TLS fields برای tuic
+                "sni", "alpn", "skip-cert-verify", "fingerprint"],
+    ssh:       ["username", "password", "private-key", "private-key-passphrase",
+                "host-key", "host-key-algorithms"],
+    http:      ["username", "password", "tls", "sni", "skip-cert-verify", "headers"],
+    socks5:    ["username", "password", "tls", "skip-cert-verify"],
+};
+
+// فیلدهایی که باید با ساختار YAML nested نوشته بشن (نه JSON inline)
+const NESTED_OBJ_FIELDS = new Set([
+    "ws-opts", "h2-opts", "grpc-opts", "http-opts",
+    "reality-opts", "ech-opts", "ss-opts", "plugin-opts",
+    "amnezia-wg-option", "smux",
+]);
+
+// فیلدهایی که باید array باشن
+const ARRAY_FIELDS = new Set(["alpn", "allowed-ips", "dns", "h2-opts-host"]);
+
+// ── escape برای string values در YAML
+function yamlStr(val) {
+    return '"' + String(val)
+        .replace(/\\/g,  "\\\\")
+        .replace(/"/g,   '\\"')
+        .replace(/\n/g,  "\\n")
+        .replace(/\r/g,  "\\r")
+        .replace(/\t/g,  "\\t")
+        .replace(/\x00/g,"") + '"';
+}
+
+// ── نوشتن یک value به فرمت YAML در indent مشخص
+function yamlValue(val) {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'boolean') return String(val);
+    if (typeof val === 'number')  return String(val);
+    if (typeof val === 'string')  return yamlStr(val);
+    return null; // object/array باید جداگانه handle بشه
+}
+
+// ── نوشتن یک nested object به YAML با indent مشخص
+function writeNestedObj(obj, indent) {
+    let out = "";
+    const pad = " ".repeat(indent);
+    for (const k in obj) {
+        const v = obj[k];
+        if (v === null || v === undefined) continue;
+        if (Array.isArray(v)) {
+            if (v.length === 0) continue;
+            out += `${pad}${k}:\n`;
+            for (const item of v) {
+                const sv = yamlValue(item);
+                if (sv !== null) out += `${pad}  - ${sv}\n`;
+            }
+        } else if (typeof v === 'object') {
+            out += `${pad}${k}:\n`;
+            out += writeNestedObj(v, indent + 2);
+        } else {
+            const sv = yamlValue(v);
+            if (sv !== null) out += `${pad}${k}: ${sv}\n`;
+        }
+    }
+    return out;
 }
 
 function buildProvider(proxies) {
     let yaml = "proxies:\n";
-    for (const p of proxies) {
-        // *** حل نهایی ارور 500: حذف خودکار پروکسی‌های فاقد پسورد/UUID ***
-        if (['ss', 'trojan', 'anytls'].includes(p.type) && !p.password) continue;
-        if (['vless', 'vmess', 'tuic'].includes(p.type) && !p.uuid) continue;
-        if (['wireguard', 'wg'].includes(p.type) && (!p["private-key"] || !p["public-key"])) continue;
 
-        yaml += `  - name: "${p.name.replace(/"/g, '\\"')}"\n    type: ${p.type}\n    server: "${p.server}"\n    port: ${p.port}\n`;
-        const skip = ["name", "type", "server", "port"];
-        for (const key in p) {
-            if (skip.includes(key)) continue;
-            const val = p[key]; if (val === null || val === undefined) continue;
-            if (typeof val === 'object') {
-                if (Array.isArray(val)) {
-                    yaml += `    ${key}:\n`; for (const item of val) yaml += `      - ${typeof item === 'string' ? `"${item}"` : item}\n`;
-                } else { yaml += `    ${key}: ${JSON.stringify(val)}\n`; }
-            } else { yaml += `    ${key}: ${typeof val === 'string' ? `"${val}"` : val}\n`; }
+    for (const p of proxies) {
+        // تعیین لیست فیلدهای مجاز برای این پروتکل
+        const protoKey = p.type; // wireguard, hysteria2, tuic, …
+        const protoSpecific = PROTO_FIELDS[protoKey] || [];
+
+        // پروتکل‌هایی که TLS و transport دارن
+        const hasTls       = !["wireguard", "hysteria2", "tuic", "ssh", "socks5", "http"].includes(p.type);
+        const hasTransport = ["vless", "vmess", "trojan"].includes(p.type);
+
+        const allowedSet = new Set([
+            ...PROTO_FIELDS._common,
+            ...(hasTls       ? PROTO_FIELDS._tls       : []),
+            ...(hasTransport ? PROTO_FIELDS._transport  : []),
+            ...protoSpecific,
+        ]);
+
+        // ── شروع نوشتن پروکسی
+        yaml += `  - name: ${yamlStr(p.name)}\n`;
+        yaml += `    type: ${p.type}\n`;
+        yaml += `    server: ${yamlStr(p.server)}\n`;
+        yaml += `    port: ${p.port}\n`;
+
+        for (const key of allowedSet) {
+            if (["name", "type", "server", "port"].includes(key)) continue;
+            const val = p[key];
+            if (val === null || val === undefined || val === "") continue;
+
+            // ── array
+            if (Array.isArray(val)) {
+                if (val.length === 0) continue;
+                yaml += `    ${key}:\n`;
+                for (const item of val) {
+                    const sv = yamlValue(item);
+                    if (sv !== null) yaml += `      - ${sv}\n`;
+                }
+                continue;
+            }
+
+            // ── nested object (ws-opts, reality-opts, …)
+            if (typeof val === 'object' && NESTED_OBJ_FIELDS.has(key)) {
+                yaml += `    ${key}:\n`;
+                yaml += writeNestedObj(val, 6);
+                continue;
+            }
+
+            // ── simple value
+            const sv = yamlValue(val);
+            if (sv !== null) yaml += `    ${key}: ${sv}\n`;
         }
     }
+
     return yaml;
 }
 
 // =====================================================
-// ۷. توابع کمکی (Helper Suite)
+// ۱۴. Helper Functions
 // =====================================================
-function decodeSub(t) { return t.includes("://") ? t : Buffer.from(t.trim(), 'base64').toString('utf-8'); }
-function safeDecode(s) { try { return decodeURIComponent(s) } catch { return s || "" } }
-function sanitizeObj(o) { return JSON.parse(JSON.stringify(o).replace(/[\x00-\x1F\x7F-\x9F\u200B-\u200D\uFEFF\uFFFD]/g, "")); }
-function normalizeProxy(p) { if (p.port) p.port = parseInt(p.port); if (p.ip) p.ip = String(p.ip).split("/")[0]; return p; }
-function fixProxyArrayFields(p) { if (p.alpn && typeof p.alpn === 'string') p.alpn = p.alpn.split(","); return p; }
-function valid(p) { 
-    if (!p.server || !p.port || !p.type) return false;
-    const blocked = ["127.0.0.1", "localhost", "github.com", "google.com"];
-    return !blocked.some(s => String(p.server).toLowerCase().includes(s));
-}
-function dedupe(l) {
-    const s = new Set();
-    return l.filter(p => {
-        const k = `${p.type}-${p.server}-${p.port}-${p.uuid || p.password || p["private-key"]}`;
-        if (s.has(k)) return false; s.add(k); return true;
-    });
+function normalizeBase64(v) {
+    if (!v) return null;
+    v = v.trim().replace(/-/g, "+").replace(/_/g, "/").replace(/\s+/g, "");
+    const pad = v.length % 4;
+    if (pad === 1) return null;
+    if (pad === 2) v += "==";
+    if (pad === 3) v += "=";
+    try { return Buffer.from(v, 'base64').toString('utf-8'); }
+    catch (_) { return null; }
 }
 
-// استارت نهایی
+function decodeSub(text) {
+    return text.includes("://") ? text : (normalizeBase64(text.trim()) || text);
+}
+
+function safeDecode(str) {
+    if (!str) return "";
+    try { return decodeURIComponent(str); } catch (_) { return str; }
+}
+
+function sanitizeObj(obj) {
+    if (typeof obj === 'string')
+        return obj.replace(/[\x00-\x1F\x7F-\x9F\u200B-\u200D\uFEFF\uFFFD]/g, "").trim();
+    if (Array.isArray(obj)) return obj.map(sanitizeObj);
+    if (obj !== null && typeof obj === 'object') {
+        const res = {};
+        for (const key in obj) res[key] = sanitizeObj(obj[key]);
+        return res;
+    }
+    return obj;
+}
+
+// =====================================================
+// Start
+// =====================================================
 main();
