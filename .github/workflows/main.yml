@@ -21,6 +21,8 @@ jobs:
         run: node index.js
       - name: Run Hy2 Scraper
         run: node hy2.js
+      - name: Run Converter (V2Ray + Sing-Box)
+        run: node convert.js  
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
