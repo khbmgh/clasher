@@ -1,0 +1,40 @@
+name: Check and Clean Proxies
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # اجرای خودکار: هر روز ساعت 00:00 UTC
+  workflow_dispatch: # فعال کردن دکمه اجرای دستی
+
+permissions:
+  contents: write
+
+jobs:
+  ping-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruamel.yaml
+
+      - name: Run Ping Script
+        run: python ping_proxies.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # اضافه کردن هر دو فایل به استیج گیت
+          git add all.yaml hysteria2.yaml
+          
+          # در صورت وجود تغییرات، کامیت و پوش انجام می‌شود
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-removed dead proxy servers 🤖" && git push)
