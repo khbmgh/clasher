@@ -46,7 +46,6 @@ https://v2.alicivil.workers.dev/?list=mix&count=500&shuffle=false&unique=false
 https://raw.githubusercontent.com/parvinxs/Fssociety/refs/heads/main/Fssociety.sub
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs.txt
-https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs1.txt
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs2.txt
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs3.txt
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs4.txt
