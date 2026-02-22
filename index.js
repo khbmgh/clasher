@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // ۱. تنظیمات
 // =====================================================
 const FETCH_TIMEOUT    = 15000;
-const MAX_PER_PROTOCOL = 800;
+const MAX_PER_PROTOCOL = 1000;
 
 const SUBS = [...new Set(`
 https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
