@@ -8,6 +8,7 @@ const FETCH_TIMEOUT = 10000;
 const MAX_PROXIES = 1000;
 
 const SUBS = [...new Set(`
+https://raw.githubusercontent.com/khbmgh/clasher/main/all.yaml
 https://raw.githubusercontent.com/justVisiting992/xray-Config-Collector/main/hy2_iran.txt
 https://raw.githubusercontent.com/hamedp-71/hy2/refs/heads/main/hp.txt
 https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/super-sub.txt
