@@ -1,8 +1,10 @@
 name: Check and Clean Proxies
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # اجرای خودکار: هر روز ساعت 00:00 UTC
+  workflow_run:
+    workflows: ["Update All Proxies"] # ⚠️ نکته مهم: این نام باید دقیقاً نام اکشن اول شما باشد
+    types:
+      - completed
   workflow_dispatch: # فعال کردن دکمه اجرای دستی
 
 permissions:
@@ -11,7 +13,14 @@ permissions:
 jobs:
   ping-and-update:
     runs-on: ubuntu-latest
+    # این شرط بررسی می‌کند که اکشن اول حتماً موفقیت‌آمیز بوده باشد (یا اینکه دستی اجرا کرده باشید)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
+      - name: Wait 15 minutes
+        # اگر اکشن به صورت خودکار بعد از اکشن اول اجرا شده بود، 15 دقیقه (900 ثانیه) صبر کند
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: sleep 900
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
