@@ -12,6 +12,7 @@ https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Movaghat
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Reality
 https://raw.githubusercontent.com/xtoolkit/TVC/main/subscriptions/meta/mix
+https://raw.githubusercontent.com/HenryPorternew/sub/refs/heads/main/raw.txt
 https://raw.githubusercontent.com/itsyebekhe/PSG/main/subscriptions/meta/mix
 https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/10ium-HiN-VPN.txt
 https://raw.githubusercontent.com/10ium/ClashFactory/main/providers/10ium-config-fetcher.txt
