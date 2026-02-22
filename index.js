@@ -9,26 +9,19 @@ const MAX_PER_PROTOCOL = 1000;
 
 const SUBS = [...new Set(`
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd#Subscription
-https://chat.tawana.online/sub/tawanaproxy.txt
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd/#KIA_NET
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/refs/heads/main/Reality
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/refs/heads/main/Clash_Reality
-https://cdn.fildl.ir/sub/TUNrQ2JpLDE3Njc4OTA3OTEyzup1z2RKG#Subscription
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/refs/heads/main/Reality
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/refs/heads/main/Clash_Reality
-https://danesh1118.github.io/Heoehoehdidhwj3978eheheodheoheofhrirh8e7eyhedohdkdheodhh9rehejrjfohrkeje/
-https://chat.tawana.online/sub/tawanaproxy.txt
-https://chat.tawana.online/sub/tawanaproxy1.txt
 https://gist.githubusercontent.com/senatorpersian/ddb0dc4ceed582630c24ef56197d297a/raw/cb3370e2be7a72cb640d96c7b137029dc05b3739/subscription.txt
 https://gist.githubusercontent.com/senatorpersian/ddb0dc4ceed582630c24ef56197d297a/raw/7767ced7587c4f8d203de08b186606eb880f3814/subscription.txt
 https://raw.githubusercontent.com/hamedp-71/hy2/refs/heads/main/hp.txt
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs2.txt
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs.txt
-https://sub.xuispeedms.ir:2096/sub/TWlzMTIzNCwxNzY4NjQzMjk1FfT0NjacHd
 https://raw.githubusercontent.com/hamedp-71/For_All_Net/refs/heads/main/hp.txt
 https://zood.link/Motasel_Ba_Hame_Chi
-https://vip.silentbreath.ir/sub/UHJveHlDbG91ZF9YLDE3NzA3MDE3ODI45TdmiCeLx
 https://gist.githubusercontent.com/senatorpersian/85d7bd0e4b64444a655ced36bd3136d5/raw/a4806bb92498ff77ca77b8555b2027dce2d84d51/subscription.txt
 https://gist.githubusercontent.com/senatorpersian/85d7bd0e4b64444a655ced36bd3136d5/raw/0974dfe62a75fb7704a292d05c3f5f36ae6e14bf/subscription.txt
 https://gist.githubusercontent.com/senatorpersian/85d7bd0e4b64444a655ced36bd3136d5/raw/7b2ce1090b3832102e86d2d0b892644f1dfeec12/subscription.txt
