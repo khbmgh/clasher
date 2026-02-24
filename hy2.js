@@ -8,6 +8,7 @@ const FETCH_TIMEOUT = 10000;
 const MAX_PROXIES = 1000;
 
 const SUBS = [...new Set(`
+https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/config/protocols/hy2_clash.yaml
 https://raw.githubusercontent.com/khbmgh/clasher/main/all.yaml
 https://raw.githubusercontent.com/justVisiting992/xray-Config-Collector/main/hy2_iran.txt
 https://raw.githubusercontent.com/hamedp-71/hy2/refs/heads/main/hp.txt
