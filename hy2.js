@@ -8,6 +8,12 @@ const FETCH_TIMEOUT = 10000;
 const MAX_PROXIES = 1000;
 
 const SUBS = [...new Set(`
+https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/hysteria2
+https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/python/hysteria2
+https://raw.githubusercontent.com/Leon406/SubCrawler/master/sub/share/hysteria2
+https://raw.githubusercontent.com/Argh73/VpnConfigCollector/refs/heads/main/Splitted-By-Protocol/Hysteria2.txt
+https://raw.githubusercontent.com/10ium/V2ray-Config/main/Splitted-By-Protocol/hysteria2.txt
+https://raw.githubusercontent.com/coldwater-10/V2ray-Config/main/Splitted-By-Protocol/hysteria2.txt
 https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Hysteria2.txt
 https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/config/protocols/hy2_clash.yaml
 https://raw.githubusercontent.com/khbmgh/clasher/main/all.yaml
