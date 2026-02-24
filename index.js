@@ -8,10 +8,6 @@ const FETCH_TIMEOUT    = 15000;
 const MAX_PER_PROTOCOL = 1000;
 
 const SUBS = [...new Set(`
-https://github.com/Delta-Kronecker/V2ray-Config/raw/refs/heads/main/config/clash.yaml
-https://github.com/Delta-Kronecker/V2ray-Config/raw/refs/heads/main/config/protocols/trojan.txt
-https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/main/sub.txt
-https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/config/protocols/trojan.txt
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd#Subscription
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd/#KIA_NET
@@ -1147,6 +1143,16 @@ function normalizeProxy(p) {
     if (p.ip   && typeof p.ip   === 'string') p.ip   = p.ip.split("/")[0].trim();
     if (p.ipv6 && typeof p.ipv6 === 'string') p.ipv6 = p.ipv6.split("/")[0].trim();
 
+    // FIX: amnezia-wg-option — مقادیر string عددی رو به number تبدیل کن
+    if (p["amnezia-wg-option"] && typeof p["amnezia-wg-option"] === "object") {
+        const awg = p["amnezia-wg-option"];
+        for (const k in awg) {
+            if (typeof awg[k] === "string" && awg[k].trim() !== "" && !isNaN(Number(awg[k]))) {
+                awg[k] = Number(awg[k]);
+            }
+        }
+    }
+
     // FIX: فیلدهای string که ممکنه از YAML به عدد یا boolean تبدیل شده باشن
     // مثلاً username: 123456 در YAML به number تبدیل می‌شه
     const forceStringFields = ['username', 'password', 'uuid', 'token', 'cipher',
@@ -1301,7 +1307,25 @@ function fixProxyArrayFields(p) {
                 p.dns = p.dns.split(",").map(s => s.trim()).filter(Boolean);
             } else { delete p.dns; }
         }
-        if (p.reserved !== undefined && !Array.isArray(p.reserved)) delete p.reserved;
+        // FIX: reserved string رو decode کن (base64 یا comma-separated)، حذف نکن
+        if (p.reserved !== undefined && !Array.isArray(p.reserved)) {
+            if (typeof p.reserved === 'string' && p.reserved.trim() !== '') {
+                const parts = p.reserved.split(',').map(Number);
+                if (parts.length === 3 && parts.every(n => !isNaN(n) && n >= 0 && n <= 255)) {
+                    p.reserved = parts;
+                } else {
+                    try {
+                        let b64 = p.reserved.trim().replace(/-/g, '+').replace(/_/g, '/');
+                        const pad = b64.length % 4;
+                        if (pad === 2) b64 += '==';
+                        else if (pad === 3) b64 += '=';
+                        const bytes = Buffer.from(b64, 'base64');
+                        if (bytes.length === 3) p.reserved = [...bytes];
+                        else delete p.reserved;
+                    } catch (_) { delete p.reserved; }
+                }
+            } else { delete p.reserved; }
+        }
     }
 
     if (p.alpn !== undefined && !Array.isArray(p.alpn)) {
