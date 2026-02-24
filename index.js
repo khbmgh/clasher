@@ -8,6 +8,10 @@ const FETCH_TIMEOUT    = 15000;
 const MAX_PER_PROTOCOL = 1000;
 
 const SUBS = [...new Set(`
+https://github.com/Delta-Kronecker/V2ray-Config/raw/refs/heads/main/config/clash.yaml
+https://github.com/Delta-Kronecker/V2ray-Config/raw/refs/heads/main/config/protocols/trojan.txt
+https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/main/sub.txt
+https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/config/protocols/trojan.txt
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd#Subscription
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd/#KIA_NET
