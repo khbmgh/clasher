@@ -84,7 +84,8 @@ https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/config
 https://raw.githubusercontent.com/expressalaki/ExpressVPN/refs/heads/main/configs4.txt
 https://raw.githubusercontent.com/miladtahanian/V2RayCFGDumper/main/config.txt
 https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/master/sub/proxies.txt
-https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/mixed_iran.txt`.split("\n").map(s => s.trim()).filter(Boolean))]
+https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/mixed_iran.txt
+`.split("\n").map(s => s.trim()).filter(Boolean))]
 // =====================================================
 // ۲. موتور اصلی
 // =====================================================
