@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // تنظیمات اختصاصی Hysteria2
 // =====================================================
 const FETCH_TIMEOUT = 10000;
-const MAX_PROXIES = 1000;
+const MAX_PROXIES = 1500;
 
 const SUBS = [...new Set(`
 https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/hysteria2
