@@ -1145,6 +1145,17 @@ function normalizeProxy(p) {
     if (p.ip   && typeof p.ip   === 'string') p.ip   = p.ip.split("/")[0].trim();
     if (p.ipv6 && typeof p.ipv6 === 'string') p.ipv6 = p.ipv6.split("/")[0].trim();
 
+    // FIX: فیلدهای string که ممکنه از YAML به عدد یا boolean تبدیل شده باشن
+    // مثلاً username: 123456 در YAML به number تبدیل می‌شه
+    const forceStringFields = ['username', 'password', 'uuid', 'token', 'cipher',
+                               'sni', 'servername', 'flow', 'obfs', 'obfs-password',
+                               'private-key', 'public-key', 'pre-shared-key'];
+    for (const f of forceStringFields) {
+        if (p[f] !== undefined && p[f] !== null && typeof p[f] !== 'string') {
+            p[f] = String(p[f]);
+        }
+    }
+
     // FIX: username که base64 encoded "user:password" هست رو decode و split کن
     // مثال: "NThjZWQ5ZmU6...==" → username="abc", password="xyz"
     if (p.username && typeof p.username === 'string' && !p.password) {
