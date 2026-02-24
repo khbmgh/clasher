@@ -1226,6 +1226,12 @@ function normalizeProxy(p) {
         if (!validFp.includes(p["client-fingerprint"])) delete p["client-fingerprint"];
     }
 
+    // FIX: اعتبارسنجی flow — mihomo فقط xtls-rprx-vision رو قبول می‌کنه
+    // هر flow دیگه (xtls-rprx-direct, xtls-rprx-direct-udp443, ...) باعث خطا می‌شه
+    if (p.flow !== undefined) {
+        if (p.flow !== "xtls-rprx-vision") delete p.flow;
+    }
+
     // اعتبارسنجی cipher برای vmess
     if (p.type === "vmess" && p.cipher !== undefined) {
         const validCiphers = ["auto", "none", "zero", "aes-128-gcm", "chacha20-poly1305"];
