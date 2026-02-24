@@ -562,9 +562,7 @@ function parseProxy(line) {
         if (l.startsWith("hy2://") || l.startsWith("hysteria2://"))  return parseHysteria2(line);
         if (l.startsWith("wg://") || l.startsWith("wireguard://"))   return parseWireguard(line);
         if (l.startsWith("tuic://"))                                 return parseTuic(line);
-        if (l.startsWith("http://") || l.startsWith("https://"))    return parseHttp(line);
-        if (l.startsWith("socks://") || l.startsWith("socks5://"))  return parseSocks(line);
-        if (l.startsWith("ssh://"))                                  return parseSSH(line);
+        // http/socks5/ssh حذف شدن — مشکل‌زا بودن
     } catch (_) {}
     return null;
 }
@@ -1435,7 +1433,7 @@ function valid(p) {
         case "ssh":
         case "http":
         case "socks5":
-            break;
+            return false; // این پروتکل‌ها پشتیبانی نمی‌شن
     }
 
     return true;
@@ -1470,7 +1468,7 @@ function normalizeTypeName(t) {
 function generateFiles(proxies) {
     const protocolOrder = {
         "hy2": 1, "vless": 2, "anytls": 3, "trojan": 4, "ss": 5,
-        "vmess": 6, "wg": 7, "tuic": 8, "http": 9, "socks": 10, "ssh": 11
+        "vmess": 6, "wg": 7, "tuic": 8, "ssr": 9
     };
 
     const categories = {
