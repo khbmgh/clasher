@@ -1097,40 +1097,43 @@ function parseTuic(link) {
 function parseHttp(link) {
     const isHttps = link.toLowerCase().startsWith("https://");
     const url     = new URL(link);
-    return {
-        name:     safeDecode(url.hash.substring(1) || url.hostname),
-        type:     "http",
-        server:   url.hostname,
-        port:     parseInt(url.port) || (isHttps ? 443 : 80),
-        tls:      isHttps,
-        username: safeDecode(url.username) || "",
-        password: safeDecode(url.password) || ""
+    const p = {
+        name:   safeDecode(url.hash.substring(1) || url.hostname),
+        type:   "http",
+        server: url.hostname,
+        port:   parseInt(url.port) || (isHttps ? 443 : 80),
     };
+    if (isHttps) p.tls = true;
+    const u = safeDecode(url.username); if (u) p.username = u;
+    const w = safeDecode(url.password); if (w) p.password = w;
+    return p;
 }
 
 function parseSocks(link) {
     const url = new URL(link.replace(/^(socks|socks5):\/\//i, "http://"));
-    return {
-        name:     safeDecode(url.hash.substring(1) || url.hostname),
-        type:     "socks5",
-        server:   url.hostname,
-        port:     parseInt(url.port) || 1080,
-        username: safeDecode(url.username) || "",
-        password: safeDecode(url.password) || "",
-        udp:      true
+    const p = {
+        name:   safeDecode(url.hash.substring(1) || url.hostname),
+        type:   "socks5",
+        server: url.hostname,
+        port:   parseInt(url.port) || 1080,
+        udp:    true,
     };
+    const u = safeDecode(url.username); if (u) p.username = u;
+    const w = safeDecode(url.password); if (w) p.password = w;
+    return p;
 }
 
 function parseSSH(link) {
     const url = new URL(link.replace(/^ssh:\/\//i, "http://"));
-    return {
-        name:     safeDecode(url.hash.substring(1) || url.hostname),
-        type:     "ssh",
-        server:   url.hostname,
-        port:     parseInt(url.port) || 22,
-        username: safeDecode(url.username) || "",
-        password: safeDecode(url.password) || ""
+    const p = {
+        name:   safeDecode(url.hash.substring(1) || url.hostname),
+        type:   "ssh",
+        server: url.hostname,
+        port:   parseInt(url.port) || 22,
     };
+    const u = safeDecode(url.username); if (u) p.username = u;
+    const w = safeDecode(url.password); if (w) p.password = w;
+    return p;
 }
 
 // =====================================================
@@ -1141,6 +1144,16 @@ function normalizeProxy(p) {
 
     if (p.ip   && typeof p.ip   === 'string') p.ip   = p.ip.split("/")[0].trim();
     if (p.ipv6 && typeof p.ipv6 === 'string') p.ipv6 = p.ipv6.split("/")[0].trim();
+
+    // FIX: username/password خالی رو حذف کن — mihomo اگه username ببینه باید non-empty باشه
+    if (p.username !== undefined && (p.username === "" || p.username === null)) delete p.username;
+    if (p.password !== undefined && (p.password === "" || p.password === null)) {
+        // password خالی رو فقط برای پروتکل‌هایی که واقعاً نیازش ندارن حذف کن
+        // (trojan, hysteria2, anytls, tuic در valid() چک می‌شن)
+        if (!["trojan","hysteria2","anytls","tuic","ss"].includes(p.type)) {
+            delete p.password;
+        }
+    }
 
     // نرمال‌سازی reserved
     if (p.reserved !== undefined && !Array.isArray(p.reserved)) {
