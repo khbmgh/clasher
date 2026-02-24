@@ -1145,6 +1145,21 @@ function normalizeProxy(p) {
     if (p.ip   && typeof p.ip   === 'string') p.ip   = p.ip.split("/")[0].trim();
     if (p.ipv6 && typeof p.ipv6 === 'string') p.ipv6 = p.ipv6.split("/")[0].trim();
 
+    // FIX: username که base64 encoded "user:password" هست رو decode و split کن
+    // مثال: "NThjZWQ5ZmU6...==" → username="abc", password="xyz"
+    if (p.username && typeof p.username === 'string' && !p.password) {
+        const decoded = normalizeBase64(p.username);
+        if (decoded && decoded.includes(':')) {
+            const colonIdx = decoded.indexOf(':');
+            const u = decoded.substring(0, colonIdx);
+            const w = decoded.substring(colonIdx + 1);
+            if (u && w) {
+                p.username = u;
+                p.password = w;
+            }
+        }
+    }
+
     // FIX: username/password خالی رو حذف کن — mihomo اگه username ببینه باید non-empty باشه
     if (p.username !== undefined && (p.username === "" || p.username === null)) delete p.username;
     if (p.password !== undefined && (p.password === "" || p.password === null)) {
@@ -1153,6 +1168,15 @@ function normalizeProxy(p) {
         if (!["trojan","hysteria2","anytls","tuic","ss"].includes(p.type)) {
             delete p.password;
         }
+    }
+
+    // FIX: اگه username هست ولی password نیست (یا برعکس)، هر دو رو حذف کن
+    // mihomo برای socks5/http انتظار داره هر دو باشن یا هیچکدام
+    if (["socks5", "http"].includes(p.type)) {
+        const hasUser = p.username && p.username !== "";
+        const hasPass = p.password && p.password !== "";
+        if (hasUser && !hasPass) { delete p.username; }
+        if (hasPass && !hasUser) { delete p.password; }
     }
 
     // نرمال‌سازی reserved
@@ -1217,6 +1241,36 @@ function normalizeProxy(p) {
 }
 
 function fixProxyArrayFields(p) {
+    // FIX: http-opts.path باید array باشه
+    if (p["http-opts"] && typeof p["http-opts"] === 'object') {
+        const ho = p["http-opts"];
+        if (ho.path !== undefined && !Array.isArray(ho.path)) {
+            ho.path = typeof ho.path === 'string' && ho.path.trim() !== ''
+                ? ho.path.split(",").map(s => s.trim()).filter(Boolean)
+                : [];
+        }
+        // http-opts.headers values باید array باشن
+        if (ho.headers && typeof ho.headers === 'object') {
+            for (const k in ho.headers) {
+                if (!Array.isArray(ho.headers[k])) {
+                    ho.headers[k] = ho.headers[k] !== undefined && ho.headers[k] !== null
+                        ? [String(ho.headers[k])]
+                        : [];
+                }
+            }
+        }
+    }
+
+    // FIX: h2-opts.host باید array باشه
+    if (p["h2-opts"] && typeof p["h2-opts"] === 'object') {
+        const h2 = p["h2-opts"];
+        if (h2.host !== undefined && !Array.isArray(h2.host)) {
+            h2.host = typeof h2.host === 'string' && h2.host.trim() !== ''
+                ? [h2.host.trim()]
+                : [];
+        }
+    }
+
     if (p.type === "wireguard" || p.type === "wg") {
         if (p["allowed-ips"] !== undefined && !Array.isArray(p["allowed-ips"])) {
             if (typeof p["allowed-ips"] === 'string' && p["allowed-ips"].trim() !== '') {
@@ -1355,6 +1409,12 @@ function valid(p) {
         case "anytls":
             if (!p.password || p.password.trim() === '') return false;
             break;
+        case "ssr":
+            if (!p.cipher   || p.cipher.trim()   === '') return false;
+            if (!p.password || p.password.trim() === '') return false;
+            if (!p.obfs     || p.obfs.trim()     === '') return false;
+            if (!p.protocol || p.protocol.trim() === '') return false;
+            break;
         case "ssh":
         case "http":
         case "socks5":
@@ -1473,6 +1533,7 @@ const PROTO_FIELDS = {
                 "udp-relay-mode", "congestion-controller",
                 "max-udp-relay-packet-size", "fast-open", "max-open-streams",
                 "sni", "alpn", "skip-cert-verify", "fingerprint"],
+    ssr:       ["cipher", "password", "obfs", "protocol", "obfs-param", "protocol-param"],
     ssh:       ["username", "password", "private-key", "private-key-passphrase",
                 "host-key", "host-key-algorithms"],
     http:      ["username", "password", "tls", "sni", "skip-cert-verify", "headers"],
@@ -1647,8 +1708,11 @@ function buildProvider(proxies) {
 
             // nested object
             if (typeof val === 'object' && NESTED_OBJ_FIELDS.has(key)) {
-                yaml += `    ${key}:\n`;
-                yaml += writeNestedObj(val, 6);
+                const nestedYaml = writeNestedObj(val, 6);
+                if (nestedYaml.trim() !== '') {
+                    yaml += `    ${key}:\n`;
+                    yaml += nestedYaml;
+                }
                 continue;
             }
 
