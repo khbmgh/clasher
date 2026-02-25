@@ -1151,8 +1151,12 @@ function parseHttp(link) {
         port:   parseInt(url.port) || (isHttps ? 443 : 80),
     };
     if (isHttps) p.tls = true;
-    const u = safeDecode(url.username); if (u) p.username = u;
-    const w = safeDecode(url.password); if (w) p.password = w;
+    const u = safeDecode(url.username);
+    const w = safeDecode(url.password);
+    // هر دو باید باشند یا هیچکدام — mihomo بدون username قبول نمی‌کنه
+    if (u && w) { p.username = u; p.password = w; }
+    else if (!u && !w) { /* no auth */ }
+    else { return null; } // یکی هست ولی دیگری نه
     return p;
 }
 
@@ -1165,8 +1169,10 @@ function parseSocks(link) {
         port:   parseInt(url.port) || 1080,
         udp:    true,
     };
-    const u = safeDecode(url.username); if (u) p.username = u;
-    const w = safeDecode(url.password); if (w) p.password = w;
+    const u = safeDecode(url.username);
+    const w = safeDecode(url.password);
+    // هر دو باید باشند یا هیچکدام
+    if (u && w) { p.username = u; p.password = w; }
     return p;
 }
 
