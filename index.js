@@ -831,7 +831,14 @@ function parseSS(link) {
             for (let i = 1; i < parts.length; i++) {
                 const eq = parts[i].indexOf("=");
                 if (eq > 0) {
-                    opts[parts[i].substring(0, eq)] = parts[i].substring(eq + 1);
+                    const k = parts[i].substring(0, eq);
+                    const v = parts[i].substring(eq + 1);
+                    // فیلدهایی که باید boolean باشند
+                    if (k === "mux" || k === "tls" || k === "skip-cert-verify") {
+                        opts[k] = v === "true" || v === "1";
+                    } else {
+                        opts[k] = v;
+                    }
                 }
             }
             if (Object.keys(opts).length > 0) result["plugin-opts"] = opts;
@@ -1313,6 +1320,16 @@ function normalizeProxy(p) {
         } else if (hasToken) {
             delete p.uuid;
             delete p.password;
+        }
+    }
+
+    // plugin-opts — فیلدهای boolean که ممکنه از YAML یا URI به string تبدیل شده باشند
+    if (p["plugin-opts"] && typeof p["plugin-opts"] === 'object') {
+        const po = p["plugin-opts"];
+        for (const k of ["mux", "tls", "skip-cert-verify"]) {
+            if (typeof po[k] === 'string') {
+                po[k] = po[k] === "true" || po[k] === "1";
+            }
         }
     }
 
