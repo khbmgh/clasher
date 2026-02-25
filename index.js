@@ -1539,6 +1539,8 @@ function valid(p) {
             if (!p.cipher || !p.password) return false;
             const cipher = p.cipher.toLowerCase();
             if (!VALID_SS_CIPHERS.has(cipher)) return false;
+            // cipher=none بدون plugin معنی نداره — mihomo reject می‌کنه
+            if (cipher === "none" && !p.plugin) return false;
             if (cipher.startsWith("2022-")) {
                 try {
                     const keys      = p.password.split(":");
