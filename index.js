@@ -1234,8 +1234,8 @@ function normalizeProxy(p) {
         }
     }
 
-    // socks5/http — هر دو باید باشند یا هیچ‌کدام
-    if (["socks5", "http"].includes(p.type)) {
+    // socks5/http/ssh — اگه password هست ولی username نیست (یا برعکس)
+    if (["socks5", "http", "ssh"].includes(p.type)) {
         const hasUser = p.username && p.username !== "";
         const hasPass = p.password && p.password !== "";
         if (hasUser && !hasPass) { delete p.username; }
@@ -1562,6 +1562,8 @@ function valid(p) {
             if (!p.protocol || p.protocol.trim() === '') return false;
             break;
         case "ssh":
+            // اگه password هست باید username هم باشه
+            if (p.password && !p.username) return false;
             break;
         case "http":
             break;
