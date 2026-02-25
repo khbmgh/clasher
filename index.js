@@ -233,8 +233,6 @@ function parseSingboxOutbound(item) {
             "shadowsocks": "ss",
             "hysteria2":   "hysteria2",
             "socks":       "socks5",
-            "http":        "http",
-            "ssh":         "ssh",
             "tuic":        "tuic",
         };
         const clashType = typeMap[type];
@@ -549,9 +547,8 @@ function parseProxy(line) {
         if (l.startsWith("hy2://") || l.startsWith("hysteria2://"))  return parseHysteria2(line);
         if (l.startsWith("wg://") || l.startsWith("wireguard://"))   return parseWireguard(line);
         if (l.startsWith("tuic://"))                                 return parseTuic(line);
-        if (l.startsWith("http://") || l.startsWith("https://"))     return parseHttp(line);
         if (l.startsWith("socks://") || l.startsWith("socks5://"))   return parseSocks(line);
-        if (l.startsWith("ssh://"))                                   return parseSSH(line);
+        // ssh://, http://, https://, ssr:// — حذف شده
     } catch (_) {}
     return null;
 }
@@ -1136,30 +1133,6 @@ function parseTuic(link) {
     return proxy;
 }
 
-function parseHttp(link) {
-    const isHttps = link.toLowerCase().startsWith("https://");
-    let url;
-    try { url = new URL(link); } catch (_) { return null; }
-
-    if (!url.username && !url.password) return null;
-    if (url.pathname && url.pathname !== '/') return null;
-
-    const p = {
-        name:   safeDecode(url.hash.substring(1) || url.hostname),
-        type:   "http",
-        server: url.hostname,
-        port:   parseInt(url.port) || (isHttps ? 443 : 80),
-    };
-    if (isHttps) p.tls = true;
-    const u = safeDecode(url.username);
-    const w = safeDecode(url.password);
-    // هر دو باید باشند یا هیچکدام — mihomo بدون username قبول نمی‌کنه
-    if (u && w) { p.username = u; p.password = w; }
-    else if (!u && !w) { /* no auth */ }
-    else { return null; } // یکی هست ولی دیگری نه
-    return p;
-}
-
 function parseSocks(link) {
     const url = new URL(link.replace(/^(socks|socks5):\/\//i, "http://"));
     const p = {
@@ -1171,21 +1144,7 @@ function parseSocks(link) {
     };
     const u = safeDecode(url.username);
     const w = safeDecode(url.password);
-    // هر دو باید باشند یا هیچکدام
     if (u && w) { p.username = u; p.password = w; }
-    return p;
-}
-
-function parseSSH(link) {
-    const url = new URL(link.replace(/^ssh:\/\//i, "http://"));
-    const p = {
-        name:   safeDecode(url.hash.substring(1) || url.hostname),
-        type:   "ssh",
-        server: url.hostname,
-        port:   parseInt(url.port) || 22,
-    };
-    const u = safeDecode(url.username); if (u) p.username = u;
-    const w = safeDecode(url.password); if (w) p.password = w;
     return p;
 }
 
@@ -1240,8 +1199,8 @@ function normalizeProxy(p) {
         }
     }
 
-    // socks5/http/ssh — اگه password هست ولی username نیست (یا برعکس)
-    if (["socks5", "http", "ssh"].includes(p.type)) {
+    // socks5 — اگه password هست ولی username نیست (یا برعکس)
+    if (p.type === "socks5") {
         const hasUser = p.username && p.username !== "";
         const hasPass = p.password && p.password !== "";
         if (hasUser && !hasPass) { delete p.username; }
@@ -1544,7 +1503,6 @@ function valid(p) {
             if (!p.cipher || !p.password) return false;
             const cipher = p.cipher.toLowerCase();
             if (!VALID_SS_CIPHERS.has(cipher)) return false;
-            // cipher=none بدون plugin معنی نداره — mihomo reject می‌کنه
             if (cipher === "none" && !p.plugin) return false;
             if (cipher.startsWith("2022-")) {
                 try {
@@ -1568,20 +1526,9 @@ function valid(p) {
         case "anytls":
             if (!p.password || p.password.trim() === '') return false;
             break;
-        case "ssr":
-            if (!p.cipher   || p.cipher.trim()   === '') return false;
-            if (!p.password || p.password.trim() === '') return false;
-            if (!p.obfs     || p.obfs.trim()     === '') return false;
-            if (!p.protocol || p.protocol.trim() === '') return false;
-            break;
-        case "ssh":
-            // اگه password هست باید username هم باشه
-            if (p.password && !p.username) return false;
-            break;
-        case "http":
-            break;
         case "socks5":
             break;
+        // ssh, ssr, http — کاملاً حذف شده
         default:
             return false;
     }
@@ -1617,8 +1564,7 @@ function normalizeTypeName(t) {
 function generateFiles(proxies) {
     const protocolOrder = {
         "hy2": 1, "vless": 2, "anytls": 3, "trojan": 4, "ss": 5,
-        "vmess": 6, "wg": 7, "tuic": 8, "ssr": 9,
-        "ssh": 10, "http": 11, "socks": 12
+        "vmess": 6, "wg": 7, "tuic": 8, "socks": 9
     };
 
     const categories = {
@@ -1652,7 +1598,7 @@ function generateFiles(proxies) {
             (protocolOrder[normalizeTypeName(b.type)] || 99)
         );
 
-        // نام‌گذاری ترتیبی — فرمت: «type protoIdx - globalIdx» مثلاً «ss 100 - 660»
+        // نام‌گذاری ترتیبی
         const typeCounters = {};
         const finalProxies = randomized.map((p, globalIdx) => {
             const dt = normalizeTypeName(p.type);
@@ -1695,10 +1641,6 @@ const PROTO_FIELDS = {
                 "udp-relay-mode", "congestion-controller",
                 "max-udp-relay-packet-size", "fast-open", "max-open-streams",
                 "sni", "alpn", "skip-cert-verify", "fingerprint"],
-    ssr:       ["cipher", "password", "obfs", "protocol", "obfs-param", "protocol-param"],
-    ssh:       ["username", "password", "private-key", "private-key-passphrase",
-                "host-key", "host-key-algorithms"],
-    http:      ["username", "password", "tls", "sni", "skip-cert-verify", "fingerprint", "headers"],
     socks5:    ["username", "password", "tls", "skip-cert-verify", "fingerprint"],
 };
 
@@ -1789,7 +1731,7 @@ function buildProvider(proxies) {
         const protoKey      = p.type;
         const protoSpecific = PROTO_FIELDS[protoKey] || [];
 
-        const hasTls       = !["wireguard", "hysteria2", "tuic", "ssh", "ssr"].includes(p.type);
+        const hasTls       = !["wireguard", "hysteria2", "tuic", "ssr"].includes(p.type);
         const hasTransport = ["vless", "vmess"].includes(p.type);
 
         const allowedSet = new Set([
