@@ -1652,12 +1652,12 @@ function generateFiles(proxies) {
             (protocolOrder[normalizeTypeName(b.type)] || 99)
         );
 
-        // نام‌گذاری ترتیبی
+        // نام‌گذاری ترتیبی — فرمت: «type protoIdx - globalIdx» مثلاً «ss 100 - 660»
         const typeCounters = {};
-        const finalProxies = randomized.map(p => {
+        const finalProxies = randomized.map((p, globalIdx) => {
             const dt = normalizeTypeName(p.type);
             typeCounters[dt] = (typeCounters[dt] || 0) + 1;
-            return { ...p, name: `${dt} ${typeCounters[dt]}` };
+            return { ...p, name: `${dt} ${typeCounters[dt]} - ${globalIdx + 1}` };
         });
 
         const header = `# Last Update: ${new Date().toISOString()}\n# Proxy Aggregator — mode: ${mode}\n`;
