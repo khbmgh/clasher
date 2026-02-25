@@ -1337,6 +1337,11 @@ function normalizeProxy(p) {
                 po[k] = po[k] === "true" || po[k] === "1";
             }
         }
+        // username/password در plugin-opts باید هر دو باشند یا هیچکدام
+        const poHasUser = po.username && po.username !== "";
+        const poHasPass = po.password && po.password !== "";
+        if (poHasUser && !poHasPass) { delete po.username; }
+        if (poHasPass && !poHasUser) { delete po.password; }
     }
 
     // WireGuard peers — از اولین peer بگیر اگر سطح بالا خالی بود
