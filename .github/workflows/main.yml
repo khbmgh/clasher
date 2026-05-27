@@ -10,19 +10,25 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6 # ارتقا به نسخه ۶ برای پشتیبانی از Node 24
+
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6 # ارتقا به نسخه ۶
         with:
-          node-version: 18
+          node-version: 24 # ارتقای محیط رانر به نود ۲۴ برای جلوگیری از خطای ددلاین گیتهاب
+
       - name: Install dependencies
         run: npm install node-fetch@2
+
       - name: Run Main Scraper
         run: node index.js
+
       - name: Run Hy2 Scraper
         run: node hy2.js
+
       - name: Run Converter (V2Ray + Sing-Box)
         run: node convert.js  
+
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
