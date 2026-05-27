@@ -5,9 +5,15 @@ const fetch = require('node-fetch');
 // ۱. تنظیمات
 // =====================================================
 const FETCH_TIMEOUT    = 15000;
-const MAX_PER_PROTOCOL = 1000;
+const MAX_PER_PROTOCOL = 1500;
 
 const SUBS = [...new Set(`
+https://raw.githubusercontent.com/HenryPorternew/sub/refs/heads/main/raw.txt
+https://openproxylist.com/v2ray/rawlist/subscribe
+https://openproxylist.com/v2ray/rawlist/text#
+https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt
+https://raw.githubusercontent.com/Ali-Anv1/C-Meta/refs/heads/main/C-Meta.txt
+https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS_mobile.txt
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd#Subscription
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
 https://msk.vless-balancer.ru/sub/dXNlcl82Nzg4MzMxMjQ5LDE3Njk1MzUzMTkBqGm3A1STd/#KIA_NET
