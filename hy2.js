@@ -8,6 +8,18 @@ const FETCH_TIMEOUT = 10000;
 const MAX_PROXIES = 1500;
 
 const SUBS = [...new Set(`
+https://tester.mr-afzoni.workers.dev/sub/normal/3170323?app=xray#%F0%9F%92%A6%20BPB%20Normal
+https://tester.mr-afzoni.workers.dev/sub/fragment/3170323?app=xray#%F0%9F%92%A6%20BPB%20Fragment
+https://tester.mr-afzoni.workers.dev/sub/warp/3170323?app=xray#%F0%9F%92%A6%20BPB%20Warp
+https://tester.mr-afzoni.workers.dev/sub/warp-pro/3170323?app=xray#%F0%9F%92%A6%20BPB%20Warp%20Pro
+https://clv2.mr-afzoni.workers.dev/Nova-Proxy?sub
+https://clashier.mr-afzoni.workers.dev/
+https://raw.githubusercontent.com/HenryPorternew/sub/refs/heads/main/raw.txt
+https://openproxylist.com/v2ray/rawlist/subscribe
+https://openproxylist.com/v2ray/rawlist/text#
+https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt
+https://raw.githubusercontent.com/Ali-Anv1/C-Meta/refs/heads/main/C-Meta.txt
+https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS_mobile.txt
 https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/hysteria2
 https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/python/hysteria2
 https://raw.githubusercontent.com/Leon406/SubCrawler/master/sub/share/hysteria2
