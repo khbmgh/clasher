@@ -1,38 +1,59 @@
 name: Update All Proxies
+
 on:
   schedule:
-    - cron: '6 * * * *'
-  workflow_dispatch:
+    - cron: '6 * * * *' # اجرای خودکار در دقیقه ۶ هر ساعت
+  workflow_dispatch: # امکان اجرای دستی از داخل پنل گیت‌هاب
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # دسترسی لازم برای کامیت و پوش کردن تغییرات به مخزن
+      
     steps:
-      - uses: actions/checkout@v6 # ارتقا به نسخه ۶ برای پشتیبانی از Node 24
+      # ۱. دریافت آخرین نسخه کد از مخزن
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6 # ارتقا به نسخه ۶
+      # ۲. راه‌اندازی محیط نودجی‌اس نسخه ۲۴
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: 24 # ارتقای محیط رانر به نود ۲۴ برای جلوگیری از خطای ددلاین گیتهاب
+          node-version: 24
 
+      # ۳. راه‌اندازی محیط پایتون نسخه ۳
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # ۴. نصب پکیج‌های مورد نیاز نودجی‌اس و پایتون
       - name: Install dependencies
-        run: npm install node-fetch@2
+        run: |
+          npm install node-fetch@2
+          pip install ruamel.yaml
 
+      # ۵. اجرای اسکریپت‌های استخراج پروکسی
       - name: Run Main Scraper
         run: node index.js
 
       - name: Run Hy2 Scraper
         run: node hy2.js
 
+      # ۶. تبدیل کانفیگ‌ها به فرمت‌های V2Ray و Sing-Box (ساخت فایل‌های YAML)
       - name: Run Converter (V2Ray + Sing-Box)
         run: node convert.js  
 
-      - name: Commit and Push
+      # ۷. اجرای اسکریپت پایتون جهت تست پورت TCP و پاکسازی سرورهای مرده
+      - name: Check and Filter Live Proxies
+        run: python ping_checker.py
+
+      # ۸. ذخیره تغییرات و پوش کردن فایل‌های آپدیت شده به گیت‌هاب
+      - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update All Proxies $(date)" || exit 0
+          git commit -m "Update and Filter All Proxies $(date)" || exit 0
           git push
