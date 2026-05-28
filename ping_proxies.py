@@ -1,19 +1,19 @@
-import subprocess
+import socket
 import sys
 from ruamel.yaml import YAML
 
 # لیست فایل‌هایی که باید پردازش شوند
 FILES = ['all.yaml', 'hysteria2.yaml']
 
-def ping_server(host):
+def check_tcp_port(host, port, timeout=2):
     """
-    ارسال یک پکت پینگ به سرور. در صورت دریافت جواب True و در غیر این صورت False برمی‌گرداند.
+    بررسی باز بودن پورت سرور از طریق TCP.
+    این روش در گیت‌هاب اکشن بدون مشکل کار می‌کند.
     """
-    # پارامترهای پینگ در لینوکس: 1 پکت با تایم‌اوت 2 ثانیه
-    command = ['ping', '-c', '1', '-W', '2', host]
     try:
-        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return result.returncode == 0
+        # ساخت یک سوکت TCP و تلاش برای اتصال در محدوده تایم‌اوت
+        with socket.create_connection((host, int(port)), timeout=timeout):
+            return True
     except Exception:
         return False
 
@@ -41,16 +41,19 @@ def main():
         original_count = len(data['proxies'])
         alive_proxies = []
 
-        print(f"Starting ping check for {original_count} servers in {filename}...")
+        print(f"Starting connection check for {original_count} servers in {filename}...")
 
         for proxy in data['proxies']:
             server = proxy.get('server')
+            port = proxy.get('port', 443) # اگر پورت نبود، پیش‌فرض ۴۴۳ در نظر گرفته می‌شود
+            
             if not server:
                 continue
                 
-            print(f"Pinging {server}...", end=" ")
+            print(f"Checking {server}:{port}...", end=" ")
             
-            if ping_server(server):
+            # استفاده از تست سوکت به جای پینگ سیستم‌عامل
+            if check_tcp_port(server, port):
                 print("✅ UP")
                 alive_proxies.append(proxy)
             else:
