@@ -3,13 +3,13 @@ name: Update All Proxies
 on:
   schedule:
     - cron: '6 * * * *' # اجرای خودکار در دقیقه ۶ هر ساعت
-  workflow_dispatch: # امکان اجرای دستی از داخل پنل گیت‌هاب
+  workflow_dispatch: # امکان اجرای دستی
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # دسترسی لازم برای کامیت و پوش کردن تغییرات به مخزن
+      contents: write # دسترسی لازم برای کامیت و پوش کردن تغییرات
       
     steps:
       # ۱. دریافت آخرین نسخه کد از مخزن
@@ -34,26 +34,26 @@ jobs:
           npm install node-fetch@2
           pip install ruamel.yaml
 
-      # ۵. اجرای اسکریپت‌های استخراج پروکسی
+      # ۵. اجرای اسکریپت‌های اولیه استخراج پروکسی
       - name: Run Main Scraper
         run: node index.js
 
       - name: Run Hy2 Scraper
         run: node hy2.js
 
-      # ۶. تبدیل کانفیگ‌ها به فرمت‌های V2Ray و Sing-Box (ساخت فایل‌های YAML)
+      # ۶. اجرای اسکریپت پایتون جهت تست پورت TCP و فیلتر کردن سرورهای مرده (قبل از کانورت)
+      - name: Check and Filter Live Proxies
+        run: python ping_checker.py # اسم فایل پایتونت رو اینجا ست کن
+
+      # ۷. تبدیل کانفیگ‌های زنده و تمیز شده به فرمت‌های V2Ray و Sing-Box
       - name: Run Converter (V2Ray + Sing-Box)
         run: node convert.js  
 
-      # ۷. اجرای اسکریپت پایتون جهت تست پورت TCP و پاکسازی سرورهای مرده
-      - name: Check and Filter Live Proxies
-        run: python ping_checker.py
-
-      # ۸. ذخیره تغییرات و پوش کردن فایل‌های آپدیت شده به گیت‌هاب
+      # ۸. ذخیره تغییرات و پوش کردن تمام فایل‌های آپدیت شده و تمیز به گیت‌هاب
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update and Filter All Proxies $(date)" || exit 0
+          git commit -m "Update, Filter and Convert All Proxies $(date)" || exit 0
           git push
