@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // تنظیمات اختصاصی Hysteria2
 // =====================================================
 const FETCH_TIMEOUT = 15000;
-const MAX_PROXIES = 500;
+const MAX_PROXIES = 1000;
 
 const SUBS = [...new Set(`
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_1.txt
