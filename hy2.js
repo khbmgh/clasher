@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // تنظیمات اختصاصی Hysteria2
 // =====================================================
 const FETCH_TIMEOUT = 15000;
-const MAX_PROXIES = 300;
+const MAX_PROXIES = 500;
 
 const SUBS = [...new Set(`
 https://tester.mr-afzoni.workers.dev/sub/normal/3170323?app=xray#%F0%9F%92%A6%20BPB%20Normal
