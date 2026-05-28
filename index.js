@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // ۱. تنظیمات
 // =====================================================
 const FETCH_TIMEOUT    = 15000;
-const MAX_PER_PROTOCOL = 500;
+const MAX_PER_PROTOCOL = 1000;
 
 const SUBS = [...new Set(`
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_1.txt
