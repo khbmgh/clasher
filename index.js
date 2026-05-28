@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // ۱. تنظیمات
 // =====================================================
 const FETCH_TIMEOUT    = 15000;
-const MAX_PER_PROTOCOL = 1500;
+const MAX_PER_PROTOCOL = 300;
 
 const SUBS = [...new Set(`
 https://tester.mr-afzoni.workers.dev/sub/normal/3170323?app=xray#%F0%9F%92%A6%20BPB%20Normal
