@@ -8,6 +8,7 @@ const FETCH_TIMEOUT = 15000;
 const MAX_PROXIES = 1000;
 
 const SUBS = [...new Set(`
+https://raw.githubusercontent.com/10ium/base64-encoder/main/encoded/10ium-V2rayCollector-mixed.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_1.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_2.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_3.txt
@@ -74,6 +75,7 @@ https://raw.githubusercontent.com/parvinxs/Fssociety/refs/heads/main/Fssociety.s
 https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Hysteria2.txt
 https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/python/hysteria2
 https://raw.githubusercontent.com/parvinxs/Submahsanetxsparvin/refs/heads/main/Sub.mahsa.xsparvin
+https://raw.githubusercontent.com/10ium/V2ray-Config/main/All_Configs_Sub.txt
 `.split("\n").map(s => s.trim()).filter(Boolean))]
 
 async function main() {
