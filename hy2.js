@@ -8,6 +8,7 @@ const FETCH_TIMEOUT = 15000;
 const MAX_PROXIES = 1000;
 
 const SUBS = [...new Set(`
+https://raw.githubusercontent.com/10ium/V2RayAggregator/refs/heads/master/Eternity
 https://raw.githubusercontent.com/10ium/base64-encoder/main/encoded/10ium-V2rayCollector-mixed.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_1.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mci/sub_2.txt
