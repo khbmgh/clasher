@@ -1,29 +1,80 @@
 proxies:
+  - name: "hy2 25"
+    type: hysteria2
+    server: "starlink-br.mfa.cat"
+    port: 30000
+    password: "%E5%8D%87%E7%BA%A7%E8%AE%A2%E9%98%85%E8%A7%A3%E9%94%81%E5%85%A8%E9%83%A8%E8%8A%82%E7%82%B9"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
   - name: "hy2 31"
     type: hysteria2
-    server: "hk03.jgpy.help"
-    port: 10089
+    server: "129.151.254.139"
+    port: 443
+    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    udp: true
+    sni: "www.bing.com"
+    skip-cert-verify: true
+  - name: "hy2 33"
+    type: hysteria2
+    server: "th2.yuntong.click"
+    port: 443
+    password: "22d05bac-eed0-4ee7-b5e8-a66c691cdb27"
+    udp: true
+    sni: "th2.yuntong.click"
+    obfs: "salamander"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+  - name: "hy2 51"
+    type: hysteria2
+    server: "jp01.jgpy.help"
+    port: 10086
+    udp: true
+    password: "9f4ba886-5772-4b99-bf2b-2e2e489ba77a"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 90"
+    type: hysteria2
+    server: "jp01.jgpy.help"
+    port: 10086
     password: "573402b7-156e-4141-8c3b-f01b6ebedf05"
     udp: true
     sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 88"
+  - name: "hy2 91"
     type: hysteria2
     server: "hk01.jgpy.help"
     port: 10085
     udp: true
-    password: "18f0da43-6555-4732-8565-5869076befca"
+    password: "96204982-00a2-4e96-9981-11e73dfcee79"
     sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 115"
+  - name: "hy2 93"
     type: hysteria2
-    server: "starlink-jp6.mfa.cat"
+    server: "95.179.150.22"
+    port: 443
+    password: "9ijufI4LW_ehlst!Pho-"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "9ijufI4LW_ehlst!Pho-"
+  - name: "hy2 144"
+    type: hysteria2
+    server: "starlink-jp1.mfa.cat"
     port: 20443
     password: "sI0wl1bvYlSXu2RsMSAtAIMM"
     udp: true
     sni: "www.cloudflare.com"
     skip-cert-verify: true
-  - name: "hy2 126"
+  - name: "hy2 170"
+    type: hysteria2
+    server: "starlink-sg4.mfa.cat"
+    port: 443
+    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
+  - name: "hy2 181"
     type: hysteria2
     server: "66.23.198.31"
     port: 443
@@ -32,7 +83,123 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "KevinZakarian"
-  - name: "hy2 128"
+  - name: "hy2 182"
+    type: hysteria2
+    server: "hk03.jgpy.help"
+    port: 10089
+    udp: true
+    password: "9f4ba886-5772-4b99-bf2b-2e2e489ba77a"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 197"
+    type: hysteria2
+    server: "66.245.221.42"
+    port: 443
+    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
+    udp: true
+    sni: "u727887us1737.csgfw.top"
+    alpn:
+      - "h3"
+  - name: "hy2 249"
+    type: hysteria2
+    server: "hys11.freelines.net"
+    port: 443
+    password: "d2e21fabfe6ddb83"
+    udp: true
+    sni: "www.apple.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "ca39a177"
+  - name: "hy2 283"
+    type: hysteria2
+    server: "31.57.104.31"
+    port: 22052
+    udp: true
+    password: "a2f33600-7ff1-46c4-abc9-7deb843e88a3"
+    sni: "bing.com"
+    skip-cert-verify: true
+  - name: "hy2 297"
+    type: hysteria2
+    server: "starlink-sg6.mfa.cat"
+    port: 443
+    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
+  - name: "hy2 302"
+    type: hysteria2
+    server: "66.23.198.32"
+    port: 443
+    password: "KevinZakarian"
+    udp: true
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "KevinZakarian"
+  - name: "hy2 339"
+    type: hysteria2
+    server: "starlink-mx.mfa.cat"
+    port: 443
+    password: "升级订阅解锁全部节点"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
+  - name: "hy2 347"
+    type: hysteria2
+    server: "147.45.175.72"
+    port: 443
+    password: "TEAS5wxqmV"
+    udp: true
+    sni: "anymath.ir"
+    obfs: "salamander"
+    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
+  - name: "hy2 353"
+    type: hysteria2
+    server: "jp01.jgpy.help"
+    port: 10086
+    udp: true
+    password: "0fa44720-7739-4c32-b8d6-8582c19b15c6"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 368"
+    type: hysteria2
+    server: "starlink-us2.mfa.cat"
+    port: 443
+    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
+  - name: "hy2 390"
+    type: hysteria2
+    server: "jp01.jgpy.help"
+    port: 10086
+    udp: true
+    password: "96204982-00a2-4e96-9981-11e73dfcee79"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 451"
+    type: hysteria2
+    server: "37.123.193.73"
+    port: 443
+    password: "sysadmin.sysadmin"
+    udp: true
+    skip-cert-verify: true
+  - name: "hy2 454"
+    type: hysteria2
+    server: "us01.jgpy.help"
+    port: 10078
+    udp: true
+    password: "9f4ba886-5772-4b99-bf2b-2e2e489ba77a"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 457"
+    type: hysteria2
+    server: "us01.jgpy.help"
+    port: 10078
+    udp: true
+    password: "18f0da43-6555-4732-8565-5869076befca"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 479"
     type: hysteria2
     server: "hys3.freelines.net"
     port: 443
@@ -42,92 +209,15 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "a16d0be0"
-  - name: "hy2 133"
+  - name: "hy2 487"
     type: hysteria2
-    server: "31.59.129.225"
+    server: "starlink-ca.mfa.cat"
     port: 443
-    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
-    udp: true
-    sni: "u727887us1218.csgfw.top"
-    alpn:
-      - "h3"
-  - name: "hy2 199"
-    type: hysteria2
-    server: "us01.jgpy.help"
-    port: 10078
-    password: "573402b7-156e-4141-8c3b-f01b6ebedf05"
-    udp: true
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 216"
-    type: hysteria2
-    server: "s544.ccgfw.online"
-    port: 443
-    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
-    udp: true
-    sni: "u727887us544.ccgfw.online"
-    alpn:
-      - "h3"
-  - name: "hy2 228"
-    type: hysteria2
-    server: "hys231.freelines.net"
-    port: 443
-    password: "y0qochAspE+u-HLfrip-"
-    udp: true
-    sni: "Google.com"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "2pU!&Brls!0exuP+!4so"
-  - name: "hy2 235"
-    type: hysteria2
-    server: "hk03.jgpy.help"
-    port: 10089
-    udp: true
-    password: "a4521dcc-01fc-4d5d-bd23-1543c6f8c571"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 242"
-    type: hysteria2
-    server: "starlink-jp3.mfa.cat"
-    port: 20443
-    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
+    password: "升级订阅解锁全部节点"
     udp: true
     sni: "www.cloudflare.com"
     skip-cert-verify: true
-  - name: "hy2 292"
-    type: hysteria2
-    server: "84.200.33.151"
-    port: 2056
-    udp: true
-    password: "fe9b17e8-41e1-4d1b-b588-93a23665724f"
-    sni: "nlb1.mangshe.xyz"
-    skip-cert-verify: true
-  - name: "hy2 299"
-    type: hysteria2
-    server: "103.195.189.54"
-    port: 443
-    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
-    udp: true
-    sni: "google.com"
-    skip-cert-verify: true
-  - name: "hy2 308"
-    type: hysteria2
-    server: "147.45.175.72"
-    port: 443
-    password: "TEAS5wxqmV"
-    udp: true
-    sni: "anymath.ir"
-    obfs: "salamander"
-    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
-  - name: "hy2 309"
-    type: hysteria2
-    server: "jp01.jgpy.help"
-    port: 10086
-    udp: true
-    password: "0fa44720-7739-4c32-b8d6-8582c19b15c6"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 315"
+  - name: "hy2 501"
     type: hysteria2
     server: "193.233.115.211"
     port: 443
@@ -136,35 +226,48 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "3fhqoeu51pqm"
-  - name: "hy2 326"
+  - name: "hy2 507"
     type: hysteria2
-    server: "207.246.124.135"
-    port: 443
-    password: "f6e4b19a3110d19d"
+    server: "hk03.jgpy.help"
+    port: 10089
     udp: true
-    sni: "wrmelmwxlf.gktevlrqznwqqozy.fabpfs66gizmnojhcvqxwl.kytrcfzqla87gvgvs6c7kjnrubuh.cc"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "8c3ce17b"
-  - name: "hy2 342"
-    type: hysteria2
-    server: "hk01.jgpy.help"
-    port: 10085
-    udp: true
-    password: "d44724a9-0c88-4437-9f88-e1f86aa32e25"
+    password: "379d00e1-26e9-4a3a-8417-8d326b90e683"
     sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 352"
+  - name: "hy2 518"
     type: hysteria2
-    server: "hys8.freelines.net"
+    server: "starlink-us6.mfa.cat"
     port: 443
-    password: "fokaS4id3bretay-7rit"
+    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
     udp: true
-    sni: "google.com"
+    sni: "www.cloudflare.com"
     skip-cert-verify: true
+  - name: "hy2 573"
+    type: hysteria2
+    server: "sg2.yuntong.click"
+    port: 443
+    password: "c9522c6f-f794-4db5-9e22-c06f4e53f513"
+    udp: true
+    sni: "sg2.yuntong.click"
     obfs: "salamander"
-    obfs-password: "fokaS4id3bretay-7rit"
-  - name: "hy2 390"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+  - name: "hy2 582"
+    type: hysteria2
+    server: "158.180.84.138"
+    port: 443
+    password: "148097c2-cd69-4015-992f-5939c08b9ab8"
+    udp: true
+  - name: "hy2 586"
+    type: hysteria2
+    server: "130.49.161.70"
+    port: 443
+    udp: true
+    password: "p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR"
+    obfs: "salamander"
+    obfs-password: "rG07s3COMIEvdnQipRyWzx_H_2xygNC3"
+    sni: "hy2.aspidnet.xyz"
+    skip-cert-verify: true
+  - name: "hy2 596"
     type: hysteria2
     server: "hk03.jgpy.help"
     port: 10089
@@ -172,30 +275,64 @@ proxies:
     password: "45a90d32-08bd-4dea-8345-f1f541cc7f90"
     sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 395"
+  - name: "hy2 627"
     type: hysteria2
-    server: "129.151.254.139"
+    server: "kh2.yuntong.click"
     port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    password: "c60a4b5b-63fc-42fe-b8df-8ddb2ce6f835"
     udp: true
-    sni: "www.bing.com"
-    skip-cert-verify: true
-  - name: "hy2 414"
+    sni: "kh2.yuntong.click"
+    obfs: "salamander"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+  - name: "hy2 674"
     type: hysteria2
-    server: "starlink-jp5.mfa.cat"
+    server: "starlink-sg3.mfa.cat"
+    port: 443
+    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
+  - name: "hy2 717"
+    type: hysteria2
+    server: "starlink-br.mfa.cat"
+    port: 30000
+    password: "升级订阅解锁全部节点"
+    udp: true
+    sni: "www.cloudflare.com"
+    skip-cert-verify: true
+  - name: "hy2 746"
+    type: hysteria2
+    server: "us01.jgpy.help"
+    port: 10078
+    udp: true
+    password: "96204982-00a2-4e96-9981-11e73dfcee79"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 751"
+    type: hysteria2
+    server: "hk01.jgpy.help"
+    port: 10085
+    udp: true
+    password: "93bbcae2-2ce8-4231-af2a-17628dcd36a7"
+    sni: "apple.com"
+    skip-cert-verify: true
+  - name: "hy2 794"
+    type: hysteria2
+    server: "starlink-jp3.mfa.cat"
     port: 20443
     password: "sI0wl1bvYlSXu2RsMSAtAIMM"
     udp: true
     sni: "www.cloudflare.com"
     skip-cert-verify: true
-  - name: "hy2 424"
+  - name: "hy2 851"
     type: hysteria2
-    server: "108.174.197.101"
-    port: 443
-    password: "sysadmin.sysadmin"
+    server: "jp01.jgpy.help"
+    port: 10086
     udp: true
+    password: "d44724a9-0c88-4437-9f88-e1f86aa32e25"
+    sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 451"
+  - name: "hy2 868"
     type: hysteria2
     server: "173.199.126.33"
     port: 443
@@ -204,71 +341,16 @@ proxies:
     sni: "u727887us1652.csgfw.top"
     alpn:
       - "h3"
-  - name: "hy2 507"
+  - name: "hy2 874"
     type: hysteria2
-    server: "104.168.102.17"
+    server: "108.160.134.123"
     port: 443
-    password: "sysadmin.sysadmin"
+    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
     udp: true
-    skip-cert-verify: true
-  - name: "hy2 535"
-    type: hysteria2
-    server: "starlink-us1.mfa.cat"
-    port: 443
-    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
-    udp: true
-    sni: "www.cloudflare.com"
-    skip-cert-verify: true
-  - name: "hy2 560"
-    type: hysteria2
-    server: "144.202.119.175"
-    port: 8080
-    password: "c5110090-c3a2-429e-b9b8-072b6535be1b"
-    udp: true
-    sni: "jp2.trojanws.xyz"
-  - name: "hy2 563"
-    type: hysteria2
-    server: "hk03.jgpy.help"
-    port: 10089
-    udp: true
-    password: "379d00e1-26e9-4a3a-8417-8d326b90e683"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 571"
-    type: hysteria2
-    server: "us01.jgpy.help"
-    port: 10078
-    udp: true
-    password: "0de39650-f988-4370-8837-99ffd7bff680"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 583"
-    type: hysteria2
-    server: "45.118.132.243"
-    port: 443
-    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
-    udp: true
-    sni: "yup.441122.xyz"
-    skip-cert-verify: true
-  - name: "hy2 592"
-    type: hysteria2
-    server: "66.135.11.68"
-    port: 443
-    password: "4e9ee29b39a28277"
-    udp: true
-    sni: "66.135.11.68"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "13f7ba5f"
-  - name: "hy2 680"
-    type: hysteria2
-    server: "hk03.jgpy.help"
-    port: 10089
-    udp: true
-    password: "0fa44720-7739-4c32-b8d6-8582c19b15c6"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 687"
+    sni: "u727887us1364.csgfw.top"
+    alpn:
+      - "h3"
+  - name: "hy2 899"
     type: hysteria2
     server: "jp01.jgpy.help"
     port: 10086
@@ -276,160 +358,82 @@ proxies:
     password: "93bbcae2-2ce8-4231-af2a-17628dcd36a7"
     sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 709"
-    type: hysteria2
-    server: "66.23.198.26"
-    port: 443
-    password: "KevinZakarian"
-    udp: true
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 715"
-    type: hysteria2
-    server: "jp01.jgpy.help"
-    port: 10086
-    udp: true
-    password: "9f4ba886-5772-4b99-bf2b-2e2e489ba77a"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 728"
-    type: hysteria2
-    server: "37.123.193.73"
-    port: 443
-    password: "sysadmin.sysadmin"
-    udp: true
-    skip-cert-verify: true
-  - name: "hy2 753"
-    type: hysteria2
-    server: "104.168.76.175"
-    port: 443
-    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
-    udp: true
-    sni: "u727887us175.ayxj.top"
-    alpn:
-      - "h3"
-  - name: "hy2 756"
-    type: hysteria2
-    server: "hk01.jgpy.help"
-    port: 10085
-    password: "573402b7-156e-4141-8c3b-f01b6ebedf05"
-    udp: true
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 816"
-    type: hysteria2
-    server: "hk01.jgpy.help"
-    port: 10085
-    udp: true
-    password: "0fa44720-7739-4c32-b8d6-8582c19b15c6"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 818"
-    type: hysteria2
-    server: "starlink-jp1.mfa.cat"
-    port: 20443
-    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
-    udp: true
-    sni: "www.cloudflare.com"
-    skip-cert-verify: true
-  - name: "hy2 877"
-    type: hysteria2
-    server: "hk01.jgpy.help"
-    port: 10085
-    udp: true
-    password: "9f4ba886-5772-4b99-bf2b-2e2e489ba77a"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 896"
-    type: hysteria2
-    server: "66.23.198.27"
-    port: 443
-    password: "KevinZakarian"
-    udp: true
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 906"
-    type: hysteria2
-    server: "66.245.221.42"
-    port: 443
-    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
-    udp: true
-    sni: "u727887us1737.csgfw.top"
-    alpn:
-      - "h3"
   - name: "hy2 911"
     type: hysteria2
-    server: "18.194.238.82"
+    server: "103.195.189.54"
     port: 443
+    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
     udp: true
-    password: "Masir_Sefid"
-    obfs: "salamander"
-    obfs-password: "Masir_Sefid"
-    sni: "qus.masir-sefid.shop"
-  - name: "hy2 912"
-    type: hysteria2
-    server: "starlink-sg3.mfa.cat"
-    port: 443
-    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
-    udp: true
-    sni: "www.cloudflare.com"
+    sni: "google.com"
     skip-cert-verify: true
   - name: "hy2 935"
     type: hysteria2
-    server: "starlink-ca.mfa.cat"
-    port: 443
-    password: "升级订阅解锁全部节点"
-    udp: true
-    sni: "www.cloudflare.com"
-    skip-cert-verify: true
-  - name: "hy2 954"
-    type: hysteria2
     server: "hk01.jgpy.help"
     port: 10085
     udp: true
-    password: "379d00e1-26e9-4a3a-8417-8d326b90e683"
+    password: "d44724a9-0c88-4437-9f88-e1f86aa32e25"
     sni: "apple.com"
     skip-cert-verify: true
-  - name: "hy2 958"
+  - name: "hy2 957"
     type: hysteria2
-    server: "jp01.jgpy.help"
-    port: 10086
-    udp: true
-    password: "96204982-00a2-4e96-9981-11e73dfcee79"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 960"
-    type: hysteria2
-    server: "us01.jgpy.help"
-    port: 10078
-    udp: true
-    password: "93bbcae2-2ce8-4231-af2a-17628dcd36a7"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 963"
-    type: hysteria2
-    server: "jp01.jgpy.help"
-    port: 10086
-    udp: true
-    password: "0de39650-f988-4370-8837-99ffd7bff680"
-    sni: "apple.com"
-    skip-cert-verify: true
-  - name: "hy2 970"
-    type: hysteria2
-    server: "starlink-ca.mfa.cat"
+    server: "hys1.freelines.net"
     port: 443
-    password: "%E5%8D%87%E7%BA%A7%E8%AE%A2%E9%98%85%E8%A7%A3%E9%94%81%E5%85%A8%E9%83%A8%E8%8A%82%E7%82%B9"
+    password: "d2e21fabfe6ddb83"
+    udp: true
+    sni: "www.apple.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "ca39a177"
+  - name: "hy2 964"
+    type: hysteria2
+    server: "starlink-tw1.mfa.cat"
+    port: 12401
+    password: "sI0wl1bvYlSXu2RsMSAtAIMM"
     udp: true
     sni: "www.cloudflare.com"
     skip-cert-verify: true
-  - name: "hy2 997"
+  - name: "hy2 972"
     type: hysteria2
-    server: "66.23.198.30"
+    server: "kh2.yuntong.click"
     port: 443
-    password: "KevinZakarian"
+    password: "22d05bac-eed0-4ee7-b5e8-a66c691cdb27"
     udp: true
+    sni: "kh2.yuntong.click"
+    obfs: "salamander"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+  - name: "hy2 982"
+    type: hysteria2
+    server: "172.104.42.126"
+    port: 443
+    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
+    udp: true
+    sni: "ynb.441122.xyz"
+    skip-cert-verify: true
+  - name: "hy2 983"
+    type: hysteria2
+    server: "s544.ccgfw.online"
+    port: 443
+    password: "80deaf6e-6747-35f1-848e-b8e8aeb8b2fa"
+    udp: true
+    sni: "u727887us544.ccgfw.online"
+    alpn:
+      - "h3"
+  - name: "hy2 989"
+    type: hysteria2
+    server: "sg2.yuntong.click"
+    port: 443
+    password: "22d05bac-eed0-4ee7-b5e8-a66c691cdb27"
+    udp: true
+    sni: "sg2.yuntong.click"
+    obfs: "salamander"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+  - name: "hy2 996"
+    type: hysteria2
+    server: "hys7.freelines.net"
+    port: 443
+    password: "9ijufI4LW_ehlst!Pho-"
+    udp: true
+    sni: "google.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "KevinZakarian"
+    obfs-password: "9ijufI4LW_ehlst!Pho-"
