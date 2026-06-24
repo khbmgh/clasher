@@ -1,17 +1,26 @@
 proxies:
-  - name: "hy2 28"
+  - name: "hy2 16"
     type: hysteria2
-    server: "37.123.193.73"
+    server: "108.174.197.101"
     port: 443
     password: "sysadmin.sysadmin"
     udp: true
     skip-cert-verify: true
-  - name: "hy2 39"
+  - name: "hy2 83"
     type: hysteria2
-    server: "88.99.86.235"
+    server: "88.151.33.158"
     port: 443
-    password: "7008iSe44g5ddtr4a5621r32o"
+    password: "28beee5e-40ab-3c36-b797-1e4ecf27d0a0"
+    udp: true
+    sni: "u729792us504.csgfw.top"
+    alpn:
+      - "h3"
+  - name: "hy2 93"
+    type: hysteria2
+    server: "66.23.198.30"
+    port: 443
+    password: "KevinZakarian"
     udp: true
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "i35Se47g78ar98o"
+    obfs-password: "KevinZakarian"
