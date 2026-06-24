@@ -1,30 +1,23 @@
 proxies:
-  - name: "hy2 19"
+  - name: "hy2 17"
     type: hysteria2
-    server: "103.195.189.54"
+    server: "hys11.freelines.net"
     port: 443
-    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
+    password: "d2e21fabfe6ddb83"
     udp: true
-    sni: "google.com"
-    skip-cert-verify: true
-  - name: "hy2 29"
-    type: hysteria2
-    server: "108.174.197.101"
-    port: 443
-    password: "sysadmin.sysadmin"
-    udp: true
-    skip-cert-verify: true
-  - name: "hy2 40"
-    type: hysteria2
-    server: "95.179.150.22"
-    port: 443
-    password: "9ijufI4LW_ehlst!Pho-"
-    udp: true
-    sni: "google.com"
+    sni: "www.apple.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "9ijufI4LW_ehlst!Pho-"
-  - name: "hy2 46"
+    obfs-password: "ca39a177"
+  - name: "hy2 30"
+    type: hysteria2
+    server: "84.201.25.156"
+    port: 443
+    password: "0f771058-7892-4d46-b77e-a69e811b9cbc"
+    udp: true
+    sni: "hls-svod.itunes.apple.com"
+    skip-cert-verify: true
+  - name: "hy2 40"
     type: hysteria2
     server: "38.54.4.57"
     port: 443
@@ -33,19 +26,29 @@ proxies:
     sni: "kh2.yuntong.click"
     obfs: "salamander"
     obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
-  - name: "hy2 64"
+  - name: "hy2 41"
     type: hysteria2
-    server: "37.123.193.73"
+    server: "hys7.freelines.net"
     port: 443
-    password: "sysadmin.sysadmin"
+    password: "9ijufI4LW_ehlst!Pho-"
     udp: true
+    sni: "google.com"
     skip-cert-verify: true
-  - name: "hy2 92"
+    obfs: "salamander"
+    obfs-password: "9ijufI4LW_ehlst!Pho-"
+  - name: "hy2 43"
     type: hysteria2
-    server: "150.129.10.140"
+    server: "104.168.76.175"
     port: 443
     password: "28beee5e-40ab-3c36-b797-1e4ecf27d0a0"
     udp: true
-    sni: "u729792us613.csgfw.top"
+    sni: "u729792us175.ayxj.top"
     alpn:
       - "h3"
+  - name: "hy2 114"
+    type: hysteria2
+    server: "fta.fontanvpn.com"
+    port: 443
+    password: "00dcd873-9211-4d61-ad35-87999906e5c8"
+    udp: true
+    sni: "fta.fontanvpn.com"
