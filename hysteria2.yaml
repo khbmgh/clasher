@@ -1,24 +1,46 @@
 proxies:
-  - name: "hy2 2"
+  - name: "hy2 19"
     type: hysteria2
-    server: "hys9.freelines.net"
+    server: "103.195.189.54"
     port: 443
-    password: "sTeki1$re5!8swohopro"
+    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+  - name: "hy2 29"
+    type: hysteria2
+    server: "108.174.197.101"
+    port: 443
+    password: "sysadmin.sysadmin"
+    udp: true
+    skip-cert-verify: true
+  - name: "hy2 40"
+    type: hysteria2
+    server: "95.179.150.22"
+    port: 443
+    password: "9ijufI4LW_ehlst!Pho-"
     udp: true
     sni: "google.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "sTeki1$re5!8swohopro"
-  - name: "hy2 84"
+    obfs-password: "9ijufI4LW_ehlst!Pho-"
+  - name: "hy2 46"
     type: hysteria2
-    server: "207.154.242.160"
+    server: "38.54.4.57"
     port: 443
-    password: "Masir_Sefid"
+    password: "25cccf16-5693-4c6e-9bb9-0e38da7d4475"
     udp: true
-    sni: "Api.masir-sefid-1.my"
+    sni: "kh2.yuntong.click"
     obfs: "salamander"
-    obfs-password: "Masir_Sefid"
-  - name: "hy2 86"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+  - name: "hy2 64"
+    type: hysteria2
+    server: "37.123.193.73"
+    port: 443
+    password: "sysadmin.sysadmin"
+    udp: true
+    skip-cert-verify: true
+  - name: "hy2 92"
     type: hysteria2
     server: "150.129.10.140"
     port: 443
@@ -27,18 +49,3 @@ proxies:
     sni: "u729792us613.csgfw.top"
     alpn:
       - "h3"
-  - name: "hy2 134"
-    type: hysteria2
-    server: "144.202.119.175"
-    port: 8080
-    password: "c5110090-c3a2-429e-b9b8-072b6535be1b"
-    udp: true
-    sni: "jp2.trojanws.xyz"
-  - name: "hy2 145"
-    type: hysteria2
-    server: "45.118.132.243"
-    port: 443
-    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
-    udp: true
-    sni: "yup.441122.xyz"
-    skip-cert-verify: true
