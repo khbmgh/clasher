@@ -1,19 +1,26 @@
 proxies:
-  - name: "hy2 2"
+  - name: "hy2 16"
     type: hysteria2
-    server: "66.23.198.27"
-    port: 443
-    password: "KevinZakarian"
+    server: "hkt1.nekohub.xyz"
+    port: 20006
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
     udp: true
+    sni: "www.bing.com"
     skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 109"
+  - name: "hy2 57"
     type: hysteria2
-    server: "104.168.76.175"
+    server: "84.201.25.156"
     port: 443
-    password: "9794d18f-9280-3553-a7a5-a23da75aca76"
+    password: "0f771058-7892-4d46-b77e-a69e811b9cbc"
     udp: true
-    sni: "u691611us175.ayxj.top"
-    alpn:
-      - "h3"
+    sni: "hls-svod.itunes.apple.com"
+    skip-cert-verify: true
+  - name: "hy2 70"
+    type: hysteria2
+    server: "18.194.63.255"
+    port: 443
+    password: "masir_sefid"
+    udp: true
+    sni: "content.masir-sefid.shop"
+    obfs: "salamander"
+    obfs-password: "masir_sefid"
