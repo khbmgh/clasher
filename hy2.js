@@ -19,12 +19,6 @@ https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/s
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt
 https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_4.txt
-https://tester.mr-afzoni.workers.dev/sub/normal/3170323?app=xray#%F0%9F%92%A6%20BPB%20Normal
-https://tester.mr-afzoni.workers.dev/sub/fragment/3170323?app=xray#%F0%9F%92%A6%20BPB%20Fragment
-https://tester.mr-afzoni.workers.dev/sub/warp/3170323?app=xray#%F0%9F%92%A6%20BPB%20Warp
-https://tester.mr-afzoni.workers.dev/sub/warp-pro/3170323?app=xray#%F0%9F%92%A6%20BPB%20Warp%20Pro
-https://clv2.mr-afzoni.workers.dev/Nova-Proxy?sub
-https://clashier.mr-afzoni.workers.dev/
 https://raw.githubusercontent.com/HenryPorternew/sub/refs/heads/main/raw.txt
 https://openproxylist.com/v2ray/rawlist/subscribe
 https://openproxylist.com/v2ray/rawlist/text#
