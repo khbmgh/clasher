@@ -1,38 +1,31 @@
 proxies:
-  - name: "hy2 40"
+  - name: "hy2 44"
     type: hysteria2
-    server: "66.23.198.26"
+    server: "fta.fontanvpn.com"
     port: 443
-    password: "KevinZakarian"
+    password: "00dcd873-9211-4d61-ad35-87999906e5c8"
+    udp: true
+    sni: "fta.fontanvpn.com"
+  - name: "hy2 94"
+    type: hysteria2
+    server: "20.14.96.63"
+    port: 443
+    password: "sysadmin.sysadmin"
     udp: true
     skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 65"
+  - name: "hy2 125"
     type: hysteria2
-    server: "66.23.198.30"
-    port: 443
-    password: "KevinZakarian"
+    server: "hkt1.nekohub.xyz"
+    port: 20001
     udp: true
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
+    sni: "www.bing.com"
     skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 99"
+  - name: "hy2 150"
     type: hysteria2
-    server: "104.168.76.175"
+    server: "103.195.189.54"
     port: 443
-    password: "9794d18f-9280-3553-a7a5-a23da75aca76"
+    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
     udp: true
-    sni: "u691611uecd0918ds173.sspcccdn.xyz"
-    alpn:
-      - "h3"
-  - name: "hy2 132"
-    type: hysteria2
-    server: "217.69.9.125"
-    port: 443
-    password: "y0qochAspE+u-HLfrip-"
-    udp: true
-    sni: "Google.com"
+    sni: "google.com"
     skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "2pU!&Brls!0exuP+!4so"
