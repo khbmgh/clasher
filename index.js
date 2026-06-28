@@ -53,10 +53,6 @@ https://zaya.io/C-Meta
 https://raw.githubusercontent.com/proco2024/channel/main/Telegram%3A%40config_proxy-14041130-026.txt
 https://raw.githubusercontent.com/Ali-Anv1/C-Meta/refs/heads/main/C-Meta.txt
 https://raw.githubusercontent.com/liketolivefree/kobabi/main/prov_clash.yaml
-https://tester.mr-afzoni.workers.dev/sub/normal/3170323?app=xray#%F0%9F%92%A6%20BPB%20Normal
-https://tester.mr-afzoni.workers.dev/sub/fragment/3170323?app=xray#%F0%9F%92%A6%20BPB%20Fragment
-https://tester.mr-afzoni.workers.dev/sub/warp/3170323?app=xray#%F0%9F%92%A6%20BPB%20Warp
-https://tester.mr-afzoni.workers.dev/sub/warp-pro/3170323?app=xray#%F0%9F%92%A6%20BPB%20Warp%20Pro
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Movaghat
 https://raw.githubusercontent.com/Mosifree/-FREE2CONFIG/main/Clash_Reality
 https://raw.githubusercontent.com/xtoolkit/TVC/main/subscriptions/meta/mix
