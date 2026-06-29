@@ -1,36 +1,38 @@
 proxies:
-  - name: "hy2 3"
+  - name: "hy2 2"
     type: hysteria2
-    server: "66.23.198.30"
+    server: "hys1.freelines.net"
     port: 443
-    password: "KevinZakarian"
+    password: "d2e21fabfe6ddb83"
     udp: true
+    sni: "www.apple.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 113"
+    obfs-password: "ca39a177"
+  - name: "hy2 5"
     type: hysteria2
-    server: "hys9.freelines.net"
+    server: "130.49.161.70"
     port: 443
-    password: "sTeki1$re5!8swohopro"
+    password: "p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR"
     udp: true
-    sni: "google.com"
-    skip-cert-verify: true
+    sni: "hy2.aspidnet.xyz"
     obfs: "salamander"
-    obfs-password: "sTeki1$re5!8swohopro"
-  - name: "hy2 114"
+    obfs-password: "rG07s3COMIEvdnQipRyWzx_H_2xygNC3"
+  - name: "hy2 30"
     type: hysteria2
-    server: "185.75.135.220"
-    port: 443
-    password: "00dcd873-9211-4d61-ad35-87999906e5c8"
-    udp: true
-    sni: "fta.fontanvpn.com"
-  - name: "hy2 130"
-    type: hysteria2
-    server: "192.3.118.133"
+    server: "s148.ccgfw.top"
     port: 443
     password: "9794d18f-9280-3553-a7a5-a23da75aca76"
     udp: true
-    sni: "u691611udb8727a3s2316.sspcccdn.xyz"
+    sni: "u691611us148.ccgfw.top"
     alpn:
       - "h3"
+  - name: "hy2 54"
+    type: hysteria2
+    server: "147.45.154.150"
+    port: 443
+    password: "nRSmYP828VP1UwxlAnWEbmEtlLSH5SE7"
+    udp: true
+    sni: "anymath.ir"
+    obfs: "salamander"
+    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
