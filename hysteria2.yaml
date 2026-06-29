@@ -1,19 +1,11 @@
 proxies:
-  - name: "hy2 55"
+  - name: "hy2 6"
     type: hysteria2
-    server: "88.151.33.158"
-    port: 443
-    password: "28beee5e-40ab-3c36-b797-1e4ecf27d0a0"
+    server: "hysteria.udpgw.com"
+    port: 8443
+    password: "HowdyHysteria2023w0W"
     udp: true
-    sni: "u729792us504.csgfw.top"
-    alpn:
-      - "h3"
-  - name: "hy2 87"
-    type: hysteria2
-    server: "s148.ccgfw.top"
-    port: 443
-    password: "9794d18f-9280-3553-a7a5-a23da75aca76"
-    udp: true
-    sni: "u691611us148.ccgfw.top"
-    alpn:
-      - "h3"
+    sni: "sni-here.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "HysteriaHowdy"
