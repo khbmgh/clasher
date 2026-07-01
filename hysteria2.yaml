@@ -1,34 +1,38 @@
 proxies:
-  - name: "hy2 75"
+  - name: "hy2 39"
     type: hysteria2
-    server: "103.173.155.158"
+    server: "hys11.freelines.net"
     port: 443
-    password: "9794d18f-9280-3553-a7a5-a23da75aca76"
+    password: "d2e21fabfe6ddb83"
     udp: true
-    sni: "u691611u2dd066f2s226.sspcccdn.xyz"
-    alpn:
-      - "h3"
-  - name: "hy2 78"
-    type: hysteria2
-    server: "88.151.33.158"
-    port: 443
-    password: "28beee5e-40ab-3c36-b797-1e4ecf27d0a0"
-    udp: true
-    sni: "u729792us504.csgfw.top"
-    alpn:
-      - "h3"
-  - name: "hy2 85"
-    type: hysteria2
-    server: "104.168.102.17"
-    port: 443
-    password: "sysadmin.sysadmin"
-    udp: true
+    sni: "www.apple.com"
     skip-cert-verify: true
-  - name: "hy2 128"
+    obfs: "salamander"
+    obfs-password: "ca39a177"
+  - name: "hy2 101"
     type: hysteria2
-    server: "84.201.25.156"
+    server: "103.251.167.168"
     port: 443
-    password: "0f771058-7892-4d46-b77e-a69e811b9cbc"
+    password: "gdubbi2zb6gdp0c8"
     udp: true
-    sni: "hls-svod.itunes.apple.com"
+    sni: "gettestin.xxee.ru"
+    obfs: "salamander"
+    obfs-password: "2a7e8084206388f4"
+  - name: "hy2 120"
+    type: hysteria2
+    server: "hys4.freelines.net"
+    port: 443
+    password: "f6e4b19a3110d19d"
+    udp: true
+    sni: "www.apple.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "8c3ce17b"
+  - name: "hy2 122"
+    type: hysteria2
+    server: "hkt2.nekohub.xyz"
+    port: 20005
+    udp: true
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
+    sni: "www.bing.com"
     skip-cert-verify: true
