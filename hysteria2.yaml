@@ -1,16 +1,53 @@
 proxies:
-  - name: "hy2 45"
+  - name: "hy2 28"
     type: hysteria2
-    server: "129.151.254.139"
+    server: "66.135.11.68"
     port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    password: "4e9ee29b39a28277"
     udp: true
-    sni: "www.bing.com"
+    sni: "66.135.11.68"
     skip-cert-verify: true
-  - name: "hy2 129"
+    obfs: "salamander"
+    obfs-password: "13f7ba5f"
+  - name: "hy2 59"
     type: hysteria2
-    server: "37.123.193.73"
+    server: "s554.okgfw.top"
     port: 443
-    password: "sysadmin.sysadmin"
+    password: "9794d18f-9280-3553-a7a5-a23da75aca76"
     udp: true
+    sni: "u691611us554.okgfw.top"
+    alpn:
+      - "h3"
+  - name: "hy2 104"
+    type: hysteria2
+    server: "s491.ccgfw.online"
+    port: 443
+    password: "9794d18f-9280-3553-a7a5-a23da75aca76"
+    udp: true
+    sni: "u691611us491.ccgfw.online"
+    alpn:
+      - "h3"
+  - name: "hy2 114"
+    type: hysteria2
+    server: "103.195.189.54"
+    port: 443
+    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
+    udp: true
+    sni: "google.com"
     skip-cert-verify: true
+  - name: "hy2 144"
+    type: hysteria2
+    server: "wlte8.nimarko.org"
+    port: 8450
+    password: "c059a786-3a03-4300-9ace-4f9cda0f360c"
+    udp: true
+    sni: "testing6.nimarko.org"
+  - name: "hy2 145"
+    type: hysteria2
+    server: "37.156.46.29"
+    port: 443
+    password: "Masir_Sefid"
+    udp: true
+    sni: "api.masir-sefid-1.my"
+    obfs: "salamander"
+    obfs-password: "Masir_Sefid"
