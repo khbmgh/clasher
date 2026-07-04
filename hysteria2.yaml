@@ -1,32 +1,48 @@
 proxies:
-  - name: "hy2 10"
+  - name: "hy2 30"
     type: hysteria2
-    server: "130.49.161.70"
+    server: "s665.ccgfw.top"
     port: 443
-    password: "p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR"
+    password: "28beee5e-40ab-3c36-b797-1e4ecf27d0a0"
     udp: true
-    sni: "hy2.aspidnet.xyz"
-    obfs: "salamander"
-    obfs-password: "rG07s3COMIEvdnQipRyWzx_H_2xygNC3"
-  - name: "hy2 113"
+    sni: "u729792us665.ccgfw.top"
+    alpn:
+      - "h3"
+  - name: "hy2 70"
     type: hysteria2
-    server: "fta.fontanvpn.com"
-    port: 443
-    password: "00dcd873-9211-4d61-ad35-87999906e5c8"
+    server: "hkt2.nekohub.xyz"
+    port: 20004
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
     udp: true
-    sni: "fta.fontanvpn.com"
-  - name: "hy2 119"
-    type: hysteria2
-    server: "45.118.132.243"
-    port: 443
-    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
-    udp: true
-    sni: "yup.441122.xyz"
+    sni: "www.bing.com"
     skip-cert-verify: true
-  - name: "hy2 147"
+  - name: "hy2 83"
     type: hysteria2
-    server: "20.14.96.63"
+    server: "31.76.28.28"
+    port: 443
+    password: "8bc63720-5ec8-45b5-b6a6-9a21ffb490e8"
+    udp: true
+    sni: "argg5.auragg.org"
+  - name: "hy2 98"
+    type: hysteria2
+    server: "108.174.197.101"
     port: 443
     password: "sysadmin.sysadmin"
     udp: true
+    skip-cert-verify: true
+  - name: "hy2 110"
+    type: hysteria2
+    server: "hkt2.nekohub.xyz"
+    port: 20005
+    udp: true
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
+    sni: "www.bing.com"
+    skip-cert-verify: true
+  - name: "hy2 129"
+    type: hysteria2
+    server: "hkt2.nekohub.xyz"
+    port: 20001
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
+    udp: true
+    sni: "www.bing.com"
     skip-cert-verify: true
