@@ -1,29 +1,43 @@
 proxies:
-  - name: "hy2 13"
+  - name: "hy2 29"
     type: hysteria2
-    server: "hys9.freelines.net"
+    server: "88.151.33.158"
     port: 443
-    password: "sTeki1$re5!8swohopro"
+    password: "28beee5e-40ab-3c36-b797-1e4ecf27d0a0"
     udp: true
-    sni: "google.com"
+    sni: "u729792us504.csgfw.top"
+    alpn:
+      - "h3"
+  - name: "hy2 96"
+    type: hysteria2
+    server: "wlte3.nimarko.org"
+    port: 8444
+    password: "c059a786-3a03-4300-9ace-4f9cda0f360c"
+    udp: true
+    sni: "testing8.nimarko.org"
+  - name: "hy2 97"
+    type: hysteria2
+    server: "hkt2.nekohub.xyz"
+    port: 20007
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
+    udp: true
+    sni: "www.bing.com"
+    skip-cert-verify: true
+  - name: "hy2 107"
+    type: hysteria2
+    server: "hkt2.nekohub.xyz"
+    port: 20001
+    password: "a8d37bf8-ff5b-4de8-8796-2de9c4072b41"
+    udp: true
+    sni: "www.bing.com"
+    skip-cert-verify: true
+  - name: "hy2 113"
+    type: hysteria2
+    server: "hys1.freelines.net"
+    port: 443
+    password: "d2e21fabfe6ddb83"
+    udp: true
+    sni: "www.apple.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "sTeki1$re5!8swohopro"
-  - name: "hy2 25"
-    type: hysteria2
-    server: "103.251.167.168"
-    port: 443
-    password: "gdubbi2zb6gdp0c8"
-    udp: true
-    sni: "gettestin.xxee.ru"
-    obfs: "salamander"
-    obfs-password: "2a7e8084206388f4"
-  - name: "hy2 144"
-    type: hysteria2
-    server: "66.23.198.27"
-    port: 443
-    password: "KevinZakarian"
-    udp: true
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
+    obfs-password: "ca39a177"
