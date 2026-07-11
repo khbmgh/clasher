@@ -1,39 +1,53 @@
 proxies:
+  - name: "hy2 10"
+    type: hysteria2
+    server: "hys8.freelines.net"
+    port: 443
+    password: "fokaS4id3bretay-7rit"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "fokaS4id3bretay-7rit"
+  - name: "hy2 51"
+    type: hysteria2
+    server: "us-lax-dc12-004.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 52"
+    type: hysteria2
+    server: "kr-icn-dc12-001.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
   - name: "hy2 60"
     type: hysteria2
-    server: "hys23.freelines.net"
+    server: "37.123.193.73"
     port: 443
-    password: "y0qochAspE+u-HLfrip-"
+    password: "sysadmin.sysadmin"
     udp: true
-    sni: "Google.com"
     skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "2pU!&Brls!0exuP+!4so"
-  - name: "hy2 73"
+  - name: "hy2 111"
     type: hysteria2
-    server: "147.45.175.72"
+    server: "84.201.25.156"
     port: 443
-    password: "TEAS5wxqmV"
+    password: "0f771058-7892-4d46-b77e-a69e811b9cbc"
     udp: true
-    sni: "anymath.ir"
-    obfs: "salamander"
-    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
-  - name: "hy2 75"
-    type: hysteria2
-    server: "147.45.154.150"
-    port: 443
-    password: "nRSmYP828VP1UwxlAnWEbmEtlLSH5SE7"
-    udp: true
-    sni: "anymath.ir"
-    obfs: "salamander"
-    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
-  - name: "hy2 130"
-    type: hysteria2
-    server: "hys1.freelines.net"
-    port: 443
-    password: "d2e21fabfe6ddb83"
-    udp: true
-    sni: "www.apple.com"
+    sni: "hls-svod.itunes.apple.com"
     skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "ca39a177"
+  - name: "hy2 126"
+    type: hysteria2
+    server: "88.151.33.158"
+    port: 443
+    password: "5d02517f-63d5-3e9f-b467-1bcf4d4e25d3"
+    udp: true
+    sni: "u695099us504.csgfw.top"
+    alpn:
+      - "h3"
