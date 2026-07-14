@@ -1,37 +1,35 @@
 proxies:
-  - name: "hy2 15"
+  - name: "hy2 7"
     type: hysteria2
-    server: "jp-tyo-dc28-002.node.valaccess.com"
+    server: "assets.gateway-stream.com"
+    port: 52005
+    password: "elknam6l7izf3z71"
+    udp: true
+    obfs: "salamander"
+    obfs-password: "xurzv3qedv07k4f0"
+  - name: "hy2 20"
+    type: hysteria2
+    server: "66.23.198.31"
+    port: 443
+    password: "KevinZakarian"
+    udp: true
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "KevinZakarian"
+  - name: "hy2 116"
+    type: hysteria2
+    server: "jp-tyo-dc28-004.node.valaccess.com"
     port: 443
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
     sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 42"
+  - name: "hy2 150"
     type: hysteria2
-    server: "hysteria.udpgw.com"
-    port: 8443
-    password: "HowdyHysteria2023w0W"
-    udp: true
-    sni: "sni-here.com"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "HysteriaHowdy"
-  - name: "hy2 68"
-    type: hysteria2
-    server: "129.151.254.139"
+    server: "45.118.132.243"
     port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
     udp: true
-    sni: "www.bing.com"
+    sni: "yup.441122.xyz"
     skip-cert-verify: true
-  - name: "hy2 85"
-    type: hysteria2
-    server: "103.251.165.57"
-    port: 443
-    password: "5d02517f-63d5-3e9f-b467-1bcf4d4e25d3"
-    udp: true
-    sni: "u695099uc19c1585s677.sspcccdn.xyz"
-    alpn:
-      - "h3"
