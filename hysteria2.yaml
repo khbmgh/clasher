@@ -1,44 +1,18 @@
 proxies:
-  - name: "hy2 21"
+  - name: "hy2 40"
     type: hysteria2
-    server: "37.123.193.73"
-    port: 443
-    password: "sysadmin.sysadmin"
+    server: "assets.gateway-stream.com"
+    port: 52005
     udp: true
-    skip-cert-verify: true
-  - name: "hy2 89"
-    type: hysteria2
-    server: "103.195.189.54"
-    port: 443
-    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
-    udp: true
-    sni: "google.com"
-    skip-cert-verify: true
-  - name: "hy2 103"
-    type: hysteria2
-    server: "135.106.156.10"
-    port: 4443
-    password: "356c6c63-0ef7-4c45-a092-742d09b925c3"
-    udp: true
-    sni: "ru.24rostelekom.ru"
-    skip-cert-verify: true
-    alpn:
-      - "h3"
-  - name: "hy2 106"
-    type: hysteria2
-    server: "130.162.250.164"
-    port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
-    udp: true
-    sni: "www.bing.com"
-    skip-cert-verify: true
-  - name: "hy2 133"
-    type: hysteria2
-    server: "hys6.freelines.net"
-    port: 443
-    password: "cih$phu-rlMofru7i4r9"
-    udp: true
-    sni: "google.com"
-    skip-cert-verify: true
+    password: "elknam6l7izf3z71"
     obfs: "salamander"
-    obfs-password: "cih$phu-rlMofru7i4r9"
+    obfs-password: "xurzv3qedv07k4f0"
+  - name: "hy2 77"
+    type: hysteria2
+    server: "kr-icn-dc12-005.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
