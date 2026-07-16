@@ -1,38 +1,41 @@
 proxies:
-  - name: "hy2 8"
+  - name: "hy2 30"
     type: hysteria2
-    server: "45.118.132.243"
+    server: "kr-icn-dc12-001.node.valaccess.com"
     port: 443
-    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
-    udp: true
-    sni: "yup.441122.xyz"
-    skip-cert-verify: true
-  - name: "hy2 73"
-    type: hysteria2
-    server: "hk-hkg-dc23-005.node.valaccess.com"
-    port: 443
-    udp: true
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-    ports: "20000-40000"
-    sni: "na.node.valaccess.com"
-  - name: "hy2 119"
+  - name: "hy2 50"
     type: hysteria2
-    server: "95.217.96.131"
-    port: 52000
-    password: "elknam6l7izf3z71"
+    server: "158.180.84.138"
+    port: 443
+    password: "148097c2-cd69-4015-992f-5939c08b9ab8"
     udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "gu74jg3ym0e21zco"
-  - name: "hy2 124"
+  - name: "hy2 64"
     type: hysteria2
-    server: "hysteria.udpgw.com"
-    port: 8443
-    password: "HowdyHysteria2023w0W"
+    server: "37.123.193.73"
+    port: 443
+    password: "sysadmin.sysadmin"
     udp: true
-    sni: "sni-here.com"
     skip-cert-verify: true
+  - name: "hy2 84"
+    type: hysteria2
+    server: "jp-tyo-dc28-001.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
     obfs: "salamander"
-    obfs-password: "HysteriaHowdy"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 98"
+    type: hysteria2
+    server: "jp-tyo-dc28-002.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
