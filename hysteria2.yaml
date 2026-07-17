@@ -1,28 +1,6 @@
 proxies:
   - name: "hy2 30"
     type: hysteria2
-    server: "kr-icn-dc12-001.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
-    obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 50"
-    type: hysteria2
-    server: "158.180.84.138"
-    port: 443
-    password: "148097c2-cd69-4015-992f-5939c08b9ab8"
-    udp: true
-  - name: "hy2 64"
-    type: hysteria2
-    server: "37.123.193.73"
-    port: 443
-    password: "sysadmin.sysadmin"
-    udp: true
-    skip-cert-verify: true
-  - name: "hy2 84"
-    type: hysteria2
     server: "jp-tyo-dc28-001.node.valaccess.com"
     port: 443
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
@@ -30,12 +8,49 @@ proxies:
     sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 98"
+  - name: "hy2 53"
     type: hysteria2
-    server: "jp-tyo-dc28-002.node.valaccess.com"
+    server: "us-lax-dc12-002.node.valaccess.com"
     port: 443
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
     sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 74"
+    type: hysteria2
+    server: "54.149.34.181"
+    port: 443
+    password: "H7mP2xY9kJ4nQ8wR5tF6vB3z"
+    udp: true
+    skip-cert-verify: true
+  - name: "hy2 87"
+    type: hysteria2
+    server: "kr-icn-dc12-005.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 88"
+    type: hysteria2
+    server: "158.180.84.138"
+    port: 443
+    password: "148097c2-cd69-4015-992f-5939c08b9ab8"
+    udp: true
+  - name: "hy2 94"
+    type: hysteria2
+    server: "argg2.auragg.org"
+    port: 443
+    password: "b05346a9-4d13-41a4-8d2a-6b7b64e73ffc"
+    udp: true
+    sni: "argg2.auragg.org"
+  - name: "hy2 110"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52003
+    password: "elknam6l7izf3z71"
+    udp: true
+    obfs: "salamander"
+    obfs-password: "5xo4v7u2pv8bktvb"
