@@ -244,15 +244,15 @@ function proxyToSingbox(p) {
 
 function buildTlsObj(p) {
     const tls = { enabled: true };
-    if (p.servername || p.sni) tls.server_name = p.servername || p.sni;
+    if (p.servername || p.sni) tls.server_name = String(p.servername || p.sni);
     if (p['skip-cert-verify']) tls.insecure = true;
-    if (p.alpn) tls.alpn = [].concat(p.alpn);
-    if (p['client-fingerprint']) tls.utls = { enabled: true, fingerprint: p['client-fingerprint'] };
+    if (p.alpn) tls.alpn = [].concat(p.alpn).map(String);
+    if (p['client-fingerprint']) tls.utls = { enabled: true, fingerprint: String(p['client-fingerprint']) };
     if (p['reality-opts']) {
         tls.reality = {
             enabled: true,
-            public_key: p['reality-opts']['public-key'],
-            short_id: p['reality-opts']['short-id'] || '',
+            public_key: String(p['reality-opts']['public-key'] || ''),
+            short_id: p['reality-opts']['short-id'] ? String(p['reality-opts']['short-id']) : ''
         };
     }
     return tls;
@@ -262,17 +262,22 @@ function buildTransport(p) {
     if (!p.network || p.network === 'tcp') return null;
     if (p.network === 'ws') {
         const t = { type: 'ws' };
-        if (p['ws-opts']?.path) t.path = p['ws-opts'].path;
-        if (p['ws-opts']?.headers) t.headers = p['ws-opts'].headers;
+        if (p['ws-opts']?.path) t.path = String(p['ws-opts'].path);
+        if (p['ws-opts']?.headers) {
+            t.headers = {};
+            for (const [k, v] of Object.entries(p['ws-opts'].headers)) {
+                t.headers[k] = String(v);
+            }
+        }
         return t;
     }
     if (p.network === 'grpc') {
-        return { type: 'grpc', service_name: p['grpc-opts']?.['grpc-service-name'] || '' };
+        return { type: 'grpc', service_name: p['grpc-opts']?.['grpc-service-name'] ? String(p['grpc-opts']['grpc-service-name']) : '' };
     }
     if (p.network === 'h2') {
         const t = { type: 'http' };
-        if (p['h2-opts']?.path) t.path = p['h2-opts'].path;
-        if (p['h2-opts']?.host) t.host = [].concat(p['h2-opts'].host);
+        if (p['h2-opts']?.path) t.path = String(p['h2-opts'].path);
+        if (p['h2-opts']?.host) t.host = [].concat(p['h2-opts'].host).map(String);
         return t;
     }
     return null;
@@ -280,11 +285,11 @@ function buildTransport(p) {
 
 function vlessToSingbox(p) {
     const out = {
-        tag: p.name, type: 'vless',
-        server: p.server, server_port: p.port,
-        uuid: p.uuid,
+        tag: String(p.name), type: 'vless',
+        server: String(p.server), server_port: parseInt(p.port, 10),
+        uuid: String(p.uuid),
     };
-    if (p.flow) out.flow = p.flow;
+    if (p.flow) out.flow = String(p.flow);
     if (p.tls) out.tls = buildTlsObj(p);
     const transport = buildTransport(p);
     if (transport) out.transport = transport;
@@ -293,10 +298,10 @@ function vlessToSingbox(p) {
 
 function vmessToSingbox(p) {
     const out = {
-        tag: p.name, type: 'vmess',
-        server: p.server, server_port: p.port,
-        uuid: p.uuid, alter_id: p.alterId || 0,
-        security: p.cipher || 'auto',
+        tag: String(p.name), type: 'vmess',
+        server: String(p.server), server_port: parseInt(p.port, 10),
+        uuid: String(p.uuid), alter_id: parseInt(p.alterId || 0, 10),
+        security: p.cipher ? String(p.cipher) : 'auto',
     };
     if (p.tls) out.tls = buildTlsObj(p);
     const transport = buildTransport(p);
@@ -306,9 +311,9 @@ function vmessToSingbox(p) {
 
 function trojanToSingbox(p) {
     const out = {
-        tag: p.name, type: 'trojan',
-        server: p.server, server_port: p.port,
-        password: p.password,
+        tag: String(p.name), type: 'trojan',
+        server: String(p.server), server_port: parseInt(p.port, 10),
+        password: String(p.password),
     };
     out.tls = buildTlsObj(p);
     const transport = buildTransport(p);
@@ -318,41 +323,41 @@ function trojanToSingbox(p) {
 
 function ssToSingbox(p) {
     return {
-        tag: p.name, type: 'shadowsocks',
-        server: p.server, server_port: p.port,
-        method: p.cipher, password: p.password,
+        tag: String(p.name), type: 'shadowsocks',
+        server: String(p.server), server_port: parseInt(p.port, 10),
+        method: String(p.cipher), password: String(p.password),
     };
 }
 
 function hy2ToSingbox(p) {
     const out = {
-        tag: p.name, type: 'hysteria2',
-        server: p.server, server_port: p.port,
-        password: p.password,
+        tag: String(p.name), type: 'hysteria2',
+        server: String(p.server), server_port: parseInt(p.port, 10),
+        password: String(p.password),
     };
     const tls = { enabled: true };
-    if (p.sni) tls.server_name = p.sni;
+    if (p.sni) tls.server_name = String(p.sni);
     if (p['skip-cert-verify']) tls.insecure = true;
-    if (p.alpn) tls.alpn = [].concat(p.alpn);
+    if (p.alpn) tls.alpn = [].concat(p.alpn).map(String);
     out.tls = tls;
-    if (p.obfs === 'salamander') out.obfs = { type: 'salamander', password: p['obfs-password'] || '' };
-    if (p.up) out.up_mbps = parseInt(p.up) || undefined;
-    if (p.down) out.down_mbps = parseInt(p.down) || undefined;
+    if (p.obfs === 'salamander') out.obfs = { type: 'salamander', password: p['obfs-password'] ? String(p['obfs-password']) : '' };
+    if (p.up) out.up_mbps = parseInt(p.up, 10) || undefined;
+    if (p.down) out.down_mbps = parseInt(p.down, 10) || undefined;
     return out;
 }
 
 function tuicToSingbox(p) {
     const out = {
-        tag: p.name, type: 'tuic',
-        server: p.server, server_port: p.port,
-        uuid: p.uuid, password: p.password,
+        tag: String(p.name), type: 'tuic',
+        server: String(p.server), server_port: parseInt(p.port, 10),
+        uuid: String(p.uuid), password: String(p.password),
     };
-    if (p['congestion-controller']) out.congestion_control = p['congestion-controller'];
-    if (p['udp-relay-mode']) out.udp_relay_mode = p['udp-relay-mode'];
+    if (p['congestion-controller']) out.congestion_control = String(p['congestion-controller']);
+    if (p['udp-relay-mode']) out.udp_relay_mode = String(p['udp-relay-mode']);
     const tls = { enabled: true };
-    if (p.sni) tls.server_name = p.sni;
+    if (p.sni) tls.server_name = String(p.sni);
     if (p['skip-cert-verify']) tls.insecure = true;
-    if (p.alpn) tls.alpn = [].concat(p.alpn);
+    if (p.alpn) tls.alpn = [].concat(p.alpn).map(String);
     out.tls = tls;
     return out;
 }
@@ -362,45 +367,45 @@ function wgToSingbox(p) {
     if (p.ip) local_address.push(`${p.ip}/32`);
     if (p.ipv6) local_address.push(`${p.ipv6}/128`);
     const out = {
-        tag: p.name, type: 'wireguard',
-        server: p.server, server_port: p.port,
+        tag: String(p.name), type: 'wireguard',
+        server: String(p.server), server_port: parseInt(p.port, 10),
         local_address,
-        private_key: p['private-key'],
-        peer_public_key: p['public-key'],
+        private_key: String(p['private-key']),
+        peer_public_key: String(p['public-key']),
     };
     if (p.reserved) out.reserved = [].concat(p.reserved);
-    if (p.mtu) out.mtu = p.mtu;
+    if (p.mtu) out.mtu = parseInt(p.mtu, 10);
     return out;
 }
 
 function socksToSingbox(p) {
     const out = {
-        tag: p.name, type: 'socks',
-        server: p.server, server_port: p.port, version: '5',
+        tag: String(p.name), type: 'socks',
+        server: String(p.server), server_port: parseInt(p.port, 10), version: '5',
     };
-    if (p.username) out.username = p.username;
-    if (p.password) out.password = p.password;
+    if (p.username) out.username = String(p.username);
+    if (p.password) out.password = String(p.password);
     return out;
 }
 
 function httpToSingbox(p) {
     const out = {
-        tag: p.name, type: 'http',
-        server: p.server, server_port: p.port,
+        tag: String(p.name), type: 'http',
+        server: String(p.server), server_port: parseInt(p.port, 10),
     };
-    if (p.username) out.username = p.username;
-    if (p.password) out.password = p.password;
+    if (p.username) out.username = String(p.username);
+    if (p.password) out.password = String(p.password);
     if (p.tls) out.tls = { enabled: true };
     return out;
 }
 
 function sshToSingbox(p) {
     const out = {
-        tag: p.name, type: 'ssh',
-        server: p.server, server_port: p.port,
+        tag: String(p.name), type: 'ssh',
+        server: String(p.server), server_port: parseInt(p.port, 10),
     };
-    if (p.username) out.user = p.username;
-    if (p.password) out.password = p.password;
+    if (p.username) out.user = String(p.username);
+    if (p.password) out.password = String(p.password);
     return out;
 }
 
@@ -436,14 +441,24 @@ function buildSingboxConfig(outbounds) {
             { type: "selector", tag: "proxy", outbounds: ["auto", ...outbounds.map(o => o.tag)] },
             { type: "urltest", tag: "auto", outbounds: outbounds.map(o => o.tag), url: "https://www.gstatic.com/generate_204", interval: "5m" },
             { type: "direct", tag: "direct" },
-            { type: "block", tag: "block" },
-            { type: "dns", tag: "dns-out" },
+            // حذف کامل outboundهای منسوخ شده "block" و "dns"
             ...outbounds
         ],
         route: {
             rules: [
-                { protocol: "dns", outbound: "dns-out" },
-                { geoip: ["private"], outbound: "direct" }
+                // استفاده از اکشن جدید به جای outbound قدیمی DNS
+                { protocol: "dns", action: "hijack-dns" },
+                { 
+                    ip_cidr: [
+                        "10.0.0.0/8",
+                        "172.16.0.0/12",
+                        "192.168.0.0/16",
+                        "224.0.0.0/4",
+                        "fc00::/7",
+                        "fe80::/10"
+                    ], 
+                    outbound: "direct" 
+                }
             ],
             final: "proxy",
             auto_detect_interface: true
