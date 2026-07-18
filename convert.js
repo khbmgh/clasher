@@ -422,11 +422,11 @@ function buildSingboxConfig(outbounds) {
         log: { level: "warn", timestamp: true },
         dns: {
             servers: [
-                // استفاده از پروتکل tls برای رفع قطعی ارور legacy DNS
                 { tag: "google", address: "tls://8.8.8.8", detour: "proxy" },
                 { tag: "local", address: "local", detour: "direct" }
             ],
-            rules: [{ outbound: "any", server: "local" }],
+            // قواعد منسوخ شده "outbound: any" از اینجا کاملاً حذف شدند تا هسته ۱.۱۴ کرش نکند.
+            rules: [], 
             final: "google"
         },
         inbounds: [
@@ -436,7 +436,6 @@ function buildSingboxConfig(outbounds) {
                 address: ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
                 auto_route: true,
                 strict_route: true
-                // کلید sniff: true به دلیل منسوخ شدن در نسخه 1.14 از اینجا حذف شد
             },
             {
                 type: "mixed",
@@ -453,7 +452,6 @@ function buildSingboxConfig(outbounds) {
         ],
         route: {
             rules: [
-                // رول جدید که جایگزین sniff: true در inboundها شده است
                 { action: "sniff" },
                 { protocol: "dns", action: "hijack-dns" },
                 { 
