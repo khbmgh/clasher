@@ -422,8 +422,8 @@ function buildSingboxConfig(outbounds) {
         log: { level: "warn", timestamp: true },
         dns: {
             servers: [
-                // فرمت جدید و الزامی: حتما باید شامل scheme (مثل https یا tls) باشد
-                { tag: "google", address: "https://8.8.8.8/dns-query", detour: "proxy" },
+                // استفاده از پروتکل tls برای رفع قطعی ارور legacy DNS
+                { tag: "google", address: "tls://8.8.8.8", detour: "proxy" },
                 { tag: "local", address: "local", detour: "direct" }
             ],
             rules: [{ outbound: "any", server: "local" }],
