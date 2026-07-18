@@ -1,14 +1,14 @@
 proxies:
-  - name: "hy2 17"
+  - name: "hy2 30"
     type: hysteria2
-    server: "hk-hkg-dc23-003.node.valaccess.com"
+    server: "38.54.4.57"
     port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
-    sni: "na.node.valaccess.com"
+    password: "25cccf16-5693-4c6e-9bb9-0e38da7d4475"
     obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 41"
+    obfs-password: "eNM/NfxTsBqQIKcN0ezARS1z0f5mIxRd9GSwhVsyJlo="
+    sni: "kh2.yuntong.click"
+  - name: "hy2 52"
     type: hysteria2
     server: "tw-tpe-dc07-004.node.valaccess.com"
     port: 443
@@ -17,3 +17,14 @@ proxies:
     sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 80"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52000
+    password: "elknam6l7izf3z71"
+    udp: true
+    skip-cert-verify: true
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "gu74jg3ym0e21zco"
