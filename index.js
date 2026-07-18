@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 // ۱. تنظیمات
 // =====================================================
 const FETCH_TIMEOUT    = 15000;
-const MAX_PER_PROTOCOL = 150;
+const MAX_PER_PROTOCOL = 250;
 
 const SUBS = [...new Set(`
 https://raw.githubusercontent.com/10ium/base64-encoder/main/encoded/10ium_proxy_configs.txt
