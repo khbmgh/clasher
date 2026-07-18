@@ -1,42 +1,52 @@
 proxies:
-  - name: "hy2 17"
+  - name: "hy2 18"
     type: hysteria2
-    server: "66.23.198.32"
+    server: "104.168.102.17"
     port: 443
-    password: "KevinZakarian"
+    password: "sysadmin.sysadmin"
     udp: true
     skip-cert-verify: true
+  - name: "hy2 19"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52008
+    password: "elknam6l7izf3z71"
+    udp: true
+    sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 84"
+    obfs-password: "93lc6r07zfx4crct"
+  - name: "hy2 21"
     type: hysteria2
-    server: "ffc60249-t53wg0-t92wi1-1qkeg.hk2.hyhuawei.com"
+    server: "fast88.screw.page"
     port: 443
-    password: "a305ac08-d136-11ee-b6db-f23c91cfbbc9"
+    password: "c0aa0cee-e855-4bcc-9afc-46241cb17990"
     udp: true
-    sni: "ffc60249-t53wg0-t92wi1-1qkeg.hk2.hyhuawei.com"
-  - name: "hy2 102"
+  - name: "hy2 41"
     type: hysteria2
-    server: "hk-hkg-dc23-004.node.valaccess.com"
+    server: "51.15.19.206"
+    port: 8443
+    password: "HowdyHysteria2023w0W"
+    udp: true
+    sni: "vkvd127.mycdn.me"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "HysteriaHowdy"
+  - name: "hy2 68"
+    type: hysteria2
+    server: "nl1.jamezwin.org"
     port: 443
+    password: "9204bccb42c743799c6069feccb7832d"
+    udp: true
+    sni: "nl1.jamezwin.org"
+    obfs: "salamander"
+    obfs-password: "jmtfanpzqdxu4tn7"
+  - name: "hy2 99"
+    type: hysteria2
+    server: "kr-icn-dc12-002.node.valaccess.com"
+    port: 443
+    udp: true
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 113"
-    type: hysteria2
-    server: "66.135.11.68"
-    port: 443
-    password: "4e9ee29b39a28277"
-    udp: true
-    sni: "66.135.11.68"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "13f7ba5f"
-  - name: "hy2 117"
-    type: hysteria2
-    server: "158.180.84.138"
-    port: 443
-    password: "148097c2-cd69-4015-992f-5939c08b9ab8"
-    udp: true
+    ports: "20000-40000"
+    sni: "na.node.valaccess.com"
