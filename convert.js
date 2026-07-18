@@ -52,7 +52,6 @@ function parseProxiesYaml(text) {
         const valStr = kv[3].trim();
 
         if (valStr === '') {
-            // nested object یا array شروع می‌شه
             currentNestedKey = key;
             currentNestedIndent = indent;
             if (knownListKeys.has(key)) current[key] = [];
@@ -366,14 +365,22 @@ function wgToSingbox(p) {
     const local_address = [];
     if (p.ip) local_address.push(`${p.ip}/32`);
     if (p.ipv6) local_address.push(`${p.ipv6}/128`);
+    
+    // در سینگ‌باکس نسخه‌های جدید، اطلاعات سرور به جای ریشه باید درون لیست peers تعریف شود
     const out = {
         tag: String(p.name), type: 'wireguard',
-        server: String(p.server), server_port: parseInt(p.port, 10),
         local_address,
         private_key: String(p['private-key']),
-        peer_public_key: String(p['public-key']),
+        peers: [
+            {
+                server: String(p.server),
+                server_port: parseInt(p.port, 10),
+                public_key: String(p['public-key']),
+            }
+        ]
     };
-    if (p.reserved) out.reserved = [].concat(p.reserved);
+    
+    if (p.reserved) out.peers[0].reserved = [].concat(p.reserved).map(Number);
     if (p.mtu) out.mtu = parseInt(p.mtu, 10);
     return out;
 }
@@ -415,7 +422,8 @@ function buildSingboxConfig(outbounds) {
         log: { level: "warn", timestamp: true },
         dns: {
             servers: [
-                { tag: "google", address: "8.8.8.8" },
+                // فرمت جدید و الزامی: حتما باید شامل scheme (مثل https یا tls) باشد
+                { tag: "google", address: "https://8.8.8.8/dns-query", detour: "proxy" },
                 { tag: "local", address: "local", detour: "direct" }
             ],
             rules: [{ outbound: "any", server: "local" }],
@@ -427,8 +435,8 @@ function buildSingboxConfig(outbounds) {
                 tag: "tun-in",
                 address: ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
                 auto_route: true,
-                strict_route: true,
-                sniff: true
+                strict_route: true
+                // کلید sniff: true به دلیل منسوخ شدن در نسخه 1.14 از اینجا حذف شد
             },
             {
                 type: "mixed",
@@ -441,12 +449,12 @@ function buildSingboxConfig(outbounds) {
             { type: "selector", tag: "proxy", outbounds: ["auto", ...outbounds.map(o => o.tag)] },
             { type: "urltest", tag: "auto", outbounds: outbounds.map(o => o.tag), url: "https://www.gstatic.com/generate_204", interval: "5m" },
             { type: "direct", tag: "direct" },
-            // حذف کامل outboundهای منسوخ شده "block" و "dns"
             ...outbounds
         ],
         route: {
             rules: [
-                // استفاده از اکشن جدید به جای outbound قدیمی DNS
+                // رول جدید که جایگزین sniff: true در inboundها شده است
+                { action: "sniff" },
                 { protocol: "dns", action: "hijack-dns" },
                 { 
                     ip_cidr: [
