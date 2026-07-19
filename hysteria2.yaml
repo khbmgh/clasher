@@ -1,38 +1,43 @@
 proxies:
-  - name: "hy2 28"
+  - name: "hy2 8"
     type: hysteria2
-    server: "hk-hkg-dc23-001.node.valaccess.com"
+    server: "62.210.124.146"
+    port: 22000
+    password: "dongtaiwang.com"
+    udp: true
+    sni: "www.microsoft.com"
+    skip-cert-verify: true
+  - name: "hy2 63"
+    type: hysteria2
+    server: "argg2.auragg.org"
+    port: 443
+    password: "b05346a9-4d13-41a4-8d2a-6b7b64e73ffc"
+    udp: true
+    sni: "argg2.auragg.org"
+  - name: "hy2 73"
+    type: hysteria2
+    server: "jp-tyo-dc28-001.node.valaccess.com"
     port: 443
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
     sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 53"
+  - name: "hy2 115"
     type: hysteria2
-    server: "217.69.9.125"
+    server: "us-lax-dc12-004.node.valaccess.com"
     port: 443
-    password: "y0qochAspE+u-HLfrip-"
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
-    sni: "Google.com"
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 128"
+    type: hysteria2
+    server: "66.23.198.31"
+    port: 443
+    password: "KevinZakarian"
+    udp: true
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "2pU!&Brls!0exuP+!4so"
-  - name: "hy2 75"
-    type: hysteria2
-    server: "tw-tpe-dc07-001.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
-    obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 94"
-    type: hysteria2
-    server: "31.22.91.243"
-    port: 443
-    password: "EsimHy2Game_7xK9mPq2"
-    udp: true
-    sni: "se.esimpson.org"
-    obfs: "salamander"
-    obfs-password: "EsimObfs_9mK2x7"
+    obfs-password: "KevinZakarian"
