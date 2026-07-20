@@ -1,37 +1,51 @@
 proxies:
-  - name: "hy2 42"
+  - name: "hy2 13"
     type: hysteria2
-    server: "hk-hkg-dc23-004.node.valaccess.com"
-    port: 443
+    server: "assets.gateway-stream.com"
+    port: 52002
+    password: "elknam6l7izf3z71"
     udp: true
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    sni: "assets.gateway-stream.com"
+  - name: "hy2 18"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52009
+    password: "elknam6l7izf3z71"
+    udp: true
     obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-    ports: "20000-40000"
-    sni: "na.node.valaccess.com"
-  - name: "hy2 102"
+    obfs-password: "kf1lypzqidy6pimt"
+  - name: "hy2 26"
     type: hysteria2
-    server: "108.174.197.101"
+    server: "hys2.freelines.net"
     port: 443
-    password: "sysadmin.sysadmin"
+    password: "9f73c619627d6a5d"
     udp: true
+    sni: "www.apple.com"
     skip-cert-verify: true
-  - name: "hy2 131"
-    type: hysteria2
-    server: "jp-tyo-dc28-002.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
     obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 141"
+    obfs-password: "bd7f765e"
+  - name: "hy2 28"
     type: hysteria2
-    server: "us-lax-dc12-003.node.valaccess.com"
-    port: 443
+    server: "assets.gateway-stream.com"
+    port: 52003
+    password: "elknam6l7izf3z71"
     udp: true
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-    ports: "20000-40000"
-    sni: "na.node.valaccess.com"
+    obfs-password: "5xo4v7u2pv8bktvb"
+  - name: "hy2 35"
+    type: hysteria2
+    server: "swe-one.quiet-rogue.site"
+    port: 443
+    password: "71cada65-d23e-418c-88e4-a06188d14689"
+    udp: true
+    sni: "swe-one.quiet-rogue.site"
+  - name: "hy2 85"
+    type: hysteria2
+    server: "147.45.175.72"
+    port: 443
+    password: "TEAS5wxqmV"
+    udp: true
+    sni: "anymath.ir"
+    obfs: "salamander"
+    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
