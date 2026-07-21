@@ -1,18 +1,55 @@
 proxies:
-  - name: "hy2 77"
+  - name: "hy2 1"
     type: hysteria2
-    server: "tw-tpe-dc07-004.node.valaccess.com"
+    server: "de1.jamezwin.org"
+    port: 443
+    udp: true
+    password: "9204bccb42c743799c6069feccb7832d"
+    sni: "de1.jamezwin.org"
+  - name: "hy2 42"
+    type: hysteria2
+    server: "hys6.freelines.net"
+    port: 443
+    password: "cih$phu-rlMofru7i4r9"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "cih$phu-rlMofru7i4r9"
+  - name: "hy2 104"
+    type: hysteria2
+    server: "hys8.freelines.net"
+    port: 443
+    password: "fokaS4id3bretay-7rit"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "fokaS4id3bretay-7rit"
+  - name: "hy2 106"
+    type: hysteria2
+    server: "tw-tpe-dc07-001.node.valaccess.com"
     port: 443
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
     sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 101"
+  - name: "hy2 143"
     type: hysteria2
-    server: "130.162.250.164"
+    server: "103.251.167.168"
     port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    password: "gdubbi2zb6gdp0c8"
     udp: true
-    sni: "www.bing.com"
-    skip-cert-verify: true
+    sni: "gettestin.xxee.ru"
+    obfs: "salamander"
+    obfs-password: "2a7e8084206388f4"
+  - name: "hy2 148"
+    type: hysteria2
+    server: "hk-hkg-dc23-003.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
