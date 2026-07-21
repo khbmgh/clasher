@@ -1,28 +1,10 @@
 proxies:
-  - name: "hy2 27"
+  - name: "hy2 30"
     type: hysteria2
-    server: "tw-tpe-dc07-003.node.valaccess.com"
+    server: "hk-hkg-dc23-004.node.valaccess.com"
     port: 443
-    udp: true
     password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-    ports: "20000-40000"
-    sni: "na.node.valaccess.com"
-  - name: "hy2 74"
-    type: hysteria2
-    server: "172.104.42.126"
-    port: 443
-    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
-    udp: true
-    sni: "ynb.441122.xyz"
-    skip-cert-verify: true
-  - name: "hy2 83"
-    type: hysteria2
-    server: "66.23.198.27"
-    port: 443
-    password: "KevinZakarian"
-    udp: true
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
