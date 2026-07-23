@@ -1,28 +1,50 @@
 proxies:
-  - name: "hy2 31"
-    type: hysteria2
-    server: "66.135.11.68"
-    port: 443
-    password: "4e9ee29b39a28277"
-    udp: true
-    sni: "66.135.11.68"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "13f7ba5f"
-  - name: "hy2 78"
+  - name: "hy2 5"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52079
-    udp: true
+    port: 52000
     password: "elknam6l7izf3z71"
-    obfs: "salamander"
-    obfs-password: "gazf7r9a0d4hc5nz"
-    ports: "v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---v_ngfree---"
-  - name: "hy2 106"
-    type: hysteria2
-    server: "129.151.254.139"
-    port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
     udp: true
-    sni: "www.bing.com"
     skip-cert-verify: true
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "gu74jg3ym0e21zco"
+  - name: "hy2 45"
+    type: hysteria2
+    server: "hys3.freelines.net"
+    port: 443
+    password: "4a52c165e81fa8fc"
+    udp: true
+    sni: "www.apple.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "a16d0be0"
+  - name: "hy2 65"
+    type: hysteria2
+    server: "hys6.freelines.net"
+    port: 443
+    password: "cih$phu-rlMofru7i4r9"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "cih$phu-rlMofru7i4r9"
+  - name: "hy2 94"
+    type: hysteria2
+    server: "jp-tyo-dc28-004.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 132"
+    type: hysteria2
+    server: "jp-tyo-dc28-003.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
