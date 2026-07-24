@@ -1,34 +1,45 @@
 proxies:
-  - name: "hy2 26"
+  - name: "hy2 33"
     type: hysteria2
-    server: "hys2.freelines.net"
+    server: "147.45.175.72"
     port: 443
-    password: "9f73c619627d6a5d"
+    password: "TEAS5wxqmV"
     udp: true
-    sni: "www.apple.com"
-    skip-cert-verify: true
+    sni: "anymath.ir"
     obfs: "salamander"
-    obfs-password: "bd7f765e"
-  - name: "hy2 112"
+    obfs-password: "6u33lecx372cssb22nzgu5l5fpdhom4ivqwg4fqby133lzsv3q"
+  - name: "hy2 61"
+    type: hysteria2
+    server: "130.162.250.164"
+    port: 443
+    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    udp: true
+    sni: "www.bing.com"
+    skip-cert-verify: true
+  - name: "hy2 99"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52018
+    port: 52000
     password: "elknam6l7izf3z71"
     udp: true
-    obfs: "salamander"
-    obfs-password: "53cgqwhojoxri5lr"
-  - name: "hy2 119"
-    type: hysteria2
-    server: "84.201.25.156"
-    port: 443
-    password: "0f771058-7892-4d46-b77e-a69e811b9cbc"
-    udp: true
-    sni: "hls-svod.itunes.apple.com"
     skip-cert-verify: true
-  - name: "hy2 139"
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "gu74jg3ym0e21zco"
+  - name: "hy2 144"
     type: hysteria2
-    server: "swe-one.quiet-rogue.site"
+    server: "2.26.92.136"
     port: 443
-    password: "71cada65-d23e-418c-88e4-a06188d14689"
+    password: "hy2_czaawdhc"
     udp: true
-    sni: "swe-one.quiet-rogue.site"
+    sni: "nl2.cleanersaz.help"
+    obfs: "salamander"
+    obfs-password: "lvy1Hw_j4Hwx8oIL2tEa315Sb4t7QrjF"
+  - name: "hy2 146"
+    type: hysteria2
+    server: "prodfr.h2corp.org"
+    port: 443
+    password: "1hOIVDVBG2hdKtJwOV2aUEFTDaFArCSH9-HrcOnps8yqQZeq"
+    udp: true
+    sni: "prodfr.h2corp.org"
