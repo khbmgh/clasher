@@ -1,80 +1,50 @@
 proxies:
-  - name: "hy2 2"
+  - name: "hy2 10"
     type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52056
-    password: "4z2oldt85p494bgb"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "pha76a5o7ormjepb"
-  - name: "hy2 5"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52034
-    password: "elknam6l7izf3z71"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "w0tx1ju9iix6913p"
-  - name: "hy2 6"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52082
-    password: "4z2oldt85p494bgb"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "cy5hc4e02q6o5hcp"
-  - name: "hy2 7"
-    type: hysteria2
-    server: "nl.air-vpn.lol"
+    server: "5.255.102.165"
     port: 443
-    password: "f422e914-ba20-4855-9441-c044d3f2f6e1"
+    password: "LzMWgm6LaNWCm11bFTbynDPq2TqQj03t"
     udp: true
-    sni: "nl.air-vpn.lol"
-  - name: "hy2 8"
-    type: hysteria2
-    server: "fast88.screw.page"
-    port: 443
-    password: "c0aa0cee-e855-4bcc-9afc-46241cb17990"
-    udp: true
-  - name: "hy2 9"
-    type: hysteria2
-    server: "tw-tpe-dc07-004.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
-    obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 17"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52049
-    password: "4z2oldt85p494bgb"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "phos93w1zi0nj6uv"
-  - name: "hy2 68"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52005
-    password: "elknam6l7izf3z71"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "xurzv3qedv07k4f0"
-  - name: "hy2 128"
-    type: hysteria2
-    server: "hkt2.nekohub.xyz"
-    port: 20001
-    password: "4861843a-3187-4885-83d9-2f69fed13fc9"
-    udp: true
-    sni: "www.bing.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
-  - name: "hy2 129"
+  - name: "hy2 11"
+    type: hysteria2
+    server: "185.225.19.39"
+    port: 443
+    password: "uj7XGZGUqRlmdpk6rysyZMN333RWsxTFj0hBIMaFV-NUCd5r"
+    udp: true
+    sni: "ro.h2corp.org"
+  - name: "hy2 15"
+    type: hysteria2
+    server: "104.253.25.160"
+    port: 8443
+    password: "1g4quompn4f49wn9"
+    udp: true
+    alpn:
+      - "h2"
+      - "http/1.1"
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "hnig8m946a2rl0ll"
+  - name: "hy2 42"
+    type: hysteria2
+    server: "66.23.198.30"
+    port: 443
+    password: "KevinZakarian"
+    udp: true
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "KevinZakarian"
+  - name: "hy2 43"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52007
+    password: "4z2oldt85p494bgb"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "spnztx6bizygjnwp"
+  - name: "hy2 70"
     type: hysteria2
     server: "207.246.124.135"
     port: 443
@@ -84,12 +54,29 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "8c3ce17b"
-  - name: "hy2 137"
+  - name: "hy2 75"
     type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52002
-    password: "4z2oldt85p494bgb"
+    server: "103.251.167.168"
+    port: 443
+    password: "gdubbi2zb6gdp0c8"
     udp: true
-    sni: "assets.gateway-stream.com"
+    sni: "gettestin.xxee.ru"
     obfs: "salamander"
-    obfs-password: "ielzukpwth087afx"
+    obfs-password: "2a7e8084206388f4"
+  - name: "hy2 81"
+    type: hysteria2
+    server: "88.99.86.235"
+    port: 443
+    password: "7008iSe44g5ddtr4a5621r32o"
+    udp: true
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "i35Se47g78ar98o"
+  - name: "hy2 100"
+    type: hysteria2
+    server: "hkt1.nekohub.xyz"
+    port: 20001
+    udp: true
+    password: "4861843a-3187-4885-83d9-2f69fed13fc9"
+    sni: "www.bing.com"
+    skip-cert-verify: true
