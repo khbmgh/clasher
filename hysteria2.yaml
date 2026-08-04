@@ -1,5 +1,23 @@
 proxies:
-  - name: "hy2 6"
+  - name: "hy2 5"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52020
+    password: "elknam6l7izf3z71"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "kkh2qmrbxmh8h22a"
+  - name: "hy2 10"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52032
+    password: "elknam6l7izf3z71"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "hc7wdqfxl9wi1y8z"
+  - name: "hy2 22"
     type: hysteria2
     server: "45.76.44.57"
     port: 443
@@ -9,73 +27,102 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "2db7b42a"
-  - name: "hy2 32"
+  - name: "hy2 28"
+    type: hysteria2
+    server: "tw-tpe-dc07-001.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 35"
+    type: hysteria2
+    server: "66.23.198.31"
+    port: 443
+    password: "KevinZakarian"
+    udp: true
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "KevinZakarian"
+  - name: "hy2 45"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52023
+    password: "elknam6l7izf3z71"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "detgimgm8qh8i2g2"
+  - name: "hy2 66"
     type: hysteria2
     server: "assets.gateway-stream.com"
     port: 52000
     password: "elknam6l7izf3z71"
     udp: true
-    sni: "assets.gateway-stream.com"
     obfs: "salamander"
     obfs-password: "gu74jg3ym0e21zco"
-  - name: "hy2 56"
+  - name: "hy2 69"
+    type: hysteria2
+    server: "kr-icn-dc12-002.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 86"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52083
+    port: 52081
     password: "4z2oldt85p494bgb"
     udp: true
     sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "6e232hr6a65ce4xg"
-  - name: "hy2 63"
+    obfs-password: "8sajadulna2wdqej"
+  - name: "hy2 93"
     type: hysteria2
-    server: "185.225.19.39"
-    port: 443
-    password: "uj7XGZGUqRlmdpk6rysyZMN333RWsxTFj0hBIMaFV-NUCd5r"
+    server: "assets.gateway-stream.com"
+    port: 52060
+    password: "4z2oldt85p494bgb"
     udp: true
-    sni: "ro.h2corp.org"
-  - name: "hy2 76"
-    type: hysteria2
-    server: "ger.leontunel.ru"
-    port: 443
-    password: "68b4b16e-2759-47a4-8a69-33118edf5ce6"
-    udp: true
-    sni: "ger.leontunel.ru"
-  - name: "hy2 106"
-    type: hysteria2
-    server: "hys6.freelines.net"
-    port: 443
-    password: "cih$phu-rlMofru7i4r9"
-    udp: true
-    sni: "google.com"
-    skip-cert-verify: true
+    sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "cih$phu-rlMofru7i4r9"
+    obfs-password: "l960g2kn19nphlra"
   - name: "hy2 110"
     type: hysteria2
-    server: "hys2.freelines.net"
-    port: 443
-    password: "9f73c619627d6a5d"
+    server: "assets.gateway-stream.com"
+    port: 52070
+    password: "0puq3lmwv7qtp76t"
     udp: true
-    sni: "www.apple.com"
+    sni: "assets.gateway-stream.com"
+    skip-cert-verify: true
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "f7jlf6m0hwvcl593"
+  - name: "hy2 121"
+    type: hysteria2
+    server: "150.241.102.127"
+    port: 443
+    password: "042a1881-44e4-4781-bd40-bf75164faf4f"
+    udp: true
+  - name: "hy2 125"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52004
+    password: "4z2oldt85p494bgb"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "mczdcsrottar7v8t"
+  - name: "hy2 147"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52034
+    password: "0puq3lmwv7qtp76t"
+    udp: true
+    sni: "assets.gateway-stream.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "bd7f765e"
-  - name: "hy2 122"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52026
-    udp: true
-    password: "4z2oldt85p494bgb"
-    obfs: "salamander"
-    obfs-password: "d6pv15sghiq1onts"
-    sni: "assets.gateway-stream.com"
-  - name: "hy2 149"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52058
-    password: "4z2oldt85p494bgb"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "15fq2wn3nubve28a"
+    obfs-password: "w0tx1ju9iix6913p"
