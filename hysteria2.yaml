@@ -1,99 +1,124 @@
 proxies:
-  - name: "hy2 17"
-    type: hysteria2
-    server: "node3.vpnushka.lol"
-    port: 443
-    password: "133f76fc-a5ab-463e-b46d-9587d7137e55"
-    udp: true
-    sni: "node3.vpnushka.lol"
-    skip-cert-verify: true
-  - name: "hy2 19"
-    type: hysteria2
-    server: "20.14.96.63"
-    port: 443
-    password: "sysadmin.sysadmin"
-    udp: true
-    skip-cert-verify: true
-  - name: "hy2 29"
-    type: hysteria2
-    server: "h2.vpnushka.lol"
-    port: 443
-    password: "133f76fc-a5ab-463e-b46d-9587d7137e55"
-    udp: true
-    sni: "h2.vpnushka.lol"
-    skip-cert-verify: true
-  - name: "hy2 30"
+  - name: "hy2 7"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52024
-    password: "4z2oldt85p494bgb"
-    udp: true
-    sni: "assets.gateway-stream.com"
-    obfs: "salamander"
-    obfs-password: "t72hzzenktxmrvgu"
-  - name: "hy2 41"
-    type: hysteria2
-    server: "de2.sferavpn.pro"
-    port: 443
-    password: "cd74c0a406664a5bc0bac098220a2468"
-    udp: true
-    sni: "de2.sferavpn.pro"
-    obfs: "salamander"
-    obfs-password: "44f1c1e2f8b99e792ceed574627a1eb0"
-  - name: "hy2 57"
-    type: hysteria2
-    server: "assets.gateway-stream.com"
-    port: 52002
+    port: 52023
     password: "ik0zt621uw9iqvsi"
     udp: true
     sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "ielzukpwth087afx"
-  - name: "hy2 79"
-    type: hysteria2
-    server: "46.243.235.23"
-    port: 8443
-    password: "391f093f-85fc-473d-abe2-ea607b9ff567"
-    udp: true
-    sni: "quic.tyr-agentstvo.tech"
-  - name: "hy2 100"
+    obfs-password: "detgimgm8qh8i2g2"
+  - name: "hy2 19"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52023
-    password: "elknam6l7izf3z71"
+    port: 52009
+    password: "4ff4adfb8e7a4bae9c959c54fa5af52f"
     udp: true
     sni: "assets.gateway-stream.com"
+    alpn:
+      - "h3"
     obfs: "salamander"
-    obfs-password: "detgimgm8qh8i2g2"
-  - name: "hy2 111"
+    obfs-password: "kf1lypzqidy6pimt"
+  - name: "hy2 25"
     type: hysteria2
-    server: "177.3.212.103"
+    server: "hy2-new.aspidnet.xyz"
     port: 443
-    password: "042a1881-44e4-4781-bd40-bf75164faf4f"
+    password: "QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s"
     udp: true
-    sni: "nl1.noesissite.ru"
-  - name: "hy2 137"
+    sni: "hy2-new.aspidnet.xyz"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "c1b4086fea89914496c7e10967a419216566"
+  - name: "hy2 33"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52060
+    port: 52005
     password: "4z2oldt85p494bgb"
     udp: true
     sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "l960g2kn19nphlra"
-  - name: "hy2 146"
+    obfs-password: "xurzv3qedv07k4f0"
+  - name: "hy2 37"
     type: hysteria2
-    server: "fi-one.quiet-rogue.site"
+    server: "88.99.86.235"
     port: 443
-    password: "71cada65-d23e-418c-88e4-a06188d14689"
+    password: "7008iSe44g5ddtr4a5621r32o"
     udp: true
-    sni: "fi-one.quiet-rogue.site"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "i35Se47g78ar98o"
+  - name: "hy2 39"
+    type: hysteria2
+    server: "node1.sferavpn.pro"
+    port: 443
+    password: "cd74c0a406664a5bc0bac098220a2468"
+    udp: true
+    sni: "node1.sferavpn.pro"
+    obfs: "salamander"
+    obfs-password: "44f1c1e2f8b99e792ceed574627a1eb0"
+  - name: "hy2 50"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52087
+    password: "kjq3gpn1xom1ted9"
+    udp: true
+    sni: "assets.gateway-stream.com"
+  - name: "hy2 55"
+    type: hysteria2
+    server: "eh-spl1.craft-supply.org"
+    port: 8443
+    password: "df489ab2-2242-4952-a774-1074a3a31f41"
+    udp: true
+    sni: "eh-spl1.craft-supply.org"
+  - name: "hy2 62"
+    type: hysteria2
+    server: "ffc60249-t53wg0-t92wi1-1qkeg.hk2.hyhuawei.com"
+    port: 443
+    password: "a305ac08-d136-11ee-b6db-f23c91cfbbc9"
+    udp: true
+    sni: "ffc60249-t53wg0-t92wi1-1qkeg.hk2.hyhuawei.com"
+  - name: "hy2 90"
+    type: hysteria2
+    server: "31.22.91.243"
+    port: 443
+    password: "EsimHy2Game_7xK9mPq2"
+    udp: true
+    sni: "se.esimpson.org"
+    obfs: "salamander"
+    obfs-password: "EsimObfs_9mK2x7"
+  - name: "hy2 92"
+    type: hysteria2
+    server: "66.23.198.32"
+    port: 443
+    password: "KevinZakarian"
+    udp: true
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "KevinZakarian"
+  - name: "hy2 93"
+    type: hysteria2
+    server: "ee2.sferavpn.pro"
+    port: 443
+    password: "cd74c0a406664a5bc0bac098220a2468"
+    udp: true
+    sni: "ee2.sferavpn.pro"
+    obfs: "salamander"
+    obfs-password: "44f1c1e2f8b99e792ceed574627a1eb0"
+  - name: "hy2 106"
+    type: hysteria2
+    server: "95.217.96.131"
+    port: 52021
+    password: "4z2oldt85p494bgb"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "mtg2vchyir6la3et"
   - name: "hy2 147"
     type: hysteria2
     server: "assets.gateway-stream.com"
-    port: 52077
+    port: 52030
     password: "4z2oldt85p494bgb"
     udp: true
     sni: "assets.gateway-stream.com"
     obfs: "salamander"
-    obfs-password: "tbr67i9x0xqtlza1"
+    obfs-password: "x5y77oxwfcl868u3"
