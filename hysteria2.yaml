@@ -1,1 +1,66 @@
-proxies: []
+proxies:
+  - name: "hy2 17"
+    type: hysteria2
+    server: "hys1.freelines.net"
+    port: 443
+    password: "d2e21fabfe6ddb83"
+    udp: true
+    sni: "www.apple.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "ca39a177"
+  - name: "hy2 41"
+    type: hysteria2
+    server: "jp-tyo-dc28-002.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 50"
+    type: hysteria2
+    server: "45.151.101.197"
+    port: 8443
+    password: "QFO6ZOwTxjvD8ITXouHLh_Rrp-QC3rXnZRTnShz_GcJPRsPXQ4QV456o1TN6ISbN"
+    udp: true
+    sni: "hy2.70.34.213.83.nip.io"
+    skip-cert-verify: true
+  - name: "hy2 54"
+    type: hysteria2
+    server: "jp-tyo-dc28-003.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 105"
+    type: hysteria2
+    server: "hk-hkg-dc23-004.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 146"
+    type: hysteria2
+    server: "ee1.sferavpn.pro"
+    port: 443
+    password: "cd74c0a406664a5bc0bac098220a2468"
+    udp: true
+    sni: "ee1.sferavpn.pro"
+    obfs: "salamander"
+    obfs-password: "44f1c1e2f8b99e792ceed574627a1eb0"
+  - name: "hy2 149"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52029
+    password: "xbr3ppxk7rv068c4"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "v8h63irhnay97090"
