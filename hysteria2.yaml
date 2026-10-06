@@ -1,41 +1,46 @@
 proxies:
-  - name: "hy2 61"
+  - name: "hy2 27"
     type: hysteria2
-    server: "46.247.41.120"
+    server: "hys11.freelines.net"
     port: 443
-    password: "8fb328f0-d8e0-4b11-a6db-3dadfc4f02a3"
+    password: "d2e21fabfe6ddb83"
     udp: true
-    sni: "kz03hy01.tcp-reset-club.net"
-  - name: "hy2 91"
-    type: hysteria2
-    server: "jp-tyo-dc28-002.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
+    sni: "www.apple.com"
+    skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 92"
+    obfs-password: "ca39a177"
+  - name: "hy2 58"
     type: hysteria2
-    server: "144.31.212.253"
+    server: "103.195.189.54"
     port: 443
-    password: "cf83b611-6cba-4535-adcb-8da06c6a9146"
+    password: "wSu8KVl38ul4t9a2eA5foAVaS9MR5U"
     udp: true
-    sni: "vps155-edge.kermemehori.ru"
-  - name: "hy2 113"
+    sni: "google.com"
+    skip-cert-verify: true
+  - name: "hy2 60"
     type: hysteria2
-    server: "162.249.125.133"
-    port: 443
-    password: "QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s"
+    server: "assets.gateway-stream.com"
+    port: 52021
+    password: "xbr3ppxk7rv068c4"
     udp: true
-    sni: "hy2-new.aspidnet.xyz"
+    sni: "assets.gateway-stream.com"
+    alpn:
+      - "h3"
     obfs: "salamander"
-    obfs-password: "c1b4086fea89914496c7e10967a419216566"
-  - name: "hy2 149"
+    obfs-password: "mtg2vchyir6la3et"
+  - name: "hy2 63"
     type: hysteria2
-    server: "144.31.221.57"
+    server: "45.118.132.243"
     port: 443
-    password: "V1UQuwa-4PRIDW2paxrPe58RcxXHPGyFIGS-5QojaM8"
+    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
     udp: true
-    sni: "player.wwwinternetvideo.click"
+    sni: "yup.441122.xyz"
+    skip-cert-verify: true
+  - name: "hy2 93"
+    type: hysteria2
+    server: "go2.wwwinternetvideo.click"
+    port: 443
+    password: "YutbgyXL1mGaSlBXDoEucWvYbrDCINgUcQ6R6_At5Pjr2xCc"
+    udp: true
+    sni: "admin.wwwinternetvideo.click"
     skip-cert-verify: true
