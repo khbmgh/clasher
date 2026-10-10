@@ -1,34 +1,61 @@
 proxies:
-  - name: "hy2 58"
+  - name: "hy2 41"
     type: hysteria2
-    server: "hys4.freelines.net"
+    server: "us-lax-dc12-003.node.valaccess.com"
     port: 443
-    password: "f6e4b19a3110d19d"
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
-    sni: "www.apple.com"
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 49"
+    type: hysteria2
+    server: "dehy.bbobr.win"
+    port: 443
+    password: "267b3a79-81f2-42ac-a409-c23b05b6329d"
+    udp: true
+    sni: "dehy.bbobr.win"
+    alpn:
+      - "h3"
+  - name: "hy2 53"
+    type: hysteria2
+    server: "45.118.132.243"
+    port: 443
+    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
+    udp: true
+    sni: "yup.441122.xyz"
+    skip-cert-verify: true
+  - name: "hy2 70"
+    type: hysteria2
+    server: "51.15.19.206"
+    port: 8443
+    password: "HowdyHysteria2023w0W"
+    udp: true
+    sni: "sni-here.com"
     skip-cert-verify: true
     obfs: "salamander"
-    obfs-password: "8c3ce17b"
+    obfs-password: "HysteriaHowdy"
+  - name: "hy2 86"
+    type: hysteria2
+    server: "194.238.40.185"
+    port: 443
+    password: "eb0e3aec-f67f-4fa2-8577-b0bff0484e77"
+    udp: true
+    sni: "kaz0001hy01.packet-drop-society.net"
+    skip-cert-verify: true
   - name: "hy2 91"
     type: hysteria2
-    server: "158.180.84.138"
+    server: "185.156.44.99"
     port: 443
-    password: "148097c2-cd69-4015-992f-5939c08b9ab8"
+    password: "gf1"
     udp: true
-  - name: "hy2 98"
-    type: hysteria2
-    server: "as-ma.wjwhi90.com"
-    port: 19029
-    password: "d638fdd5-4038-42f8-acea-8d7747471661"
-    udp: true
-    sni: "byny.wjwhi90.com"
+    sni: "css.rbxcdn.com"
     skip-cert-verify: true
-  - name: "hy2 121"
+  - name: "hy2 118"
     type: hysteria2
-    server: "130.49.161.70"
+    server: "cz.h2.cleanersaz.help"
     port: 443
-    password: "p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR"
+    password: "c-E0lamG8OnEj9M_uh3oJPmIXqYIVGctO-NHELF1TmNYs7Jl"
     udp: true
-    sni: "hy2.aspidnet.xyz"
-    obfs: "salamander"
-    obfs-password: "rG07s3COMIEvdnQipRyWzx_H_2xygNC3"
+    sni: "cz.h2.cleanersaz.help"
+    skip-cert-verify: true
