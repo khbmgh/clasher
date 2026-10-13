@@ -1,25 +1,62 @@
 proxies:
+  - name: "hy2 2"
+    type: hysteria2
+    server: "hys9.freelines.net"
+    port: 443
+    password: "sTeki1$re5!8swohopro"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "sTeki1$re5!8swohopro"
+  - name: "hy2 23"
+    type: hysteria2
+    server: "kr-icn-dc12-001.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
   - name: "hy2 24"
     type: hysteria2
-    server: "107.172.5.215"
+    server: "hk-hkg-dc23-004.node.valaccess.com"
     port: 443
-    password: "sysadmin.sysadmin"
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 37"
+    type: hysteria2
+    server: "dehy.bbobr.win"
+    port: 443
+    password: "267b3a79-81f2-42ac-a409-c23b05b6329d"
+    udp: true
+    sni: "dehy.bbobr.win"
+    alpn:
+      - "h3"
+  - name: "hy2 54"
+    type: hysteria2
+    server: "admin.wwwinternetvideo.click"
+    port: 443
+    password: "YutbgyXL1mGaSlBXDoEucWvYbrDCINgUcQ6R6_At5Pjr2xCc"
+    udp: true
+    sni: "admin.wwwinternetvideo.click"
+  - name: "hy2 118"
+    type: hysteria2
+    server: "31.76.80.69"
+    port: 443
+    password: "6aab8efdf13945829ae3699c342be406"
+    udp: true
+    sni: "fiproxy1.lockdwn.com"
+    obfs: "salamander"
+    obfs-password: "uw9b2qq5rx"
+  - name: "hy2 120"
+    type: hysteria2
+    server: "5.129.235.85"
+    port: 443
+    password: "gf1:gfhysteria2024"
+    udp: true
+    sni: "www.linux.com"
     skip-cert-verify: true
-  - name: "hy2 131"
-    type: hysteria2
-    server: "144.31.49.138"
-    port: 443
-    password: "cd74c0a406664a5bc0bac098220a2468"
-    udp: true
-    sni: "ru1.sferavpn.pro"
-    obfs: "salamander"
-    obfs-password: "44f1c1e2f8b99e792ceed574627a1eb0"
-  - name: "hy2 145"
-    type: hysteria2
-    server: "mirage.ehsanazizi-speed-server.com"
-    port: 53033
-    password: "hdgvcjrpa23fi9bk"
-    udp: true
-    obfs: "salamander"
-    obfs-password: "ue1s9nuqmy5fd9j5"
