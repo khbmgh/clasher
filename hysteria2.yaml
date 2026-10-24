@@ -1,14 +1,55 @@
 proxies:
-  - name: "hy2 4"
+  - name: "hy2 12"
     type: hysteria2
-    server: "66.23.198.32"
+    server: "37.123.193.73"
     port: 443
-    password: "KevinZakarian"
+    password: "sysadmin.sysadmin"
     udp: true
     skip-cert-verify: true
+  - name: "hy2 32"
+    type: hysteria2
+    server: "jp-tyo-dc28-003.node.valaccess.com"
+    port: 443
+    udp: true
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 81"
+    obfs-password: "TB3NFWHCbuXajqux"
+    ports: "20000-40000"
+    sni: "na.node.valaccess.com"
+  - name: "hy2 35"
+    type: hysteria2
+    server: "video-balancer.7.8.advantage-a.cdnnow.xyz"
+    port: 443
+    password: "LixInhAbZAqOczwkgoPsRI0Wba5HXBGh"
+    udp: true
+    sni: "video-balancer.7.8.advantage-a.cdnnow.xyz"
+  - name: "hy2 45"
+    type: hysteria2
+    server: "95.217.96.131"
+    port: 52000
+    password: "m3bqxk03mg221yi2"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "gu74jg3ym0e21zco"
+  - name: "hy2 84"
+    type: hysteria2
+    server: "fl.solomon-planet.ru"
+    port: 443
+    password: "0ce6e041-b701-4dd0-a82a-96b287abc4bf"
+    udp: true
+    sni: "fl.solomon-planet.ru"
+    alpn:
+      - "h3"
+  - name: "hy2 100"
+    type: hysteria2
+    server: "5.129.235.85"
+    port: 443
+    password: "gf1"
+    udp: true
+    sni: "www.linux.com"
+    skip-cert-verify: true
+  - name: "hy2 122"
     type: hysteria2
     server: "45.76.44.57"
     port: 443
@@ -18,20 +59,13 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "2db7b42a"
-  - name: "hy2 88"
+  - name: "hy2 132"
     type: hysteria2
-    server: "us-lax-dc12-002.node.valaccess.com"
+    server: "hys7.freelines.net"
     port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    password: "9ijufI4LW_ehlst!Pho-"
     udp: true
-    sni: "na.node.valaccess.com"
-    obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 136"
-    type: hysteria2
-    server: "de.1.23.h2corp.org"
-    port: 443
-    password: "mkL3AfdSZIpTWRB9TcWPn9vywPGN89MRHg3ToRDj"
-    udp: true
-    sni: "germany3.h2corp.local"
+    sni: "google.com"
     skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "9ijufI4LW_ehlst!Pho-"
