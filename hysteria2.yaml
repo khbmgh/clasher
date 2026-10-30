@@ -1,5 +1,32 @@
 proxies:
-  - name: "hy2 13"
+  - name: "hy2 1"
+    type: hysteria2
+    server: "45.118.132.243"
+    port: 443
+    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
+    udp: true
+    sni: "yup.441122.xyz"
+    skip-cert-verify: true
+  - name: "hy2 48"
+    type: hysteria2
+    server: "31.76.27.23"
+    port: 443
+    password: "Telegram"
+    udp: true
+    sni: "de.vpnjey.store"
+    skip-cert-verify: true
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "Telegram@vpnjey"
+  - name: "hy2 90"
+    type: hysteria2
+    server: "185.139.215.41"
+    port: 443
+    password: "b3d079ff-b775-4ffe-bac9-41228b08b15b"
+    udp: true
+    sni: "nl.gorobsub.com"
+  - name: "hy2 117"
     type: hysteria2
     server: "207.246.124.135"
     port: 443
@@ -9,20 +36,12 @@ proxies:
     skip-cert-verify: true
     obfs: "salamander"
     obfs-password: "8c3ce17b"
-  - name: "hy2 16"
+  - name: "hy2 145"
     type: hysteria2
-    server: "31.76.80.69"
+    server: "91.107.150.74"
     port: 443
-    password: "6aab8efdf13945829ae3699c342be406"
+    password: "Telegram=V2RayyNGvpn"
     udp: true
-    sni: "fiproxy1.lockdwn.com"
+    sni: "Play.google.com"
     obfs: "salamander"
-    obfs-password: "uw9b2qq5rx"
-  - name: "hy2 78"
-    type: hysteria2
-    server: "66.94.121.46"
-    port: 443
-    password: "gf1"
-    udp: true
-    sni: "66.94.121.46"
-    skip-cert-verify: true
+    obfs-password: "V2RayyNGvpn"
