@@ -1,13 +1,63 @@
 proxies:
-  - name: "hy2 7"
+  - name: "hy2 2"
     type: hysteria2
-    server: "jp06.459292.xyz"
+    server: "cfus01.459292.xyz"
+    port: 30001
+    udp: true
+    password: "3a2f9f47-dbd7-473d-98f9-4e918a7e1e54"
+    sni: "localhost"
+    skip-cert-verify: true
+  - name: "hy2 17"
+    type: hysteria2
+    server: "34.24.25.1"
+    port: 443
+    password: "8dOHZ13sx33R1/PQbhTK/w=="
+    udp: true
+    sni: "bing.com"
+    skip-cert-verify: true
+  - name: "hy2 55"
+    type: hysteria2
+    server: "hy2.aspidnet.xyz"
+    port: 443
+    password: "p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR"
+    udp: true
+    obfs: "salamander"
+    obfs-password: "rG07s3COMIEvdnQipRyWzx_H_2xygNC3"
+  - name: "hy2 56"
+    type: hysteria2
+    server: "hys1.freelines.net"
+    port: 443
+    password: "d2e21fabfe6ddb83"
+    udp: true
+    sni: "www.apple.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "ca39a177"
+  - name: "hy2 63"
+    type: hysteria2
+    server: "sg01.459292.xyz"
     port: 8443
-    password: "1c74e77e-2a82-4932-8a08-429951c0df7c"
+    udp: true
+    password: "cfa36789-94aa-4c4c-ad06-ab35a8eb9312"
+    sni: "localhost"
+    skip-cert-verify: true
+  - name: "hy2 89"
+    type: hysteria2
+    server: "sg05.459292.xyz"
+    port: 8443
+    udp: true
+    password: "8d9ddfb4-7583-45b3-acf1-5343db385a38"
+    sni: "localhost"
+    skip-cert-verify: true
+  - name: "hy2 100"
+    type: hysteria2
+    server: "5e6b6eb1.459292.xyz"
+    port: 8443
+    password: "1aa84841-8701-4700-ad46-2923dc2900d0"
     udp: true
     sni: "localhost"
     skip-cert-verify: true
-  - name: "hy2 11"
+  - name: "hy2 103"
     type: hysteria2
     server: "hyfnjp03.459292.xyz"
     port: 8443
@@ -15,115 +65,7 @@ proxies:
     udp: true
     sni: "localhost"
     skip-cert-verify: true
-  - name: "hy2 14"
-    type: hysteria2
-    server: "66.23.198.32"
-    port: 443
-    password: "KevinZakarian"
-    udp: true
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "KevinZakarian"
-  - name: "hy2 17"
-    type: hysteria2
-    server: "898ca7c3.459292.xyz"
-    port: 8443
-    password: "10f02d23-1d74-4b6e-b830-815be053281d"
-    udp: true
-    sni: "localhost"
-    skip-cert-verify: true
-  - name: "hy2 25"
-    type: hysteria2
-    server: "hk-hkg-dc23-003.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
-    obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 29"
-    type: hysteria2
-    server: "177.3.209.226"
-    port: 443
-    password: "e625f8ef-f935-4c7d-a259-0f154b6842fd"
-    udp: true
-    sni: "hy-se.bypassme.online"
-  - name: "hy2 31"
-    type: hysteria2
-    server: "5e6b6eb1.459292.xyz"
-    port: 8443
-    password: "10f02d23-1d74-4b6e-b830-815be053281d"
-    udp: true
-    sni: "localhost"
-    skip-cert-verify: true
-  - name: "hy2 45"
-    type: hysteria2
-    server: "admin.wwwinternetvideo.click"
-    port: 443
-    password: "YutbgyXL1mGaSlBXDoEucWvYbrDCINgUcQ6R6_At5Pjr2xCc"
-    udp: true
-    skip-cert-verify: true
-  - name: "hy2 59"
-    type: hysteria2
-    server: "vieee.observation.today"
-    port: 443
-    password: "5646b5cf-9844-446f-80cf-ccdefb1ba23a"
-    udp: true
-    sni: "vie.observation.today"
-    alpn:
-      - "h3"
-  - name: "hy2 61"
-    type: hysteria2
-    server: "179.61.138.145"
-    port: 443
-    password: "Telegram"
-    udp: true
-    sni: "de2.jey.cc.cd"
-    skip-cert-verify: true
-    obfs: "salamander"
-    obfs-password: "Telegram@vpnjey"
-  - name: "hy2 67"
-    type: hysteria2
-    server: "sg08.459292.xyz"
-    port: 8443
-    password: "b172c76d-e25a-449a-88cc-e19e0549d863"
-    udp: true
-    sni: "localhost"
-    skip-cert-verify: true
-  - name: "hy2 84"
-    type: hysteria2
-    server: "45.118.132.243"
-    port: 443
-    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
-    udp: true
-    sni: "yup.441122.xyz"
-    skip-cert-verify: true
-  - name: "hy2 87"
-    type: hysteria2
-    server: "tw-tpe-dc07-001.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
-    udp: true
-    sni: "na.node.valaccess.com"
-    obfs: "salamander"
-    obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 91"
-    type: hysteria2
-    server: "1jp001.459292.xyz"
-    port: 8443
-    password: "3a2f9f47-dbd7-473d-98f9-4e918a7e1e54"
-    udp: true
-    sni: "localhost"
-    skip-cert-verify: true
-  - name: "hy2 102"
-    type: hysteria2
-    server: "898ca7c3.459292.xyz"
-    port: 8443
-    password: "3a2f9f47-dbd7-473d-98f9-4e918a7e1e54"
-    udp: true
-    sni: "localhost"
-    skip-cert-verify: true
-  - name: "hy2 107"
+  - name: "hy2 122"
     type: hysteria2
     server: "jp03.459292.xyz"
     port: 8443
@@ -131,20 +73,34 @@ proxies:
     udp: true
     sni: "localhost"
     skip-cert-verify: true
-  - name: "hy2 141"
+  - name: "hy2 123"
     type: hysteria2
-    server: "31.76.80.69"
+    server: "185.156.44.99"
     port: 443
-    password: "6aab8efdf13945829ae3699c342be406"
+    password: "gf1"
     udp: true
-    sni: "fiproxy1.lockdwn.com"
-    obfs: "salamander"
-    obfs-password: "uw9b2qq5rx"
-  - name: "hy2 148"
+    sni: "vk.com"
+  - name: "hy2 127"
     type: hysteria2
-    server: "sg02.459292.xyz"
-    port: 8443
-    password: "3a2f9f47-dbd7-473d-98f9-4e918a7e1e54"
+    server: "194.238.40.185"
+    port: 443
+    password: "eb0e3aec-f67f-4fa2-8577-b0bff0484e77"
     udp: true
+    sni: "kaz0001hy01.packet-drop-society.net"
+    skip-cert-verify: true
+  - name: "hy2 134"
+    type: hysteria2
+    server: "172.104.42.126"
+    port: 443
+    password: "2d068322-b0e3-4c35-991e-58d46d8775f8"
+    udp: true
+    sni: "ynb.441122.xyz"
+    skip-cert-verify: true
+  - name: "hy2 139"
+    type: hysteria2
+    server: "1jp001.459292.xyz"
+    port: 8443
+    udp: true
+    password: "8d9ddfb4-7583-45b3-acf1-5343db385a38"
     sni: "localhost"
     skip-cert-verify: true
