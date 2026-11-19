@@ -1,17 +1,69 @@
 proxies:
-  - name: "hy2 113"
+  - name: "hy2 37"
     type: hysteria2
-    server: "tw-tpe-dc07-002.node.valaccess.com"
-    port: 443
-    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    server: "assets.gateway-stream.com"
+    port: 52029
     udp: true
-    sni: "na.node.valaccess.com"
+    password: "xbr3ppxk7rv068c4"
+    obfs: "salamander"
+    obfs-password: "v8h63irhnay97090"
+    sni: "assets.gateway-stream.com"
+    alpn:
+      - "h3"
+  - name: "hy2 58"
+    type: hysteria2
+    server: "kr-icn-dc12-001.node.valaccess.com"
+    port: 443
+    udp: true
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     obfs: "salamander"
     obfs-password: "TB3NFWHCbuXajqux"
-  - name: "hy2 138"
+    ports: "20000-40000"
+    sni: "na.node.valaccess.com"
+  - name: "hy2 91"
     type: hysteria2
-    server: "31.76.106.92"
-    port: 8443
-    password: "2d399e38-245c-4f07-abf2-cfce7397ba9c"
+    server: "217.60.182.79"
+    port: 443
+    password: "sOiWCQ2AdIV0OWNuqQVyWp4JZnRxdyLROSjX"
     udp: true
-    sni: "va.stream-room.com"
+    sni: "cabinet.wwwinternetvideo.click"
+    skip-cert-verify: true
+  - name: "hy2 93"
+    type: hysteria2
+    server: "store.blog-forme.ru"
+    port: 443
+    password: "6da2c981-8c77-4340-bda3-93399b7aea26"
+    udp: true
+  - name: "hy2 101"
+    type: hysteria2
+    server: "clash2.deep-links.com"
+    port: 443
+    password: "4c858cccff331e64c711a199a6cb256a"
+    udp: true
+    sni: "clash2.deep-links.com"
+  - name: "hy2 107"
+    type: hysteria2
+    server: "192.255.152.147"
+    port: 443
+    password: "yO8pug5XmwkBXBAjleYIaVt"
+    udp: true
+    sni: "192.255.152.147"
+    skip-cert-verify: true
+  - name: "hy2 110"
+    type: hysteria2
+    server: "hys8.freelines.net"
+    port: 443
+    password: "fokaS4id3bretay-7rit"
+    udp: true
+    sni: "google.com"
+    skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "fokaS4id3bretay-7rit"
+  - name: "hy2 144"
+    type: hysteria2
+    server: "185.156.44.99"
+    port: 443
+    password: "gf1"
+    udp: true
+    sni: "185.156.44.99"
+    skip-cert-verify: true
