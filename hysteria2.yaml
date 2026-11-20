@@ -1,32 +1,57 @@
 proxies:
-  - name: "hy2 27"
+  - name: "hy2 19"
     type: hysteria2
-    server: "130.49.163.188"
+    server: "starlink-ft.251313.xyz"
     port: 443
-    password: "307ee0e53ea04dfd86a7f2f9fcd53844"
+    password: "https://xship.top"
     udp: true
-    sni: "s5.libertyrunet.store"
-    alpn:
-      - "h3"
-  - name: "hy2 65"
-    type: hysteria2
-    server: "107.172.5.215"
-    port: 443
-    password: "sysadmin.sysadmin"
-    udp: true
+    sni: "xship.top"
     skip-cert-verify: true
-  - name: "hy2 120"
+  - name: "hy2 38"
     type: hysteria2
-    server: "130.162.250.164"
+    server: "hys2.freelines.net"
     port: 443
-    password: "e169856c-7c19-4908-9bdf-448dc846163a"
+    password: "9f73c619627d6a5d"
     udp: true
-    sni: "www.bing.com"
+    sni: "www.apple.com"
     skip-cert-verify: true
+    obfs: "salamander"
+    obfs-password: "bd7f765e"
+  - name: "hy2 43"
+    type: hysteria2
+    server: "95.217.96.131"
+    port: 52022
+    password: "m3bqxk03mg221yi2"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    obfs: "salamander"
+    obfs-password: "1wcfqg6gwoyxlplo"
+  - name: "hy2 49"
+    type: hysteria2
+    server: "jp-tyo-dc28-003.node.valaccess.com"
+    port: 443
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
+    udp: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
   - name: "hy2 135"
     type: hysteria2
-    server: "37.123.193.73"
+    server: "tw-tpe-dc07-002.node.valaccess.com"
     port: 443
-    password: "sysadmin.sysadmin"
+    password: "29794dae-06ca-4b62-94f2-220b5858d39b"
     udp: true
-    skip-cert-verify: true
+    sni: "na.node.valaccess.com"
+    obfs: "salamander"
+    obfs-password: "TB3NFWHCbuXajqux"
+  - name: "hy2 136"
+    type: hysteria2
+    server: "assets.gateway-stream.com"
+    port: 52029
+    password: "xbr3ppxk7rv068c4"
+    udp: true
+    sni: "assets.gateway-stream.com"
+    alpn:
+      - "h3"
+    obfs: "salamander"
+    obfs-password: "v8h63irhnay97090"
